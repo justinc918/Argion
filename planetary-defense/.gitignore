@@ -1,6 +1,0 @@
-node_modules/
-data/snapshots/
-data/snapshot-index.jsonl
-data/sample-scout-summary.json
-.env
-*.log
