@@ -1,0 +1,1980 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>asteROIDED — Planetary Defense Triage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+/* =========================================================================
+   asteROIDED — planetary defense triage console
+   Single-file demo. Aesthetic: instrument-panel / Gotham-style ops console.
+   Type: IBM Plex superfamily (Sans for UI, Mono for data) — reads as
+   scientific instrumentation rather than generic dashboard.
+   ========================================================================= */
+:root{
+  --bg:#0A0D12; --bg-2:#0E121A; --panel:#12161F; --panel-2:#171C27;
+  --raised:#1C2330; --border:#232B38; --border-2:#2C3645; --line:#1A2029;
+  --txt:#D6DCE5; --txt-2:#828D9C; --txt-3:#545E6C;
+  --accent:#46C9E0;            /* signature cyan — interactive + plot */
+  --crit:#F2566B; --elev:#F2A23B; --rout:#4FB3D9; --nom:#6B7686;
+  --good:#3FC08B;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --cond:"IBM Plex Sans Condensed",var(--sans);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--txt);
+  font-family:var(--sans); font-size:13px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(70,201,224,.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(91,141,239,.04), transparent 60%);
+}
+::selection{background:rgba(70,201,224,.28)}
+/* scrollbars */
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-thumb{background:#222a36;border-radius:0}
+*::-webkit-scrollbar-thumb:hover{background:#2c3644}
+*::-webkit-scrollbar-track{background:transparent}
+
+.eyebrow{font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;
+  font-size:10px;color:var(--txt-3);font-weight:600}
+.mono{font-family:var(--mono)}
+
+/* ---------- shell layout ---------- */
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh;min-height:0}
+.topbar{
+  display:flex;align-items:center;gap:18px;height:46px;padding:0 16px;
+  border-bottom:1px solid var(--border);background:var(--bg-2);
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
+.brand .glyph{width:14px;height:14px;transform:rotate(45deg);
+  border:1.5px solid var(--accent);box-shadow:0 0 14px rgba(70,201,224,.5) inset}
+.brand b{color:var(--txt)} .brand .rid{color:var(--accent)}
+.topbar .sub{font-family:var(--cond);text-transform:uppercase;letter-spacing:.16em;
+  font-size:10px;color:var(--txt-2)}
+.topbar .spacer{flex:1}
+.src-pill{display:flex;align-items:center;gap:7px;padding:4px 9px;border:1px solid var(--border-2);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--txt-2);background:var(--panel)}
+.src-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--elev);box-shadow:0 0 8px currentColor}
+.src-pill.live .dot{background:var(--good)} .src-pill.live{color:var(--good)}
+.clock{font-family:var(--mono);font-size:11px;color:var(--txt-2);letter-spacing:.03em}
+.btn{font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;
+  font-weight:600;color:var(--txt-2);background:var(--panel);border:1px solid var(--border-2);
+  padding:6px 11px;cursor:pointer;transition:.15s}
+.btn:hover{color:var(--accent);border-color:var(--accent)}
+
+.workspace{display:grid;grid-template-columns:248px minmax(0,1fr) 374px;min-height:0}
+.rail,.center,.inspector{min-height:0;min-width:0;overflow:hidden}
+.rail{border-right:1px solid var(--border);background:var(--bg-2);
+  display:flex;flex-direction:column;overflow-y:auto}
+.inspector{border-left:1px solid var(--border);background:var(--bg-2);overflow-y:auto}
+.center{display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+
+/* ---------- left rail ---------- */
+.rail-sec{padding:14px 14px 16px;border-bottom:1px solid var(--border)}
+.rail-sec h3{margin:0 0 11px;font-family:var(--cond);text-transform:uppercase;
+  letter-spacing:.16em;font-size:10px;color:var(--txt-3);font-weight:600;
+  display:flex;justify-content:space-between;align-items:center}
+.tier-row{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;
+  border-bottom:1px solid var(--line)}
+.tier-row:last-child{border-bottom:0}
+.tier-row .swatch{width:9px;height:9px;flex:none}
+.tier-row .name{flex:1;font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;
+  font-size:11px;color:var(--txt-2)}
+.tier-row .ct{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--txt)}
+.tier-row.muted{opacity:.32}
+.tier-row:hover .name{color:var(--txt)}
+
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);
+  border:1px solid var(--border)}
+.stat{background:var(--panel);padding:10px 11px}
+.stat .v{font-family:var(--mono);font-size:21px;font-weight:500;line-height:1;color:var(--txt)}
+.stat .v.alert{color:var(--crit)}
+.stat .l{margin-top:6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;
+  font-size:9.5px;color:var(--txt-3)}
+
+/* sky plot (signature element) */
+.skywrap{padding:12px 12px 6px}
+.sky{position:relative;width:100%;aspect-ratio:1/.82;background:
+  linear-gradient(180deg,#0b1018,#0a0d13);border:1px solid var(--border)}
+.sky svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sky .pt{cursor:pointer;transition:r .15s,opacity .15s}
+.sky-cap{display:flex;justify-content:space-between;padding:7px 2px 0;
+  font-family:var(--mono);font-size:9.5px;color:var(--txt-3);letter-spacing:.03em}
+
+/* ---------- center: toolbar + table ---------- */
+.toolbar{display:flex;align-items:center;gap:10px;padding:9px 14px;
+  border-bottom:1px solid var(--border);background:var(--bg-2)}
+.toolbar .title{font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;
+  font-size:11px;color:var(--txt-2);font-weight:600}
+.toolbar .title b{color:var(--txt)}
+.search{flex:1;max-width:300px;display:flex;align-items:center;gap:7px;
+  background:var(--panel);border:1px solid var(--border-2);padding:5px 9px}
+.search input{flex:1;background:none;border:0;outline:0;color:var(--txt);
+  font-family:var(--mono);font-size:12px}
+.search input::placeholder{color:var(--txt-3)}
+.search svg{opacity:.5}
+.chips{display:flex;gap:5px}
+.chip{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:10px;
+  font-weight:600;padding:5px 9px;border:1px solid var(--border-2);color:var(--txt-3);
+  background:var(--panel);cursor:pointer;transition:.12s}
+.chip.on{color:var(--bg);border-color:transparent}
+.chip:hover{color:var(--txt)}
+
+.tablewrap{overflow:auto;position:relative;border-bottom:1px solid var(--border)}
+.qfoot{padding:8px 14px;background:var(--bg-2);border-top:1px solid var(--line);
+  display:flex;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{position:sticky;top:0;z-index:2;background:var(--bg-2);
+  font-family:var(--cond);text-transform:uppercase;letter-spacing:.07em;font-size:10px;
+  font-weight:600;color:var(--txt-3);text-align:right;padding:9px 12px;
+  border-bottom:1px solid var(--border-2);cursor:pointer;white-space:nowrap;user-select:none}
+thead th:first-child,thead th.l{text-align:left}
+thead th:hover{color:var(--accent)}
+thead th .ar{color:var(--accent);font-size:8px;margin-left:3px}
+tbody td{text-align:right;padding:0 12px;height:34px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);color:var(--txt-2);white-space:nowrap}
+tbody td.l{text-align:left}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:hover{background:rgba(70,201,224,.05)}
+tbody tr.sel{background:rgba(70,201,224,.1);box-shadow:inset 2px 0 0 var(--accent)}
+tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
+.pcell{display:flex;align-items:center;gap:9px;justify-content:flex-start}
+.pscore{width:26px;text-align:right;font-weight:600;color:var(--txt)}
+.pbar{flex:1;max-width:54px;height:5px;background:#1b2230;position:relative;overflow:hidden}
+.pbar i{position:absolute;left:0;top:0;bottom:0;display:block}
+.tierdot{width:7px;height:7px;flex:none;border-radius:50%}
+.tiertag{font-family:var(--cond);text-transform:uppercase;letter-spacing:.05em;font-size:10px}
+.dim{color:var(--txt-3)}
+
+/* ---------- inspector ---------- */
+.insp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:12px;color:var(--txt-3);text-align:center;padding:24px}
+.insp-empty .ring{width:42px;height:42px;border:1px solid var(--border-2);transform:rotate(45deg)}
+.insp-head{padding:16px 16px 14px;border-bottom:1px solid var(--border);position:relative}
+.insp-head .des{font-family:var(--mono);font-size:25px;font-weight:600;letter-spacing:.01em;color:var(--txt)}
+.insp-head .meta{margin-top:5px;font-family:var(--cond);text-transform:uppercase;
+  letter-spacing:.1em;font-size:10px;color:var(--txt-3)}
+.tierband{display:inline-flex;align-items:center;gap:7px;margin-top:11px;
+  padding:4px 10px;border:1px solid;font-family:var(--cond);text-transform:uppercase;
+  letter-spacing:.1em;font-size:10.5px;font-weight:600}
+
+.insp-sec{padding:15px 16px;border-bottom:1px solid var(--border)}
+.insp-sec h4{margin:0 0 12px;font-family:var(--cond);text-transform:uppercase;
+  letter-spacing:.14em;font-size:10px;color:var(--txt-3);font-weight:600;
+  display:flex;justify-content:space-between}
+.insp-sec h4 .w{color:var(--txt-3);font-family:var(--mono);letter-spacing:0;text-transform:none}
+
+.total{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.total .n{font-family:var(--mono);font-size:40px;font-weight:600;line-height:.9}
+.total .of{font-family:var(--mono);font-size:13px;color:var(--txt-3)}
+.meter{height:6px;background:#161c28;position:relative;margin-bottom:8px}
+.meter i{position:absolute;left:0;top:0;bottom:0;transition:width .4s ease}
+.meter .tick{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--border-2)}
+.weights{font-family:var(--mono);font-size:10px;color:var(--txt-3);letter-spacing:.02em}
+
+.comp{margin-bottom:14px}
+.comp:last-child{margin-bottom:0}
+.comp .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.comp .lbl{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:var(--txt)}
+.comp .val{font-family:var(--mono);font-size:13px;color:var(--txt);font-weight:500}
+.comp .val small{color:var(--txt-3);font-size:10px}
+.compbar{height:7px;background:#161c28;position:relative;overflow:hidden}
+.compbar i{position:absolute;left:0;top:0;bottom:0;transition:width .4s ease}
+.comp .terms{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
+.term{font-family:var(--mono);font-size:9.5px;color:var(--txt-3);
+  border:1px solid var(--line);padding:2px 6px;letter-spacing:.02em}
+.term b{color:var(--txt-2);font-weight:500}
+
+.rationale{font-size:12.5px;line-height:1.55;color:var(--txt-2)}
+.rationale b{color:var(--txt);font-weight:600}
+
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.kv .cell{background:var(--panel);padding:9px 11px}
+.kv .cell .l{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;
+  font-size:9px;color:var(--txt-3);margin-bottom:3px}
+.kv .cell .v{font-family:var(--mono);font-size:13px;color:var(--txt)}
+.kv .cell .v .u{font-size:10px;color:var(--txt-3);margin-left:2px}
+.scoregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.scoregrid .s{background:var(--panel);padding:8px 9px;text-align:center}
+.scoregrid .s .v{font-family:var(--mono);font-size:15px;color:var(--txt)}
+.scoregrid .s.zero .v{color:var(--txt-3)}
+.scoregrid .s .l{font-family:var(--cond);text-transform:uppercase;letter-spacing:.04em;
+  font-size:8.5px;color:var(--txt-3);margin-top:3px}
+
+/* tooltip */
+.tip{position:fixed;z-index:50;pointer-events:none;background:#0c1119;border:1px solid var(--border-2);
+  padding:7px 9px;font-family:var(--mono);font-size:10.5px;color:var(--txt);
+  box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .1s;max-width:200px}
+.tip .t1{color:var(--accent);font-weight:600;margin-bottom:3px}
+.tip .t2{color:var(--txt-3);line-height:1.5}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:1080px){
+  .workspace{grid-template-columns:1fr;grid-auto-rows:min-content}
+  .rail{border-right:0;border-bottom:1px solid var(--border)}
+  .inspector{border-left:0;border-top:1px solid var(--border)}
+  .center{grid-template-rows:auto 460px auto}
+}
+.fade{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ───────────────────────── topbar ───────────────────────── -->
+  <header class="topbar">
+    <div class="brand"><span class="glyph"></span><span><b>aste</b><span class="rid">ROIDED</span></span></div>
+    <span class="sub">Planetary Defense · NEO Triage</span>
+    <div class="spacer"></div>
+    <div class="src-pill" id="srcPill"><span class="dot"></span><span id="srcText">SAMPLE DATA</span></div>
+    <span class="clock" id="clock">--:--:-- UTC</span>
+    <button class="btn" id="refreshBtn">⟳ Refresh</button>
+  </header>
+
+  <div class="workspace">
+    <!-- ───────────────────────── left rail ───────────────────────── -->
+    <aside class="rail">
+      <div class="rail-sec">
+        <h3>Watch Floor</h3>
+        <div class="statgrid">
+          <div class="stat"><div class="v" id="stTotal">—</div><div class="l">Tracked</div></div>
+          <div class="stat"><div class="v alert" id="stAct">—</div><div class="l">Act Tonight</div></div>
+          <div class="stat"><div class="v" id="stObs">—</div><div class="l">Observable</div></div>
+          <div class="stat"><div class="v" id="stMaxd">—</div><div class="l">Largest Ø·m</div></div>
+        </div>
+      </div>
+
+      <div class="rail-sec">
+        <h3>Priority Tiers <span class="eyebrow" id="filterNote"></span></h3>
+        <div id="tierList"></div>
+      </div>
+
+      <div class="rail-sec skywrap" style="border-bottom:0;flex:1">
+        <h3 style="padding:0 2px">All-Sky · RA / Dec</h3>
+        <div class="sky"><svg id="sky" viewBox="0 0 360 240" preserveAspectRatio="none"></svg></div>
+        <div class="sky-cap"><span>RA 24ʰ → 0ʰ</span><span id="skyCount">—</span><span>Dec ±90°</span></div>
+      </div>
+    </aside>
+
+    <!-- ───────────────────────── center ───────────────────────── -->
+    <main class="center">
+      <div class="toolbar">
+        <span class="title"><b>Triage Queue</b></span>
+        <div class="search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          <input id="search" placeholder="filter designation…" spellcheck="false" />
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="tablewrap">
+        <table id="tbl">
+          <thead><tr id="thead"></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="qfoot">
+        <span class="eyebrow"><span id="rowCount">—</span> objects · scoring model is a transparent stand-in for backend <span class="mono" style="color:var(--txt-2)">scorer.js</span> — tune weights &amp; terms in source</span>
+      </div>
+    </main>
+
+    <!-- ───────────────────────── inspector ───────────────────────── -->
+    <aside class="inspector" id="inspector">
+      <div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>
+    </aside>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+/* ===========================================================================
+   0 · CONFIG  —  point this at the backend; falls back to embedded sample.
+   =========================================================================== */
+const API_BASE = (window.localStorage.getItem("asteroided_api") || "http://localhost:8080");
+
+/* Embedded NASA/JPL Scout sample so the page is a working demo with no backend.
+   Replace by running the backend (`npm run dev`) — the app auto-detects it. */
+const SAMPLE = {
+  "data": [
+    {
+      "rmsN": "0.07",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.18",
+      "caDist": "7.2",
+      "H": "25.0",
+      "phaScore": 0,
+      "vInf": "19.9",
+      "ieoScore": 0,
+      "objectName": "8N62001",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "Vmag": "20.4",
+      "ra": "15:53",
+      "moid": "0.005",
+      "dec": "-01",
+      "unc": "50",
+      "nObs": 3,
+      "lastRun": "2026-06-19 23:19",
+      "tisserandScore": 41,
+      "uncP1": "140",
+      "geocentricScore": 0,
+      "elong": "142",
+      "rate": "7.8",
+      "rating": null
+    },
+    {
+      "dec": "-11",
+      "moid": "0.0001",
+      "unc": "340",
+      "nObs": 4,
+      "lastRun": "2026-06-17 15:47",
+      "tisserandScore": 33,
+      "uncP1": "320",
+      "geocentricScore": 0,
+      "elong": "41",
+      "rate": "5.5",
+      "rating": 0,
+      "rmsN": "0.25",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.55",
+      "caDist": "2.3",
+      "H": "26.0",
+      "vInf": "29.7",
+      "phaScore": 0,
+      "ieoScore": 0,
+      "objectName": "A11DIrC",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "Vmag": "26.0",
+      "ra": "07:33"
+    },
+    {
+      "uncP1": "220",
+      "geocentricScore": 0,
+      "elong": "113",
+      "rate": "7.1",
+      "rating": 0,
+      "dec": "-57",
+      "moid": "0.005",
+      "unc": "210",
+      "nObs": 4,
+      "lastRun": "2026-06-17 12:35",
+      "tisserandScore": 5,
+      "ieoScore": 0,
+      "objectName": "A11DIrs",
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "Vmag": "21.3",
+      "ra": "12:24",
+      "rmsN": "0.31",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.62",
+      "caDist": "2.2",
+      "H": "26.5",
+      "vInf": "13.8",
+      "phaScore": 0
+    },
+    {
+      "tisserandScore": 2,
+      "nObs": 5,
+      "lastRun": "2026-06-17 15:47",
+      "dec": "+17",
+      "moid": "0.0003",
+      "unc": "89",
+      "rate": "1.2",
+      "rating": 0,
+      "elong": "18",
+      "uncP1": "90",
+      "geocentricScore": 0,
+      "vInf": "13.6",
+      "phaScore": 0,
+      "caDist": "0.24",
+      "H": "27.9",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.97",
+      "rmsN": "0.16",
+      "ra": "07:07",
+      "Vmag": "31.4",
+      "objectName": "A11DIrz",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "ieoScore": 0
+    },
+    {
+      "caDist": "2.2",
+      "H": "26.6",
+      "vInf": "11.6",
+      "phaScore": 0,
+      "rmsN": "0.30",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.54",
+      "Vmag": "24.3",
+      "ra": "10:54",
+      "ieoScore": 0,
+      "objectName": "A11DpxB",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "nObs": 4,
+      "lastRun": "2026-06-12 18:43",
+      "tisserandScore": 1,
+      "moid": "0.001",
+      "dec": "+15",
+      "unc": "360",
+      "rate": "1.7",
+      "rating": 1,
+      "uncP1": "360",
+      "geocentricScore": 0,
+      "elong": "70"
+    },
+    {
+      "vInf": null,
+      "phaScore": 0,
+      "caDist": null,
+      "H": "23.1",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "1.98",
+      "rmsN": "0.38",
+      "ra": "16:24",
+      "Vmag": "22.0",
+      "objectName": "C1FC855",
+      "neoScore": 83,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "tisserandScore": 48,
+      "nObs": 7,
+      "lastRun": "2026-06-20 10:00",
+      "moid": "0.2",
+      "dec": "-06",
+      "unc": "1.2",
+      "rate": "3.9",
+      "rating": 0,
+      "elong": "152",
+      "uncP1": "6.2",
+      "geocentricScore": 0
+    },
+    {
+      "Vmag": "18.8",
+      "ra": "12:58",
+      "ieoScore": 0,
+      "objectName": "C46F6L1",
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "caDist": "5.7",
+      "H": "23.9",
+      "vInf": "10.4",
+      "phaScore": 0,
+      "rmsN": "0.44",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "15.85",
+      "rate": "14.7",
+      "rating": 0,
+      "uncP1": "2.4",
+      "geocentricScore": 0,
+      "elong": "105",
+      "nObs": 11,
+      "lastRun": "2026-06-20 22:07",
+      "tisserandScore": 0,
+      "dec": "-01",
+      "moid": "0.0009",
+      "unc": "0.15"
+    },
+    {
+      "phaScore": 1,
+      "vInf": "37.5",
+      "caDist": "26",
+      "H": "23.3",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.27",
+      "rmsN": "0.84",
+      "ra": "16:14",
+      "Vmag": "22.7",
+      "objectName": "CEP9TG2",
+      "neoScore": 89,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "tisserandScore": 49,
+      "nObs": 3,
+      "lastRun": "2026-06-14 07:53",
+      "moid": "0.04",
+      "dec": "+24",
+      "unc": "49",
+      "rate": "1.0",
+      "rating": null,
+      "elong": "127",
+      "uncP1": "60",
+      "geocentricScore": 0
+    },
+    {
+      "uncP1": "5000",
+      "geocentricScore": 0,
+      "elong": "95",
+      "rate": "7.2",
+      "rating": 0,
+      "dec": "+07",
+      "moid": "0.02",
+      "unc": "360",
+      "nObs": 7,
+      "lastRun": "2026-06-17 22:15",
+      "tisserandScore": 32,
+      "ieoScore": 0,
+      "objectName": "CEPAVH2",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "Vmag": "21.1",
+      "ra": "23:22",
+      "rmsN": "0.63",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.38",
+      "caDist": null,
+      "H": "22.2",
+      "phaScore": 19,
+      "vInf": "44.3"
+    },
+    {
+      "moid": "0.3",
+      "dec": "+11",
+      "unc": "0.01",
+      "nObs": 19,
+      "lastRun": "2026-06-20 14:52",
+      "tisserandScore": 0,
+      "uncP1": "0.02",
+      "geocentricScore": 0,
+      "elong": "114",
+      "rate": "1.6",
+      "rating": 0,
+      "rmsN": "0.77",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "50.93",
+      "caDist": null,
+      "H": "20.6",
+      "phaScore": 0,
+      "vInf": null,
+      "ieoScore": 0,
+      "objectName": "CEPC7K2",
+      "neo1kmScore": 0,
+      "neoScore": 40,
+      "Vmag": "21.4",
+      "ra": "21:48"
+    },
+    {
+      "geocentricScore": 0,
+      "uncP1": "0.05",
+      "elong": "111",
+      "rating": 0,
+      "rate": "0.6",
+      "unc": "0.01",
+      "dec": "+10",
+      "moid": "0.7",
+      "lastRun": "2026-06-20 09:31",
+      "nObs": 13,
+      "tisserandScore": 15,
+      "ieoScore": 0,
+      "neo1kmScore": 0,
+      "neoScore": 0,
+      "objectName": "CEPC822",
+      "Vmag": "21.0",
+      "ra": "22:05",
+      "rmsN": "0.82",
+      "arc": "46.86",
+      "tEphem": "2026-06-20 22:30",
+      "H": "18.5",
+      "caDist": null,
+      "vInf": null,
+      "phaScore": 0
+    },
+    {
+      "unc": "0.16",
+      "dec": "+08",
+      "moid": "0.02",
+      "lastRun": "2026-06-20 04:57",
+      "nObs": 9,
+      "tisserandScore": 0,
+      "geocentricScore": 0,
+      "uncP1": "0.52",
+      "elong": "131",
+      "rating": 0,
+      "rate": "5.0",
+      "rmsN": "0.94",
+      "arc": "22.11",
+      "tEphem": "2026-06-20 22:30",
+      "H": "25.3",
+      "caDist": "12",
+      "vInf": "11.2",
+      "phaScore": 0,
+      "ieoScore": 0,
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "objectName": "CEPECT2",
+      "Vmag": "21.6",
+      "ra": "15:23"
+    },
+    {
+      "dec": "+01",
+      "moid": "0.1",
+      "unc": "0.16",
+      "nObs": 16,
+      "lastRun": "2026-06-19 22:06",
+      "tisserandScore": 100,
+      "uncP1": "0.51",
+      "geocentricScore": 0,
+      "elong": "140",
+      "rate": "6.2",
+      "rating": 0,
+      "rmsN": "0.84",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "14.63",
+      "caDist": null,
+      "H": "22.2",
+      "vInf": null,
+      "phaScore": 0,
+      "ieoScore": 0,
+      "objectName": "CEPEJG2",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "Vmag": "20.4",
+      "ra": "15:48"
+    },
+    {
+      "rating": 0,
+      "rate": "26.5",
+      "geocentricScore": 0,
+      "uncP1": "0.04",
+      "elong": "154",
+      "lastRun": "2026-06-20 21:40",
+      "nObs": 22,
+      "tisserandScore": 0,
+      "unc": "0.02",
+      "moid": "0.0007",
+      "dec": "+02",
+      "Vmag": "19.8",
+      "ra": "17:50",
+      "ieoScore": 0,
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "objectName": "CEPKP72",
+      "H": "27.3",
+      "caDist": "3.3",
+      "vInf": "11.4",
+      "phaScore": 0,
+      "rmsN": "0.45",
+      "arc": "40.20",
+      "tEphem": "2026-06-20 22:30"
+    },
+    {
+      "unc": "0.32",
+      "dec": "+05",
+      "moid": "0.1",
+      "tisserandScore": 41,
+      "lastRun": "2026-06-20 09:48",
+      "nObs": 11,
+      "elong": "150",
+      "geocentricScore": 0,
+      "uncP1": "1.3",
+      "rating": 0,
+      "rate": "1.4",
+      "arc": "2.33",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.47",
+      "vInf": null,
+      "phaScore": 15,
+      "H": "21.0",
+      "caDist": null,
+      "neo1kmScore": 0,
+      "neoScore": 81,
+      "objectName": "CEPKPV2",
+      "ieoScore": 0,
+      "ra": "17:22",
+      "Vmag": "21.2"
+    },
+    {
+      "Vmag": "20.5",
+      "ra": "22:17",
+      "ieoScore": 0,
+      "objectName": "CEPLLF2",
+      "neo1kmScore": 15,
+      "neoScore": 75,
+      "caDist": null,
+      "H": "18.6",
+      "phaScore": 14,
+      "vInf": null,
+      "rmsN": "0.37",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "1.70",
+      "rate": "1.3",
+      "rating": 0,
+      "uncP1": "1.3",
+      "geocentricScore": 0,
+      "elong": "111",
+      "nObs": 11,
+      "lastRun": "2026-06-20 15:30",
+      "tisserandScore": 40,
+      "dec": "+04",
+      "moid": "0.2",
+      "unc": "0.22"
+    },
+    {
+      "neoScore": 0,
+      "neo1kmScore": 0,
+      "objectName": "P12nBR1",
+      "ieoScore": 0,
+      "ra": "20:58",
+      "Vmag": "21.0",
+      "arc": "25.48",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.70",
+      "phaScore": 0,
+      "vInf": null,
+      "H": "20.0",
+      "caDist": null,
+      "elong": "139",
+      "geocentricScore": 0,
+      "uncP1": "0.03",
+      "rating": 0,
+      "rate": "0.4",
+      "unc": "0.01",
+      "dec": "-34",
+      "moid": "0.5",
+      "tisserandScore": 0,
+      "lastRun": "2026-06-20 14:09",
+      "nObs": 17
+    },
+    {
+      "Vmag": "21.8",
+      "ra": "20:43",
+      "ieoScore": 0,
+      "neoScore": 51,
+      "neo1kmScore": 0,
+      "objectName": "P12nBR5",
+      "H": "20.3",
+      "caDist": null,
+      "vInf": null,
+      "phaScore": 16,
+      "rmsN": "0.81",
+      "arc": "0.71",
+      "tEphem": "2026-06-20 22:30",
+      "rating": 0,
+      "rate": "0.6",
+      "geocentricScore": 0,
+      "uncP1": "1.5",
+      "elong": "142",
+      "lastRun": "2026-06-19 17:52",
+      "nObs": 3,
+      "tisserandScore": 61,
+      "unc": "0.84",
+      "dec": "-39",
+      "moid": "0.3"
+    },
+    {
+      "lastRun": "2026-06-20 14:19",
+      "nObs": 9,
+      "tisserandScore": 9,
+      "unc": "0.01",
+      "dec": "-36",
+      "moid": "0.6",
+      "rating": 0,
+      "rate": "0.9",
+      "geocentricScore": 0,
+      "uncP1": "0.06",
+      "elong": "138",
+      "H": "20.4",
+      "caDist": null,
+      "phaScore": 0,
+      "vInf": null,
+      "rmsN": "0.37",
+      "arc": "25.38",
+      "tEphem": "2026-06-20 22:30",
+      "Vmag": "21.9",
+      "ra": "21:02",
+      "ieoScore": 0,
+      "neo1kmScore": 0,
+      "neoScore": 0,
+      "objectName": "P12nBR7"
+    },
+    {
+      "rating": 0,
+      "rate": "1.7",
+      "geocentricScore": 0,
+      "uncP1": "5.1",
+      "elong": "157",
+      "lastRun": "2026-06-20 10:47",
+      "nObs": 4,
+      "tisserandScore": 57,
+      "unc": "1.2",
+      "dec": "-14",
+      "moid": "0.08",
+      "Vmag": "22.0",
+      "ra": "16:29",
+      "ieoScore": 0,
+      "neo1kmScore": 0,
+      "neoScore": 90,
+      "objectName": "P12nCaK",
+      "H": "23.8",
+      "caDist": "39",
+      "vInf": null,
+      "phaScore": 0,
+      "rmsN": "0.16",
+      "arc": "0.85",
+      "tEphem": "2026-06-20 22:30"
+    },
+    {
+      "unc": "0.01",
+      "moid": "0.03",
+      "dec": "-02",
+      "tisserandScore": 0,
+      "lastRun": "2026-06-20 16:41",
+      "nObs": 10,
+      "elong": "157",
+      "geocentricScore": 0,
+      "uncP1": "0.07",
+      "rating": 0,
+      "rate": "1.5",
+      "arc": "28.74",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.50",
+      "phaScore": 0,
+      "vInf": "10.3",
+      "H": "24.4",
+      "caDist": "12",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "objectName": "P12nCbD",
+      "ieoScore": 0,
+      "ra": "17:27",
+      "Vmag": "21.1"
+    },
+    {
+      "nObs": 5,
+      "lastRun": "2026-06-20 16:31",
+      "tisserandScore": 67,
+      "dec": "-06",
+      "moid": "0.009",
+      "unc": "2.3",
+      "rate": "15.1",
+      "rating": 0,
+      "uncP1": "12",
+      "geocentricScore": 0,
+      "elong": "160",
+      "caDist": "6.0",
+      "H": "26.4",
+      "vInf": "19.5",
+      "phaScore": 0,
+      "rmsN": "0.44",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "1.96",
+      "Vmag": "20.6",
+      "ra": "17:16",
+      "ieoScore": 0,
+      "objectName": "P12nCdO",
+      "neoScore": 100,
+      "neo1kmScore": 0
+    },
+    {
+      "rmsN": "0.01",
+      "arc": "0.56",
+      "tEphem": "2026-06-20 22:30",
+      "H": "21.9",
+      "caDist": "19",
+      "phaScore": 26,
+      "vInf": "21.7",
+      "ieoScore": 0,
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "objectName": "P12nCg2",
+      "Vmag": "17.8",
+      "ra": "19:10",
+      "unc": "3.9",
+      "dec": "-39",
+      "moid": "0.03",
+      "lastRun": "2026-06-20 12:29",
+      "nObs": 3,
+      "tisserandScore": 58,
+      "geocentricScore": 0,
+      "uncP1": "34",
+      "elong": "158",
+      "rating": 0,
+      "rate": "6.6"
+    },
+    {
+      "ra": "19:39",
+      "Vmag": "20.0",
+      "objectName": "P12nCge",
+      "neoScore": 56,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "vInf": null,
+      "phaScore": 6,
+      "caDist": null,
+      "H": "19.9",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.56",
+      "rmsN": "0.39",
+      "rate": "0.9",
+      "rating": 0,
+      "elong": "152",
+      "uncP1": "2.0",
+      "geocentricScore": 0,
+      "tisserandScore": 61,
+      "nObs": 4,
+      "lastRun": "2026-06-20 12:30",
+      "dec": "-42",
+      "moid": "0.3",
+      "unc": "0.64"
+    },
+    {
+      "rmsN": "0.42",
+      "arc": "1.73",
+      "tEphem": "2026-06-20 22:30",
+      "H": "18.5",
+      "caDist": null,
+      "phaScore": 0,
+      "vInf": null,
+      "ieoScore": 0,
+      "neoScore": 36,
+      "neo1kmScore": 0,
+      "objectName": "P12nCgf",
+      "Vmag": "19.6",
+      "ra": "19:39",
+      "unc": "0.19",
+      "moid": "0.5",
+      "dec": "-45",
+      "lastRun": "2026-06-20 16:30",
+      "nObs": 6,
+      "tisserandScore": 66,
+      "geocentricScore": 0,
+      "uncP1": "0.98",
+      "elong": "150",
+      "rating": 0,
+      "rate": "1.5"
+    },
+    {
+      "rate": "5.8",
+      "rating": 0,
+      "elong": "161",
+      "uncP1": "480",
+      "geocentricScore": 0,
+      "tisserandScore": 39,
+      "nObs": 3,
+      "lastRun": "2026-06-16 13:32",
+      "moid": "0.05",
+      "dec": "-30",
+      "unc": "260",
+      "ra": "19:15",
+      "Vmag": "20.1",
+      "objectName": "P12nuEk",
+      "neo1kmScore": 0,
+      "neoScore": 98,
+      "ieoScore": 0,
+      "vInf": "36.4",
+      "phaScore": 0,
+      "caDist": "19",
+      "H": "24.0",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.48",
+      "rmsN": "0.01"
+    },
+    {
+      "ra": "21:21",
+      "Vmag": "21.9",
+      "objectName": "P12nuFZ",
+      "neo1kmScore": 0,
+      "neoScore": 0,
+      "ieoScore": 0,
+      "vInf": null,
+      "phaScore": 0,
+      "caDist": null,
+      "H": "20.2",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "72.55",
+      "rmsN": "0.37",
+      "rate": "0.5",
+      "rating": 0,
+      "elong": "133",
+      "uncP1": "0.01",
+      "geocentricScore": 0,
+      "tisserandScore": 0,
+      "nObs": 11,
+      "lastRun": "2026-06-19 15:21",
+      "dec": "-24",
+      "moid": "0.6",
+      "unc": "0.00"
+    },
+    {
+      "phaScore": 0,
+      "vInf": null,
+      "H": "18.6",
+      "caDist": null,
+      "arc": "69.50",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.64",
+      "ra": "21:56",
+      "Vmag": "21.1",
+      "neoScore": 0,
+      "neo1kmScore": 0,
+      "objectName": "P12nuG0",
+      "ieoScore": 0,
+      "tisserandScore": 2,
+      "lastRun": "2026-06-20 02:11",
+      "nObs": 14,
+      "unc": "0.02",
+      "dec": "-26",
+      "moid": "0.8",
+      "rating": 0,
+      "rate": "0.5",
+      "elong": "126",
+      "geocentricScore": 0,
+      "uncP1": "0.04"
+    },
+    {
+      "tEphem": "2026-06-20 22:30",
+      "arc": "22.88",
+      "rmsN": "0.27",
+      "vInf": null,
+      "phaScore": 0,
+      "caDist": "39",
+      "H": "24.5",
+      "objectName": "P12nxU3",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "ra": "15:29",
+      "Vmag": "21.3",
+      "dec": "-31",
+      "moid": "0.08",
+      "unc": "0.37",
+      "tisserandScore": 0,
+      "nObs": 7,
+      "lastRun": "2026-06-20 13:00",
+      "elong": "146",
+      "uncP1": "1.5",
+      "geocentricScore": 0,
+      "rate": "4.7",
+      "rating": 0
+    },
+    {
+      "rating": 0,
+      "rate": "2.6",
+      "elong": "154",
+      "geocentricScore": 0,
+      "uncP1": "0.31",
+      "tisserandScore": 0,
+      "lastRun": "2026-06-20 12:25",
+      "nObs": 9,
+      "unc": "0.06",
+      "dec": "-33",
+      "moid": "0.002",
+      "ra": "16:05",
+      "Vmag": "20.4",
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "objectName": "P12nxU4",
+      "ieoScore": 0,
+      "vInf": "4.1",
+      "phaScore": 0,
+      "H": "27.3",
+      "caDist": "1.5",
+      "arc": "23.10",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.37"
+    },
+    {
+      "rate": "1.8",
+      "rating": 0,
+      "elong": "161",
+      "uncP1": "0.14",
+      "geocentricScore": 0,
+      "tisserandScore": 0,
+      "nObs": 13,
+      "lastRun": "2026-06-20 12:10",
+      "moid": "0.04",
+      "dec": "-19",
+      "unc": "0.03",
+      "ra": "16:40",
+      "Vmag": "21.1",
+      "objectName": "P12nxW2",
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "vInf": "2.2",
+      "phaScore": 0,
+      "caDist": null,
+      "H": "24.4",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "22.24",
+      "rmsN": "0.54"
+    },
+    {
+      "rate": "3.0",
+      "rating": 0,
+      "elong": "154",
+      "uncP1": "0.13",
+      "geocentricScore": 0,
+      "tisserandScore": 0,
+      "nObs": 21,
+      "lastRun": "2026-06-20 12:32",
+      "dec": "-21",
+      "moid": "0.05",
+      "unc": "0.03",
+      "ra": "16:06",
+      "Vmag": "20.7",
+      "objectName": "P12nxW3",
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "ieoScore": 0,
+      "vInf": null,
+      "phaScore": 0,
+      "caDist": "24",
+      "H": "23.8",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "22.05",
+      "rmsN": "0.57"
+    },
+    {
+      "unc": "0.01",
+      "moid": "0.5",
+      "dec": "-16",
+      "lastRun": "2026-06-20 14:48",
+      "nObs": 10,
+      "tisserandScore": 10,
+      "geocentricScore": 0,
+      "uncP1": "0.08",
+      "elong": "131",
+      "rating": 0,
+      "rate": "0.7",
+      "rmsN": "0.79",
+      "arc": "23.84",
+      "tEphem": "2026-06-20 22:30",
+      "H": "20.3",
+      "caDist": null,
+      "vInf": null,
+      "phaScore": 0,
+      "ieoScore": 0,
+      "neo1kmScore": 0,
+      "neoScore": 5,
+      "objectName": "P12ny2P",
+      "Vmag": "22.1",
+      "ra": "21:23"
+    },
+    {
+      "objectName": "P12ny2Q",
+      "neo1kmScore": 0,
+      "neoScore": 23,
+      "ieoScore": 0,
+      "ra": "21:16",
+      "Vmag": "21.9",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "23.78",
+      "rmsN": "0.49",
+      "vInf": null,
+      "phaScore": 2,
+      "caDist": null,
+      "H": "20.0",
+      "elong": "133",
+      "uncP1": "0.64",
+      "geocentricScore": 0,
+      "rate": "0.9",
+      "rating": 0,
+      "moid": "0.5",
+      "dec": "-18",
+      "unc": "0.11",
+      "tisserandScore": 75,
+      "nObs": 7,
+      "lastRun": "2026-06-20 14:23"
+    },
+    {
+      "moid": "0.5",
+      "dec": "-47",
+      "unc": "0.57",
+      "nObs": 4,
+      "lastRun": "2026-06-19 15:28",
+      "tisserandScore": 64,
+      "uncP1": "0.87",
+      "geocentricScore": 0,
+      "elong": "137",
+      "rate": "0.4",
+      "rating": 0,
+      "rmsN": "0.49",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.66",
+      "caDist": null,
+      "H": "19.1",
+      "vInf": null,
+      "phaScore": 20,
+      "ieoScore": 0,
+      "objectName": "P12ny2g",
+      "neo1kmScore": 0,
+      "neoScore": 42,
+      "Vmag": "21.4",
+      "ra": "21:01"
+    },
+    {
+      "caDist": null,
+      "H": "20.4",
+      "vInf": null,
+      "phaScore": 0,
+      "rmsN": "0.65",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "23.75",
+      "Vmag": "20.8",
+      "ra": "21:12",
+      "ieoScore": 0,
+      "objectName": "P12ny2h",
+      "neoScore": 67,
+      "neo1kmScore": 0,
+      "nObs": 14,
+      "lastRun": "2026-06-20 14:11",
+      "tisserandScore": 9,
+      "dec": "-23",
+      "moid": "0.3",
+      "unc": "0.01",
+      "rate": "1.8",
+      "rating": 0,
+      "uncP1": "0.08",
+      "geocentricScore": 0,
+      "elong": "135"
+    },
+    {
+      "Vmag": "22.2",
+      "ra": "16:48",
+      "ieoScore": 0,
+      "neoScore": 79,
+      "neo1kmScore": 0,
+      "objectName": "P22nCaF",
+      "H": "23.5",
+      "caDist": null,
+      "phaScore": 1,
+      "vInf": null,
+      "rmsN": "0.95",
+      "arc": "1.77",
+      "tEphem": "2026-06-20 22:30",
+      "rating": 0,
+      "rate": "1.3",
+      "geocentricScore": 0,
+      "uncP1": "4.0",
+      "elong": "145",
+      "lastRun": "2026-06-20 16:32",
+      "nObs": 5,
+      "tisserandScore": 44,
+      "unc": "1.2",
+      "moid": "0.1",
+      "dec": "+07"
+    },
+    {
+      "ieoScore": 0,
+      "objectName": "P22nCaG",
+      "neo1kmScore": 2,
+      "neoScore": 48,
+      "Vmag": "21.3",
+      "ra": "16:53",
+      "rmsN": "0.42",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "6.18",
+      "caDist": null,
+      "H": "18.7",
+      "phaScore": 6,
+      "vInf": null,
+      "uncP1": "0.60",
+      "geocentricScore": 0,
+      "elong": "152",
+      "rate": "1.1",
+      "rating": 0,
+      "moid": "0.4",
+      "dec": "-01",
+      "unc": "0.10",
+      "nObs": 8,
+      "lastRun": "2026-06-20 16:35",
+      "tisserandScore": 45
+    },
+    {
+      "objectName": "P22nCgP",
+      "neoScore": 71,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "ra": "20:12",
+      "Vmag": "21.9",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "2.25",
+      "rmsN": "0.46",
+      "phaScore": 15,
+      "vInf": null,
+      "caDist": null,
+      "H": "22.0",
+      "elong": "146",
+      "uncP1": "1.4",
+      "geocentricScore": 0,
+      "rate": "0.9",
+      "rating": 0,
+      "dec": "-13",
+      "moid": "0.1",
+      "unc": "0.29",
+      "tisserandScore": 60,
+      "nObs": 6,
+      "lastRun": "2026-06-20 16:35"
+    },
+    {
+      "lastRun": "2026-06-20 16:38",
+      "nObs": 6,
+      "tisserandScore": 25,
+      "unc": "0.37",
+      "dec": "+22",
+      "moid": "0.01",
+      "rating": 0,
+      "rate": "1.1",
+      "geocentricScore": 0,
+      "uncP1": "3.0",
+      "elong": "129",
+      "H": "25.1",
+      "caDist": "6.7",
+      "vInf": "12.6",
+      "phaScore": 0,
+      "rmsN": "0.63",
+      "arc": "1.75",
+      "tEphem": "2026-06-20 22:30",
+      "Vmag": "22.1",
+      "ra": "16:18",
+      "ieoScore": 0,
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "objectName": "P22nCgq"
+    },
+    {
+      "phaScore": 9,
+      "vInf": null,
+      "caDist": null,
+      "H": "21.4",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "2.30",
+      "rmsN": "0.28",
+      "ra": "20:21",
+      "Vmag": "21.4",
+      "objectName": "P22nChu",
+      "neoScore": 70,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "tisserandScore": 57,
+      "nObs": 6,
+      "lastRun": "2026-06-20 16:38",
+      "moid": "0.2",
+      "dec": "-09",
+      "unc": "0.36",
+      "rate": "1.2",
+      "rating": 0,
+      "elong": "143",
+      "uncP1": "1.9",
+      "geocentricScore": 0
+    },
+    {
+      "objectName": "P22nCie",
+      "neoScore": 86,
+      "neo1kmScore": 0,
+      "ieoScore": 0,
+      "ra": "22:34",
+      "Vmag": "22.0",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.49",
+      "rmsN": "0.09",
+      "phaScore": 17,
+      "vInf": null,
+      "caDist": null,
+      "H": "21.2",
+      "elong": "112",
+      "uncP1": "6.7",
+      "geocentricScore": 0,
+      "rate": "1.4",
+      "rating": 0,
+      "dec": "-07",
+      "moid": "0.06",
+      "unc": "1.0",
+      "tisserandScore": 33,
+      "nObs": 3,
+      "lastRun": "2026-06-20 15:15"
+    },
+    {
+      "neo1kmScore": 0,
+      "neoScore": 0,
+      "objectName": "P22nuDY",
+      "ieoScore": 0,
+      "ra": "20:24",
+      "Vmag": "21.8",
+      "arc": "67.34",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.42",
+      "phaScore": 0,
+      "vInf": null,
+      "H": "20.8",
+      "caDist": null,
+      "elong": "137",
+      "geocentricScore": 0,
+      "uncP1": "0.05",
+      "rating": 0,
+      "rate": "0.7",
+      "unc": "0.03",
+      "dec": "+00",
+      "moid": "0.5",
+      "tisserandScore": 0,
+      "lastRun": "2026-06-19 07:30",
+      "nObs": 20
+    },
+    {
+      "rmsN": "0.01",
+      "arc": "0.56",
+      "tEphem": "2026-06-20 22:30",
+      "H": "25.9",
+      "caDist": "11",
+      "phaScore": 1,
+      "vInf": "16.3",
+      "ieoScore": 0,
+      "neo1kmScore": 0,
+      "neoScore": 96,
+      "objectName": "P22nxWm",
+      "Vmag": "21.1",
+      "ra": "15:06",
+      "unc": "170",
+      "moid": "0.02",
+      "dec": "-13",
+      "lastRun": "2026-06-19 11:59",
+      "nObs": 3,
+      "tisserandScore": 46,
+      "geocentricScore": 0,
+      "uncP1": "4200",
+      "elong": "138",
+      "rating": 0,
+      "rate": "9.1"
+    },
+    {
+      "rate": "12.9",
+      "rating": 0,
+      "uncP1": "3300",
+      "geocentricScore": 0,
+      "elong": "149",
+      "nObs": 4,
+      "lastRun": "2026-06-16 15:02",
+      "tisserandScore": 42,
+      "moid": "0.02",
+      "dec": "-47",
+      "unc": "3700",
+      "Vmag": "19.8",
+      "ra": "18:13",
+      "ieoScore": 0,
+      "objectName": "ST26F54",
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "caDist": "9.2",
+      "H": "25.3",
+      "phaScore": 0,
+      "vInf": "19.7",
+      "rmsN": "0.27",
+      "tEphem": "2026-06-20 22:30",
+      "arc": "0.53"
+    },
+    {
+      "tisserandScore": 0,
+      "lastRun": "2026-06-18 14:43",
+      "nObs": 12,
+      "unc": "3.6",
+      "moid": "0.0000",
+      "dec": "-23",
+      "rating": 0,
+      "rate": "4.9",
+      "elong": "50",
+      "geocentricScore": 0,
+      "uncP1": "3.9",
+      "phaScore": 0,
+      "vInf": "5.6",
+      "H": "30.8",
+      "caDist": "0.15",
+      "arc": "5.75",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.47",
+      "ra": "07:08",
+      "Vmag": "25.7",
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "objectName": "ST26F62",
+      "ieoScore": 0
+    },
+    {
+      "tisserandScore": 0,
+      "lastRun": "2026-06-20 22:21",
+      "nObs": 21,
+      "unc": "0.04",
+      "moid": "0.01",
+      "dec": "-01",
+      "rating": 0,
+      "rate": "17.9",
+      "elong": "156",
+      "geocentricScore": 0,
+      "uncP1": "0.65",
+      "vInf": "19.4",
+      "phaScore": 0,
+      "H": "25.1",
+      "caDist": "10",
+      "arc": "14.89",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.66",
+      "ra": "17:29",
+      "Vmag": "19.7",
+      "neo1kmScore": 0,
+      "neoScore": 100,
+      "objectName": "ST26F77",
+      "ieoScore": 0
+    },
+    {
+      "phaScore": 0,
+      "vInf": null,
+      "H": "23.2",
+      "caDist": null,
+      "arc": "34.99",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.41",
+      "ra": "18:09",
+      "Vmag": "22.4",
+      "neoScore": 69,
+      "neo1kmScore": 0,
+      "objectName": "XA9xaXA",
+      "ieoScore": 0,
+      "tisserandScore": 77,
+      "lastRun": "2026-06-19 05:31",
+      "nObs": 7,
+      "unc": "2.7",
+      "dec": "+03",
+      "moid": "0.2",
+      "rating": 0,
+      "rate": "1.8",
+      "elong": "154",
+      "geocentricScore": 0,
+      "uncP1": "5.4"
+    },
+    {
+      "rating": null,
+      "rate": "6.2",
+      "geocentricScore": 0,
+      "uncP1": "29",
+      "elong": "103",
+      "lastRun": "2026-06-19 22:20",
+      "nObs": 12,
+      "tisserandScore": 29,
+      "unc": "9.1",
+      "moid": "0.05",
+      "dec": "+45",
+      "Vmag": "20.9",
+      "ra": "15:22",
+      "ieoScore": 0,
+      "neo1kmScore": 0,
+      "neoScore": 97,
+      "objectName": "bas1",
+      "H": "20.7",
+      "caDist": null,
+      "phaScore": 27,
+      "vInf": null,
+      "rmsN": "1.00",
+      "arc": "0.21",
+      "tEphem": "2026-06-20 22:30"
+    },
+    {
+      "neo1kmScore": 0,
+      "neoScore": 91,
+      "objectName": "orA4457",
+      "ieoScore": 0,
+      "ra": "20:57",
+      "Vmag": "20.7",
+      "arc": "0.39",
+      "tEphem": "2026-06-20 22:30",
+      "rmsN": "0.22",
+      "vInf": "36.3",
+      "phaScore": 28,
+      "H": "21.8",
+      "caDist": "23",
+      "elong": "132",
+      "geocentricScore": 0,
+      "uncP1": "52",
+      "rating": 2,
+      "rate": "1.8",
+      "unc": "27",
+      "moid": "0.007",
+      "dec": "-03",
+      "tisserandScore": 38,
+      "lastRun": "2026-06-19 06:29",
+      "nObs": 3
+    },
+    {
+      "H": "19.0",
+      "caDist": null,
+      "phaScore": 16,
+      "vInf": null,
+      "rmsN": "0.04",
+      "arc": "96.13",
+      "tEphem": "2026-06-20 22:30",
+      "Vmag": "21.0",
+      "ra": "08:37",
+      "ieoScore": 43,
+      "neoScore": 100,
+      "neo1kmScore": 0,
+      "objectName": "v08jun6",
+      "lastRun": "2026-06-12 01:23",
+      "nObs": 4,
+      "tisserandScore": 16,
+      "unc": "74",
+      "dec": "+00",
+      "moid": "0.2",
+      "rating": 0,
+      "rate": "2.4",
+      "geocentricScore": 0,
+      "uncP1": "88",
+      "elong": "45"
+    }
+  ],
+  "count": "51",
+  "signature": {
+    "source": "NASA/JPL Scout API",
+    "version": "1.3"
+  }
+};
+
+/* ===========================================================================
+   1 · SCORING MODEL  —  the not-yet-built backend `scorer.js`, made visible.
+   Three transparent 0–100 components, each a weighted blend of named terms.
+   Everything here is intentionally legible so it maps 1:1 onto a real module.
+   =========================================================================== */
+const WEIGHTS = { impact:0.45, urgency:0.35, observability:0.20 };
+const TIERS = [
+  { id:"CRITICAL", min:70, color:"var(--crit)", raw:"#F2566B" },
+  { id:"ELEVATED", min:50, color:"var(--elev)", raw:"#F2A23B" },
+  { id:"ROUTINE",  min:30, color:"var(--rout)", raw:"#4FB3D9" },
+  { id:"NOMINAL",  min:0,  color:"var(--nom)",  raw:"#6B7686" },
+];
+const clamp = (x,lo=0,hi=100)=>Math.max(lo,Math.min(hi,x));
+const num = v => (v===null||v===undefined||v==="")?null:(isNaN(+v)?null:+v);
+
+// Estimated diameter (m) from absolute magnitude H, assuming albedo 0.14.
+// D[km] = 1329 / sqrt(pv) * 10^(-H/5).  (H≈22 → ~140 m, the PHA threshold.)
+function diameterM(H){ const h=num(H); if(h===null) return null;
+  return 1329/Math.sqrt(0.14)*Math.pow(10,-h/5)*1000; }
+
+function score(o){
+  const H=num(o.H), moid=num(o.moid), ca=num(o.caDist), vinf=num(o.vInf),
+        arc=num(o.arc), vmag=num(o.Vmag), elong=num(o.elong), rate=num(o.rate),
+        unc=num(o.unc), pha=num(o.phaScore)||0, neo1km=num(o.neo1kmScore)||0;
+  const D = diameterM(H);
+
+  /* --- IMPACT RELEVANCE — how much it would matter if real --- */
+  const tSize  = D!==null ? clamp(Math.log10(D)/3*100) : 30;              // 1m→0, 1km→100
+  const tMoid  = moid!==null ? clamp((0.05-moid)/0.05*100) : 40;          // PHA cut at 0.05 au
+  const tCaIR  = ca!==null ? clamp((20-ca)/20*100) : 30;                  // lunar distances
+  const impact = clamp(0.40*tSize + 0.25*tMoid + 0.20*tCaIR + 0.15*pha);
+
+  /* --- URGENCY — how fast the decision window is closing --- */
+  const tArc   = arc!==null ? clamp((3-arc)/3*100) : 60;                  // short arc = act now
+  const tCaUR  = ca!==null ? clamp((10-ca)/10*100) : 30;                  // imminent approach
+  const tUnc   = unc!==null ? clamp(Math.log10(unc+1)/Math.log10(361)*100) : 40; // about to be lost
+  const tVel   = vinf!==null ? clamp((vinf-5)/35*100) : 30;               // less reaction time
+  const urgency= clamp(0.40*tArc + 0.25*tCaUR + 0.20*tUnc + 0.15*tVel);
+
+  /* --- OBSERVABILITY — can we collect more data tonight --- */
+  const tMag   = vmag!==null ? clamp((26-vmag)/9*100) : 25;               // 17→100, 26→0
+  const tElong = elong!==null ? clamp((elong-20)/160*100) : 40;          // near sun → unobservable
+  const tRate  = rate!==null ? clamp((20-rate)/20*100) : 60;             // fast mover → hard
+  const observability = clamp(0.55*tMag + 0.30*tElong + 0.15*tRate);
+
+  const total = clamp(WEIGHTS.impact*impact + WEIGHTS.urgency*urgency + WEIGHTS.observability*observability);
+  const tier = TIERS.find(t=>total>=t.min);
+  return { total, tier, D,
+    impact, urgency, observability,
+    terms:{
+      impact:[["Ø size",tSize],["MOID",tMoid],["approach",tCaIR],["PHA",pha]],
+      urgency:[["short arc",tArc],["approach",tCaUR],["pos. unc.",tUnc],["velocity",tVel]],
+      observability:[["brightness",tMag],["elongation",tElong],["sky rate",tRate]],
+    } };
+}
+
+// Plain-English rationale generated from the dominant / limiting terms.
+function rationale(o,s){
+  const up=[]; const down=[];
+  const D = s.D!==null ? Math.round(s.D)+" m" : "unknown size";
+  if(num(o.arc)!==null && num(o.arc)<0.5) up.push(`very short arc (${o.arc} d)`);
+  if(num(o.moid)!==null && num(o.moid)<0.01) up.push(`close MOID (${o.moid} au)`);
+  if(num(o.caDist)!==null && num(o.caDist)<3) up.push(`near approach (${o.caDist} LD)`);
+  if(num(o.phaScore)>0) up.push(`PHA score ${o.phaScore}`);
+  if(num(o.vInf)!==null && num(o.vInf)>25) up.push(`high V∞ (${o.vInf} km/s)`);
+  if(num(o.Vmag)!==null && num(o.Vmag)>23) down.push(`faint at Vmag ${o.Vmag}`);
+  if(num(o.elong)!==null && num(o.elong)<45) down.push(`low solar elongation (${o.elong}°)`);
+  const u = up.length? `Raised by ${up.slice(0,2).join(" and ")}` : `Limited drivers`;
+  const d = down.length? `; constrained by ${down.slice(0,2).join(" and ")}.` : ".";
+  return `<b>${s.tier.id}</b> · est. <b>${D}</b>. ${u}${d}`;
+}
+
+/* ===========================================================================
+   2 · STATE
+   =========================================================================== */
+let RAW=[];           // scored objects
+let selected=null;    // designation
+let sortKey="total", sortDir=-1;
+let activeTier=null;  // tier filter
+let query="";
+
+/* ===========================================================================
+   3 · DATA SOURCE  — try backend, fall back to embedded sample.
+   =========================================================================== */
+async function load(){
+  let data, live=false;
+  try{
+    const r = await fetch(`${API_BASE}/api/scout/summary`, {signal:AbortSignal.timeout(2500)});
+    if(!r.ok) throw new Error(r.status);
+    data = await r.json(); live=true;
+  }catch(e){ data = SAMPLE; }
+  const rows = (data&&data.data)||[];
+  RAW = rows.map(o=>({ o, s:score(o), id:o.objectName }));
+  setSource(live);
+  render();
+}
+function setSource(live){
+  const p=document.getElementById("srcPill");
+  p.classList.toggle("live",live);
+  document.getElementById("srcText").textContent = live?"LIVE · JPL SCOUT":"SAMPLE DATA";
+}
+
+/* ===========================================================================
+   4 · RENDER
+   =========================================================================== */
+const COLS=[
+  {k:"total", h:"PRI", l:true, cell:r=>priCell(r)},
+  {k:"id",    h:"Designation", l:true, cell:r=>`<td class="l des">${r.id}</td>`},
+  {k:"tier",  h:"Tier", l:true, cell:r=>`<td class="l"><span class="tiertag" style="color:${r.s.tier.color}">${r.s.tier.id}</span></td>`},
+  {k:"D",     h:"Ø·m", cell:r=>`<td>${r.s.D!==null?Math.round(r.s.D):"<span class=dim>—</span>"}</td>`},
+  {k:"moid",  h:"MOID·au", cell:r=>tdNum(r.o.moid)},
+  {k:"caDist",h:"CA·LD", cell:r=>tdNum(r.o.caDist)},
+  {k:"Vmag",  h:"Vmag", cell:r=>tdNum(r.o.Vmag)},
+  {k:"arc",   h:"Arc·d", cell:r=>tdNum(r.o.arc)},
+  {k:"vInf",  h:"V∞", cell:r=>tdNum(r.o.vInf)},
+  {k:"nObs",  h:"Obs", cell:r=>tdNum(r.o.nObs)},
+];
+const tdNum = v => `<td>${v===null||v===undefined||v===""?"<span class=dim>—</span>":v}</td>`;
+function priCell(r){
+  const pct=r.s.total, c=r.s.tier.color;
+  return `<td class="l"><div class="pcell"><span class="pscore">${Math.round(pct)}</span>
+    <span class="pbar"><i style="width:${pct}%;background:${c}"></i></span></div></td>`;
+}
+function sortVal(r,k){
+  if(k==="total") return r.s.total;
+  if(k==="tier")  return r.s.total;
+  if(k==="D")     return r.s.D??-1;
+  if(k==="id")    return r.id;
+  return num(r.o[k]) ?? -Infinity;
+}
+function visible(){
+  let rows=RAW.filter(r=>!query || r.id.toLowerCase().includes(query));
+  if(activeTier) rows=rows.filter(r=>r.s.tier.id===activeTier);
+  rows.sort((a,b)=>{const va=sortVal(a,sortKey),vb=sortVal(b,sortKey);
+    if(va<vb) return -sortDir; if(va>vb) return sortDir; return 0;});
+  return rows;
+}
+
+function render(){ renderStats(); renderTiers(); renderHead(); renderBody(); renderSky(); renderInspector(); }
+
+function renderHead(){
+  document.getElementById("thead").innerHTML = COLS.map(c=>{
+    const ar = sortKey===c.k ? `<span class="ar">${sortDir<0?"▼":"▲"}</span>`:"";
+    return `<th class="${c.l?"l":""}" data-k="${c.k}">${c.h}${ar}</th>`;
+  }).join("");
+}
+function renderBody(){
+  const rows=visible();
+  document.getElementById("tbody").innerHTML = rows.map(r=>
+    `<tr data-id="${r.id}" class="${selected===r.id?"sel":""}">${COLS.map(c=>c.cell(r)).join("")}</tr>`
+  ).join("");
+  document.getElementById("skyCount").textContent = rows.length+" plotted";
+  const rc=document.getElementById("rowCount"); if(rc) rc.textContent=rows.length;
+}
+function renderStats(){
+  const obs=RAW.filter(r=>r.s.observability>=45).length;
+  const act=RAW.filter(r=>r.s.total>=50 && r.s.observability>=45).length;
+  const maxd=Math.max(0,...RAW.map(r=>r.s.D||0));
+  document.getElementById("stTotal").textContent=RAW.length;
+  document.getElementById("stObs").textContent=obs;
+  document.getElementById("stAct").textContent=act;
+  document.getElementById("stMaxd").textContent=maxd?Math.round(maxd):"—";
+}
+function renderTiers(){
+  const counts={}; TIERS.forEach(t=>counts[t.id]=0);
+  RAW.forEach(r=>counts[r.s.tier.id]++);
+  document.getElementById("filterNote").textContent = activeTier?"filtered":"";
+  document.getElementById("tierList").innerHTML = TIERS.map(t=>
+    `<div class="tier-row ${activeTier&&activeTier!==t.id?"muted":""}" data-tier="${t.id}">
+       <span class="swatch" style="background:${t.color}"></span>
+       <span class="name">${t.id}</span><span class="ct">${counts[t.id]}</span></div>`
+  ).join("");
+}
+
+/* ---- sky plot: RA(0–360) × Dec(±90) scatter, sized by Ø, colored by tier ---- */
+function raDeg(ra){ if(!ra) return null; const [h,m]=String(ra).split(":").map(Number);
+  if(isNaN(h)) return null; return (h+(m||0)/60)*15; }
+function decDeg(d){ if(d===null||d===undefined||d==="") return null; const v=parseFloat(d); return isNaN(v)?null:v; }
+function renderSky(){
+  const W=360,H=240, svg=document.getElementById("sky");
+  let g=`<rect width="${W}" height="${H}" fill="none"/>`;
+  // grid
+  for(let r=0;r<=24;r+=6){ const x=W-(r/24*W); g+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="var(--line)"/>`;}
+  for(let d=-90;d<=90;d+=30){ const y=H/2-(d/90*H/2); g+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${d===0?'#222b38':'var(--line)'}"/>`;}
+  const rows=visible();
+  rows.forEach(r=>{
+    const ra=raDeg(r.o.ra), dec=decDeg(r.o.dec); if(ra===null||dec===null) return;
+    const x=W-(ra/360*W), y=H/2-(dec/90*H/2);
+    const rad = r.s.D!==null ? clamp(1.8+Math.log10(Math.max(r.s.D,1))*1.4,2,7) : 2.2;
+    const isSel = selected===r.id;
+    g+=`<circle class="pt" data-id="${r.id}" cx="${x}" cy="${y}" r="${isSel?rad+2:rad}"
+        fill="${r.s.tier.raw}" fill-opacity="${isSel?1:.72}"
+        stroke="${isSel?'#fff':'none'}" stroke-width="${isSel?1.2:0}"/>`;
+    if(isSel) g+=`<circle cx="${x}" cy="${y}" r="${rad+5}" fill="none" stroke="var(--accent)" stroke-width="1" opacity=".9"/>`;
+  });
+  svg.innerHTML=g;
+}
+
+/* ---- inspector ---- */
+function renderInspector(){
+  const el=document.getElementById("inspector");
+  const r=RAW.find(x=>x.id===selected);
+  if(!r){ el.innerHTML=`<div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>`; return; }
+  const o=r.o, s=r.s;
+  const ticks=TIERS.filter(t=>t.min>0).map(t=>`<span class="tick" style="left:${t.min}%"></span>`).join("");
+  const comp=(key,label,weight)=>{
+    const val=s[key], c=s.tier.color;
+    const terms=s.terms[key].map(([n,v])=>`<span class="term">${n} <b>${Math.round(v)}</b></span>`).join("");
+    return `<div class="comp"><div class="top"><span class="lbl">${label}</span>
+      <span class="val">${Math.round(val)}<small> · w ${weight}</small></span></div>
+      <div class="compbar"><i style="width:${val}%;background:${c}"></i></div>
+      <div class="terms">${terms}</div></div>`;
+  };
+  const kv=(l,v,u="")=>`<div class="cell"><div class="l">${l}</div><div class="v">${(v===null||v===undefined||v==="")?'<span class=dim>—</span>':v}${u?`<span class="u">${u}</span>`:""}</div></div>`;
+  const sc=(l,v)=>`<div class="s ${!num(v)?'zero':''}"><div class="v">${v??0}</div><div class="l">${l}</div></div>`;
+
+  el.innerHTML=`
+  <div class="fade">
+    <div class="insp-head">
+      <div class="des">${o.objectName}</div>
+      <div class="meta">NEO Candidate · JPL Scout · last run ${o.lastRun||"—"}</div>
+      <span class="tierband" style="color:${s.tier.color};border-color:${s.tier.color}">
+        <span class="tierdot" style="background:${s.tier.color}"></span>${s.tier.id}</span>
+    </div>
+
+    <div class="insp-sec">
+      <h4>Priority Score <span class="w">Σ weighted</span></h4>
+      <div class="total"><span class="n" style="color:${s.tier.color}">${Math.round(s.total)}</span><span class="of">/ 100</span></div>
+      <div class="meter"><i style="width:${s.total}%;background:${s.tier.color}"></i>${ticks}</div>
+      <div class="weights">impact ${WEIGHTS.impact} · urgency ${WEIGHTS.urgency} · observability ${WEIGHTS.observability}</div>
+    </div>
+
+    <div class="insp-sec">
+      <h4>Decomposition</h4>
+      ${comp("impact","Impact Relevance",WEIGHTS.impact)}
+      ${comp("urgency","Urgency",WEIGHTS.urgency)}
+      ${comp("observability","Observability",WEIGHTS.observability)}
+    </div>
+
+    <div class="insp-sec">
+      <h4>Assessment</h4>
+      <div class="rationale">${rationale(o,s)}</div>
+    </div>
+
+    <div class="insp-sec">
+      <h4>Physical & Approach</h4>
+      <div class="kv">
+        ${kv("Est. Diameter", s.D!==null?Math.round(s.D):null,"m")}
+        ${kv("Abs. Mag H", o.H)}
+        ${kv("MOID", o.moid,"au")}
+        ${kv("Close Approach", o.caDist,"LD")}
+        ${kv("V∞", o.vInf,"km/s")}
+        ${kv("Arc", o.arc,"d")}
+      </div>
+    </div>
+
+    <div class="insp-sec">
+      <h4>Observability Window</h4>
+      <div class="kv">
+        ${kv("Vmag", o.Vmag)}
+        ${kv("Solar Elong.", o.elong,"°")}
+        ${kv("RA", o.ra)}
+        ${kv("Dec", o.dec,"°")}
+        ${kv("Sky Rate", o.rate)}
+        ${kv("Pos. Unc.", o.unc)}
+      </div>
+    </div>
+
+    <div class="insp-sec" style="border-bottom:0">
+      <h4>Raw Scout Scores</h4>
+      <div class="scoregrid">
+        ${sc("NEO",o.neoScore)} ${sc("PHA",o.phaScore)} ${sc("NEO≥1km",o.neo1kmScore)}
+        ${sc("Tisserand",o.tisserandScore)} ${sc("Geocentric",o.geocentricScore)} ${sc("IEO",o.ieoScore)}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ===========================================================================
+   5 · INTERACTIONS
+   =========================================================================== */
+function select(id){ selected = (selected===id?null:id); render(); }
+
+document.getElementById("tbody").addEventListener("click",e=>{
+  const tr=e.target.closest("tr"); if(tr) select(tr.dataset.id);
+});
+document.getElementById("thead").addEventListener("click",e=>{
+  const th=e.target.closest("th"); if(!th) return; const k=th.dataset.k;
+  if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir = k==="id"?1:-1; }
+  renderHead(); renderBody();
+});
+document.getElementById("tierList").addEventListener("click",e=>{
+  const row=e.target.closest(".tier-row"); if(!row) return;
+  const t=row.dataset.tier; activeTier = activeTier===t?null:t; render();
+});
+document.getElementById("search").addEventListener("input",e=>{
+  query=e.target.value.trim().toLowerCase(); renderBody(); renderSky();
+});
+document.getElementById("refreshBtn").addEventListener("click",load);
+
+// sky plot: click selects, hover shows tooltip
+const tip=document.getElementById("tip");
+document.getElementById("sky").addEventListener("click",e=>{
+  const c=e.target.closest(".pt"); if(c) select(c.dataset.id);
+});
+document.getElementById("sky").addEventListener("mousemove",e=>{
+  const c=e.target.closest(".pt");
+  if(!c){ tip.style.opacity=0; return; }
+  const r=RAW.find(x=>x.id===c.dataset.id); if(!r) return;
+  tip.innerHTML=`<div class="t1">${r.id}</div><div class="t2">${r.s.tier.id} · ${Math.round(r.s.total)}<br/>RA ${r.o.ra||"—"} · Dec ${r.o.dec||"—"}° · Ø ${r.s.D!==null?Math.round(r.s.D)+"m":"—"}</div>`;
+  tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY+14)+"px"; tip.style.opacity=1;
+});
+document.getElementById("sky").addEventListener("mouseleave",()=>tip.style.opacity=0);
+
+// chips (quick tier filters mirrored in toolbar)
+document.getElementById("chips").innerHTML =
+  `<span class="chip" data-t="" >ALL</span>`+
+  TIERS.map(t=>`<span class="chip" data-t="${t.id}" style="--c:${t.raw}">${t.id}</span>`).join("");
+document.getElementById("chips").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c) return;
+  activeTier = c.dataset.t || null;
+  document.querySelectorAll(".chip").forEach(x=>{
+    const on = (x.dataset.t||null)===activeTier;
+    x.classList.toggle("on",on);
+    x.style.background = on ? (x.style.getPropertyValue("--c")||"var(--accent)") : "";
+  });
+  render();
+});
+
+// clock
+function tick(){ const d=new Date();
+  document.getElementById("clock").textContent =
+    d.toISOString().slice(11,19)+" UTC"; }
+tick(); setInterval(tick,1000);
+
+/* ===========================================================================
+   6 · INIT
+   =========================================================================== */
+load();
+</script>
+</body>
+</html>
