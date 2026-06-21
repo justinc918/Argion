@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="window._katexReady=true;if(window._katexPending){renderMathInElement(window._katexPending,window._katexOpts);window._katexPending=null;}"></script>
 <!-- Three.js (Tracking tab only). Triage / Hunting / Insight need no network. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -306,10 +309,10 @@ tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
 .ins-mod .mttl{font-family:var(--sans);font-size:17px;font-weight:600;color:var(--txt)}
 .ins-mod .mtag{margin-left:auto;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:9.5px;color:var(--txt-3)}
 .ins-body{padding:18px}
-.plain,.deep{font-size:13.5px;line-height:1.68;color:var(--txt-2)}
-.plain b,.deep b{color:var(--txt)}
-.plain{display:block}.deep{display:none}
-.insight-wrap.show-deep .plain{display:none}.insight-wrap.show-deep .deep{display:block}
+.ins-body p{font-size:13.5px;line-height:1.72;color:var(--txt-2);margin:0 0 11px}
+.ins-body p:last-child{margin-bottom:0}
+.ins-body p b{color:var(--txt)}
+.ins-body .katex-display{margin:14px 0;overflow-x:auto}
 .lead{color:var(--txt);font-size:14.5px;font-weight:500;margin-bottom:10px}
 .formula{font-family:var(--mono);font-size:13px;color:var(--accent);background:#0c1119;border:1px solid var(--border);padding:11px 13px;margin:13px 0;overflow-x:auto;letter-spacing:.02em}
 .formula .c{color:var(--txt-3)}
@@ -515,6 +518,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
 /* ===========================================================================
    0 · CONFIG
    =========================================================================== */
+// KaTeX helper — works whether the deferred scripts have loaded yet or not
+window._katexOpts={delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}],throwOnError:false};
+function renderLatex(el){if(window._katexReady&&window.renderMathInElement){renderMathInElement(el,window._katexOpts);}else{window._katexPending=el;}}
 const API_BASE = (window.localStorage.getItem("argion_api") || "http://localhost:8080");
 const SAMPLE = {
   "data": [
@@ -2603,80 +2609,79 @@ function renderInsight(){
   const col=document.getElementById("insightCol");
   col.innerHTML=`
   <div class="ins-hero">
-    <h1>How asteroid triage actually works</h1>
-    <p>Every number in the Triage tab comes from physics. This is the why behind the score — read it plainly, or flip to the equations. ${r?`Examples use your selected object <b style="color:var(--accent)">${r.id}</b>.`:""}</p>
-    <div class="ins-toggle"><button data-mode="plain" class="on">Plain language</button><button data-mode="deep">The physics</button></div>
+    <h1>The physics behind the numbers</h1>
+    <p>Each field in the triage table is a derived quantity. This page explains what goes into each one.${r?` Examples pull from your selected object <b style="color:var(--accent)">${r.id}</b>.`:""}</p>
   </div>
 
-  <div class="ins-mod"><div class="mhd"><span class="mnum">01</span><span class="mttl">From a dot of light to a diameter</span><span class="mtag">brightness → size</span></div>
+  <div class="ins-mod"><div class="mhd"><span class="mnum">01</span><span class="mttl">Absolute magnitude and diameter</span><span class="mtag">photometry</span></div>
     <div class="ins-body">
-      <div class="plain"><div class="lead">We never measure an asteroid's size directly — we infer it from how bright it is.</div>
-        A faint, far object and a small, nearby object can look identical. Astronomers use <b>absolute magnitude H</b> — how bright it would look at a standard distance — and an assumption about how reflective the surface is (<b>albedo</b>) to estimate diameter. Dark rock reflects little, so for the same brightness a dark asteroid must be <b>bigger</b>. That assumption is the single largest source of size uncertainty.</div>
-      <div class="deep"><div class="lead">Diameter from absolute magnitude and geometric albedo p<sub>v</sub>.</div>
-        <div class="formula">D <span class="c">[km]</span> = 1329 / √p<sub>v</sub> · 10<sup>−H/5</sup></div>
-        We assume p<sub>v</sub> = 0.14 (typical S/C-type blend). Because D ∝ p<sub>v</sub><sup>−1/2</sup>, halving the albedo raises the inferred diameter by ~41%. H itself follows from apparent magnitude reduced to unit heliocentric and geocentric distance at zero phase angle.</div>
+      <p>The H magnitude (Bowell et al. 1989) is defined as the apparent visual magnitude a body would have if observed at 1 AU from both the Sun and the observer, at zero phase angle. This is a theoretical standard: no solar system object can satisfy all three conditions simultaneously. H is derived from observed apparent magnitudes after reducing to unit distances and correcting for the phase angle using the HG photometric system.</p>
+      <p>Diameter follows from the definition of geometric albedo \\(p_v\\), the ratio of an object's brightness at zero phase angle to that of a perfectly diffuse (Lambertian) disk of equal cross-section. The Fowler–Chillemi (1992) relation is:</p>
+      \\[ D = \\frac{1329\\,\\mathrm{km}}{\\sqrt{p_v}} \\cdot 10^{-H/5} \\]
+      <p>The 1329 km prefactor encodes the solar flux at 1 AU and the photometric zero-point. Taxonomic class sets the plausible albedo range: S-types average \\(p_v \\approx 0.20\\), C-types \\(\\approx 0.06\\), with a broad distribution in between. We adopt \\(p_v = 0.14\\) as a default. Since \\(D \\propto p_v^{-1/2}\\), a factor-of-four albedo uncertainty propagates to a factor-of-two in diameter — this systematic typically dominates over uncertainty in H itself.</p>
+      ${r&&num(o.H)!==null?`<div class="callout">\\(H = ${o.H}\\), \\(p_v = 0.14\\) → \\(D \\approx ${Math.round(s.D)}\\) m for ${r.id}.</div>`:''}
       <div class="widget"><div class="whd"><span>H → diameter</span><span id="hdOut" class="mono" style="color:var(--accent)"></span></div><div class="wbd">
         <div class="slider"><div class="sl-top"><span class="nm">Absolute magnitude H</span><span class="vl" id="hVal"></span></div><input type="range" id="hSlide" min="15" max="30" step="0.1" value="${num(o.H)??24}"></div>
-        <div class="slider"><div class="sl-top"><span class="nm">Albedo p<sub>v</sub></span><span class="vl" id="aVal"></span></div><input type="range" id="aSlide" min="0.03" max="0.5" step="0.01" value="0.14"></div>
-        <div class="readout"><div class="ro"><div class="v big" id="hdD">—</div><div class="l">Diameter</div></div><div class="ro"><div class="v" id="hdRef">—</div><div class="l">Compare</div></div><div class="ro"><div class="v" id="hdPha">—</div><div class="l">PHA size?</div></div></div>
+        <div class="slider"><div class="sl-top"><span class="nm">Albedo \\(p_v\\)</span><span class="vl" id="aVal"></span></div><input type="range" id="aSlide" min="0.03" max="0.5" step="0.01" value="0.14"></div>
+        <div class="readout"><div class="ro"><div class="v big" id="hdD">—</div><div class="l">Diameter</div></div><div class="ro"><div class="v" id="hdRef">—</div><div class="l">Compare</div></div><div class="ro"><div class="v" id="hdPha">—</div><div class="l">PHA threshold?</div></div></div>
       </div></div>
     </div></div>
 
-  <div class="ins-mod"><div class="mhd"><span class="mnum">02</span><span class="mttl">How hard would it hit?</span><span class="mtag">kinetic energy</span></div>
+  <div class="ins-mod"><div class="mhd"><span class="mnum">02</span><span class="mttl">Kinetic energy at impact</span><span class="mtag">impact physics</span></div>
     <div class="ins-body">
-      <div class="plain"><div class="lead">Impact severity is about energy, and energy scales brutally with size and speed.</div>
-        Double the diameter and the mass goes up <b>eight-fold</b>; the energy scales with the square of the speed. That's why a ~20 m object (Chelyabinsk) broke windows across a city, while a ~50 m one (Tunguska) flattened a forest. Most small rocky bodies burst in the air rather than cratering the ground.</div>
-      <div class="deep"><div class="lead">Kinetic energy of a sphere at impact velocity.</div>
-        <div class="formula">m = ρ · (π/6) D³  <span class="c">·  v<sub>imp</sub> = √(v∞² + v<sub>esc</sub>²),  v<sub>esc</sub>=11.2 km/s</span><br/>E = ½ m v<sub>imp</sub>²   <span class="c">→  E[Mt] = E[J] / 4.184×10¹⁵</span></div>
-        Earth's gravity adds an escape-velocity floor of 11.2 km/s in quadrature, so nothing hits slower than that. Density ρ encodes type: ~1000 (cometary), ~3000 (stony), ~7800 kg/m³ (iron).</div>
+      <p>Earth's gravitational well accelerates infalling bodies beyond their hyperbolic approach speed \\(v_\\infty\\). The impact velocity is set by gravitational focusing:</p>
+      \\[ v_\\mathrm{imp} = \\sqrt{v_\\infty^2 + v_\\mathrm{esc}^2}, \\qquad v_\\mathrm{esc} = 11.2\\,\\mathrm{km/s} \\]
+      <p>For a spherical body of bulk density \\(\\rho\\) and diameter \\(D\\), the kinetic energy is:</p>
+      \\[ E = \\frac{1}{2} \\cdot \\frac{\\pi}{6}\\,\\rho D^3 \\cdot v_\\mathrm{imp}^2 \\]
+      <p>The \\(D^3\\) dependence means doubling the diameter increases the energy eightfold. Bulk density distinguishes compositional class: \\(\\rho \\approx 1000\\,\\mathrm{kg/m^3}\\) for cometary bodies (porous ices), \\(\\approx 3000\\,\\mathrm{kg/m^3}\\) for stony, \\(\\approx 7800\\,\\mathrm{kg/m^3}\\) for iron. The transition from airburst to surface cratering occurs near 25 m for stony objects, where ram pressure at entry equals the bulk strength of the meteoroid. Below that threshold, the body disintegrates before surface contact (Chelyabinsk, 2013: \\(D \\approx 18\\) m, \\(\\approx 0.5\\) Mt, no crater). Above roughly 200 m, the kinetic energy exceeds the atmospheric attenuation and the impactor reaches the surface largely intact.</p>
       <div class="widget"><div class="whd"><span>Impact energy estimator</span><span class="mono" style="color:var(--txt-3)">${r?r.id:""}</span></div><div class="wbd">
         <div class="slider"><div class="sl-top"><span class="nm">Diameter</span><span class="vl" id="ieDVal"></span></div><input type="range" id="ieD" min="5" max="2000" step="5" value="${Dsel}"></div>
-        <div class="slider"><div class="sl-top"><span class="nm">Impact speed v∞</span><span class="vl" id="ieVVal"></span></div><input type="range" id="ieV" min="5" max="40" step="0.5" value="${num(o.vInf)??17}"></div>
-        <div class="slider"><div class="sl-top"><span class="nm">Composition (density)</span><span class="vl" id="ieRVal"></span></div>
+        <div class="slider"><div class="sl-top"><span class="nm">Approach speed \\(v_\\infty\\)</span><span class="vl" id="ieVVal"></span></div><input type="range" id="ieV" min="5" max="40" step="0.5" value="${num(o.vInf)??17}"></div>
+        <div class="slider"><div class="sl-top"><span class="nm">Composition (density \\(\\rho\\))</span><span class="vl" id="ieRVal"></span></div>
           <div class="seg-toggle" id="ieRho"><button data-r="1000">comet</button><button data-r="3000" class="on">rock</button><button data-r="7800">iron</button></div></div>
-        <div class="readout"><div class="ro"><div class="v big" id="ieMt">—</div><div class="l">Megatons TNT</div></div><div class="ro"><div class="v" id="ieReg">—</div><div class="l">Regime</div></div><div class="ro"><div class="v" id="ieVimp">—</div><div class="l">v at impact</div></div></div>
+        <div class="readout"><div class="ro"><div class="v big" id="ieMt">—</div><div class="l">Megatons TNT</div></div><div class="ro"><div class="v" id="ieReg">—</div><div class="l">Regime</div></div><div class="ro"><div class="v" id="ieVimp">—</div><div class="l">\\(v_\\mathrm{imp}\\)</div></div></div>
         <div class="cmp" id="ieCmp"></div>
       </div></div>
     </div></div>
 
-  <div class="ins-mod"><div class="mhd"><span class="mnum">03</span><span class="mttl">Why a short arc makes us nervous</span><span class="mtag">orbit determination</span></div>
+  <div class="ins-mod"><div class="mhd"><span class="mnum">03</span><span class="mttl">Orbit determination and arc length</span><span class="mtag">celestial mechanics</span></div>
     <div class="ins-body">
-      <div class="plain"><div class="lead">A handful of observations over a few hours barely pins down an orbit.</div>
-        With a short <b>observation arc</b>, many different orbits fit the same few dots — so the predicted future position spreads into a wide cloud. The object can literally be <b>lost</b> before anyone confirms whether it matters. That's why "short arc" pushes urgency up: the value of observing now is highest exactly when we know least. ${r?`<b>${r.id}</b> has an arc of <b>${o.arc??"—"} d</b> over ${o.nObs??"—"} observations.`:""}</div>
-      <div class="deep"><div class="lead">Why uncertainty explodes with short arcs.</div>
-        An orbit has six elements; a short arc constrains the plane-of-sky angles well but leaves the <b>range and range-rate</b> nearly degenerate. The covariance along the line of sight is large, and it propagates — downstream positional uncertainty grows roughly with the square of time elapsed for poorly-constrained semi-major axes. Scout runs Monte-Carlo orbit samples; the spread of those virtual asteroids is what the uncertainty fields summarize.</div>
-      <div class="callout">Rule of thumb: re-observing within 24–48 h of discovery typically collapses a "could be anywhere" cloud into a trackable arc.</div>
+      <p>A Keplerian orbit has six elements: semi-major axis \\(a\\), eccentricity \\(e\\), inclination \\(i\\), longitude of ascending node \\(\\Omega\\), argument of perihelion \\(\\omega\\), and mean anomaly at epoch \\(M_0\\). Gauss's method (1809) provides an initial solution from three observations; modern orbit determination iterates differential corrections on the least-squares residuals over the full observed arc.</p>
+      <p>The fundamental degeneracy of a short arc is in the radial direction. Angular position in the plane of sky is well constrained within hours of discovery, but heliocentric distance \\(r\\) and its time derivative are nearly unconstrained from a handful of closely-spaced observations. This degeneracy maps directly onto semi-major axis uncertainty. Via Kepler's third law, \\(P \\propto a^{3/2}\\), a poorly-known \\(a\\) propagates to rapidly growing positional uncertainty:</p>
+      \\[ \\sigma_r(t) \\approx \\sigma_r(t_0)\\,+\\,\\dot{\\sigma}\\,(t - t_0) \\]
+      <p>where \\(\\dot{\\sigma}\\) is set by the covariance of the initial orbit solution along the Line of Variations (LOV). Scout (JPL) propagates an ensemble of virtual asteroids drawn from that covariance; the spread of the ensemble at future epochs determines whether any of them intersect Earth's orbit, and with what probability. An arc of \\(&lt;\\!0.5\\) days typically leaves the LOV so broad that the object's distance is uncertain by an AU or more.${r&&num(o.arc)!==null?` ${r.id} has an arc of ${o.arc} d over ${o.nObs??'—'} observations.`:""}</p>
     </div></div>
 
-  <div class="ins-mod"><div class="mhd"><span class="mnum">04</span><span class="mttl">Can we even see it tonight?</span><span class="mtag">observability</span></div>
+  <div class="ins-mod"><div class="mhd"><span class="mnum">04</span><span class="mttl">Observability</span><span class="mtag">ground-based constraints</span></div>
     <div class="ins-body">
-      <div class="plain"><div class="lead">A dangerous object you can't point a telescope at is, tonight, just a number.</div>
-        Three things decide observability: how <b>bright</b> it is (Vmag — bigger number = fainter), how far it sits from the <b>Sun</b> in our sky (solar elongation — too close and it's lost in twilight), and how <b>fast</b> it moves across the sky (fast movers trail and need short exposures). Observability is its own score because the best target to watch is the one you actually can.</div>
-      <div class="deep"><div class="lead">The three observability terms.</div>
-        <div class="formula">elongation ε = angle(Sun, object) as seen from Earth<br/>trailing loss ∝ (sky rate × exposure) / seeing disk</div>
-        Apparent magnitude combines size, albedo, phase angle and the inverse-square fall-off in both heliocentric and geocentric distance. Low elongation (&lt;~45°) means the object only clears the horizon in bright twilight; high sky rate forces short exposures, which raises the limiting magnitude you can reach.</div>
+      <p>Three independent constraints determine whether a given object can be usefully observed on a given night from a ground-based telescope.</p>
+      <p><b>Solar elongation</b> \\(\\varepsilon\\) is the Sun–Earth–object angle. Objects with \\(\\varepsilon \\lesssim 45°\\) rise and set during twilight; below \\(\\sim 20°\\) they are inaccessible from the ground entirely. This constraint is geometric and unavoidable regardless of telescope aperture.</p>
+      <p><b>Apparent magnitude</b> follows from the HG photometric system (Bowell et al. 1989):</p>
+      \\[ V = H + 5\\log_{10}(\\Delta\\,r) - 2.5\\log_{10}\\!\\left[(1-G)\\,\\Phi_1(\\alpha) + G\\,\\Phi_2(\\alpha)\\right] \\]
+      <p>where \\(r\\) is heliocentric distance in AU, \\(\\Delta\\) is geocentric distance in AU, \\(\\alpha\\) is the phase angle, \\(G\\) is the slope parameter (typically \\(0.15\\)), and \\(\\Phi_1, \\Phi_2\\) are empirical phase functions. Objects near solar conjunction carry a compound penalty: small \\(\\varepsilon\\) correlates with small \\(\\Delta\\) (potentially favorable) but large phase angle (intrinsically fainter per unit distance).</p>
+      <p><b>Trailing loss</b> occurs when an object's sky-plane angular rate \\(\\dot\\theta\\) smears it across more than the seeing disk during an exposure of duration \\(t_\\mathrm{exp}\\). Following Vereš et al. (2012), the effective signal-to-noise degradation scales as \\((1 + \\delta_\\mathrm{trail}^2)^{-1/2}\\) where:</p>
+      \\[ \\delta_\\mathrm{trail} = \\frac{\\dot\\theta\\,t_\\mathrm{exp}}{\\mathrm{FWHM}} \\]
+      <p>Fast-moving NEOs often require sub-minute exposures to remain point-like, at the cost of reduced limiting magnitude. These three factors combine in the observability sub-score.</p>
     </div></div>
 
-  <div class="ins-mod"><div class="mhd"><span class="mnum">05</span><span class="mttl">Our triage score vs the official scales</span><span class="mtag">context</span></div>
+  <div class="ins-mod"><div class="mhd"><span class="mnum">05</span><span class="mttl">Triage score and hazard scales</span><span class="mtag">context</span></div>
     <div class="ins-body">
-      <div class="plain"><div class="lead">This tool answers a different question than the famous hazard scales.</div>
-        The <b>Torino</b> and <b>Palermo</b> scales rate the <b>impact risk</b> of objects with known orbits. Our triage score instead ranks <b>what to do next</b> about fresh, poorly-known candidates — folding in urgency and whether they're observable at all. A faint new object can be triage-high (act now) yet Torino-0 (no known impact threat) at the same time. They're complementary, not competing.</div>
-      <div class="deep"><div class="lead">Scope and definitions.</div>
-        <div class="scale-grid">
-          <div class="scale-card"><h5>Torino (0–10)</h5><p>Integer public-communication scale combining impact probability and kinetic energy for a specific close approach. Needs a determined orbit; most objects are 0.</p></div>
-          <div class="scale-card"><h5>Palermo</h5><p>Logarithmic technical scale comparing an event's risk to the background rate. Negative = below background. Used by specialists.</p></div>
-        </div>
-        <div class="callout" style="margin-top:14px">Triage score = 0.45·impact + 0.35·urgency + 0.20·observability — a <b>decision</b> aid for follow-up scheduling, not an impact-probability estimate. Once an orbit firms up, hand off to Sentry/Torino/Palermo.</div>
+      <p>The triage score is a weighted sum of three normalized sub-scores:</p>
+      \\[ S_\\mathrm{triage} = 0.45\\,S_\\mathrm{impact} + 0.35\\,S_\\mathrm{urgency} + 0.20\\,S_\\mathrm{obs} \\]
+      <p>\\(S_\\mathrm{impact}\\) is derived from estimated diameter and MOID (minimum orbit intersection distance). \\(S_\\mathrm{urgency}\\) draws from arc length and ephemeris uncertainty. \\(S_\\mathrm{obs}\\) reflects current elongation, apparent magnitude, and sky rate. The score is designed for the pre-orbit phase — when candidates are newly discovered and lack a determined orbit — to prioritize which objects most need follow-up astrometry.</p>
+      <p>The Torino Scale (Binzel 2000) is a public-facing integer from 0 to 10 that combines impact probability with kinetic energy for a specific close approach. It requires a well-determined orbit and applies to objects already tracked over multiple nights. The Palermo Technical Scale (Chesley et al. 2002) is a logarithmic quantity:</p>
+      \\[ P = \\log_{10}\\!\\left(\\frac{p_i}{f_b \\cdot T}\\right) \\]
+      <p>where \\(p_i\\) is impact probability, \\(f_b\\) is the background impact frequency from the observed size distribution, and \\(T\\) is the time to the potential impact. \\(P &lt; 0\\) means the event is below background rate; \\(P = 0\\) means comparable to background. Both scales apply downstream of orbit determination. The triage score operates before that — its purpose is to decide what gets observed, not what poses an impact threat.</p>
+      <div class="scale-grid">
+        <div class="scale-card"><h5>Torino Scale (0–10)</h5><p>Integer, public-facing. Combines impact probability and kinetic energy for a specific approach. Requires a determined orbit. The overwhelming majority of newly discovered objects score 0.</p></div>
+        <div class="scale-card"><h5>Palermo Technical Scale</h5><p>Logarithmic, specialist use. Compares \\(p_i\\) to the background rate over the relevant time window. Values above 0 are rare and signal genuinely elevated concern.</p></div>
       </div>
     </div></div>
   `;
   wireInsight(o,s);
+  renderLatex(col);
 }
 function wireInsight(o,s){
-  const wrap=document.querySelector(".insight-wrap");
-  document.querySelectorAll(".ins-toggle button").forEach(b=>b.addEventListener("click",()=>{
-    document.querySelectorAll(".ins-toggle button").forEach(x=>x.classList.toggle("on",x===b));
-    wrap.classList.toggle("show-deep",b.dataset.mode==="deep");}));
   // widget 1: H→diameter
   const hS=document.getElementById("hSlide"),aS=document.getElementById("aSlide");
   function hd(){const H=+hS.value,p=+aS.value;const D=1329/Math.sqrt(p)*Math.pow(10,-H/5)*1000;
