@@ -2116,11 +2116,6 @@ function renderInspector(){
     ${renderAnalysisSection(r.id)}
 
     <div class="insp-sec">
-      <h4>Assessment</h4>
-      <div class="rationale">${rationale(o,s)}</div>
-    </div>
-
-    <div class="insp-sec">
       <h4>Physical & Approach</h4>
       <div class="kv">
         ${kv("Est. Diameter", s.D!==null?Math.round(s.D):null,"m")}

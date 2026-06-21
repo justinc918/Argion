@@ -65,22 +65,15 @@ ${JSON.stringify({ designation: asteroid.designation, raw: rawData, normalized: 
 Important: The overallSeverity should align with the deterministic tier (${scoreResult.tier}) unless you have strong scientific justification to differ. The impactRelevance/urgency/observability scores should be very close to the deterministic values provided.`;
 }
 
-const ANALYSIS_FIELDS = [
+const REQUIRED_FIELDS = [
   "overallSeverity",
-  "riskClass",
   "torinoScale",
   "palermoScale",
-  "impactRelevance",
-  "urgency",
-  "observability",
-  "keyStats",
   "assessmentSummary",
-  "technicalRationale",
-  "uncertaintyNotes",
 ];
 
 function validateAnalysis(parsed) {
-  for (const field of ANALYSIS_FIELDS) {
+  for (const field of REQUIRED_FIELDS) {
     if (!(field in parsed)) {
       throw new Error(`Missing required field: ${field}`);
     }
@@ -88,6 +81,14 @@ function validateAnalysis(parsed) {
   if (!["CRITICAL", "ELEVATED", "ROUTINE", "NOMINAL"].includes(parsed.overallSeverity)) {
     parsed.overallSeverity = "NOMINAL";
   }
+  // Fill optional fields with safe defaults so frontend never has to guard
+  parsed.riskClass = parsed.riskClass || "";
+  parsed.impactRelevance = parsed.impactRelevance || null;
+  parsed.urgency = parsed.urgency || null;
+  parsed.observability = parsed.observability || null;
+  parsed.keyStats = parsed.keyStats || [];
+  parsed.technicalRationale = parsed.technicalRationale || "";
+  parsed.uncertaintyNotes = parsed.uncertaintyNotes || "";
   return parsed;
 }
 
