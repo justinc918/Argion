@@ -16,8 +16,9 @@ decks, READMEs, and app icons.
 
 **Triage** — the watch floor. Watch-floor stats + all-sky RA/Dec plot (left),
 sortable/filterable triage queue (center), and a per-object inspector (right)
-with the full score decomposition **and a heliocentric mini-orbit** showing the
-object's orbit and current position relative to Earth.
+with the full score decomposition, backend-fed AI risk assessment sections,
+**and a heliocentric mini-orbit** showing the object's orbit and current
+position relative to Earth.
 
 **Tracking** — a pannable / rotatable 3D heliocentric view (Three.js): the Sun,
 a stylized Earth globe on its orbit, and the orbital paths of the **top 50
@@ -43,14 +44,19 @@ Chelyabinsk / Tunguska / Chicxulub comparisons). Plus short-arc orbit
 uncertainty, observability physics, and how the triage score relates to the
 Torino / Palermo scales.
 
-## Scoring model (stand-in for `backend/src/scorer.js`)
+## Scoring model
 
 Three components → weighted total → tier. Weights `impact 0.45 · urgency 0.35 ·
 observability 0.20`; tiers `CRITICAL ≥70 · ELEVATED ≥50 · ROUTINE ≥30 ·
-NOMINAL`. Each component is a transparent blend of named terms (size from H,
-MOID, close-approach, PHA, arc length, positional uncertainty, V∞, brightness,
-elongation, sky rate). All of it lives at the top of the `<script>` in
-`index.html` — lift it into `scorer.js` as the single source of truth.
+NOMINAL`. In live mode, the queue now consumes backend-scored rows from
+`/api/scout/summary/scored`. The mirrored logic at the top of `index.html`
+exists only so the embedded offline sample can still rank objects with no
+backend running.
+
+In live mode, the inspector also uses backend analysis endpoints:
+
+- `/api/scout/object/:tdes/analysis`
+- `/api/scout/object/:tdes/analysis/summary/stream`
 
 ## Derived orbits (important caveat)
 
@@ -70,7 +76,8 @@ tag at it.
 
 ## Next steps (Claude Code)
 
-- Lift `score()` into `backend/src/scorer.js`; have the frontend consume it.
+- Remove the duplicated offline scoring logic if you no longer need the fully
+  offline sample mode.
 - Wire `/api/scout/object?orbits=1` to feed real elements into `elements()`.
 - Diff `data/snapshots/` to flag newly-risen objects on the watch floor.
 - Replace the Hunting agent stub with a real agent / Anthropic API call.

@@ -85,8 +85,11 @@ Optional env vars:
 - `cache.js` -- dumb in-memory TTL cache, no DB. Keeps us from re-hitting
   JPL faster than ~60s on the summary endpoint.
 - `server.js` -- Express proxy. Routes: `/api/scout/summary`,
+  `/api/scout/summary/scored`,
   `/api/scout/object/:tdes`, `/api/scout/ephemeris/:tdes`, `/api/sentry`,
-  `/api/close-approaches`. This is what the frontend calls.
+  `/api/close-approaches`, `/api/scout/object/:tdes/analysis`, and
+  `/api/scout/object/:tdes/analysis/summary/stream`. This is what the frontend
+  calls.
 - `snapshotPoller.js` -- standalone process, polls Scout summary every 3 min
   and writes timestamped JSON to `data/snapshots/`, plus a `data/snapshot-index.jsonl`
   one-liner-per-poll for quick scanning. Independent of `server.js` -- start
@@ -96,13 +99,14 @@ Optional env vars:
   field names before building a schema around guesses.
 - `feedSync.js` / `syncFeeds.js` -- reusable JPL feed sync layer for periodic
   update checks and local feed snapshots.
+- `riskAnalyzer.js` / `anthropicClient.js` -- structured per-object risk
+  analysis and streaming summary support via Anthropic.
 
-## Not built yet (next steps)
+## Built recently
 
-- `schema.js` -- parse raw Scout fields into the clean internal schema the
-  team agrees on after looking at `data/sample-scout-summary.json`.
-- `scorer.js` -- the three-component priority score (impact relevance /
-  urgency / observability) with per-term breakdown.
+- `schema.js` -- normalizes raw Scout objects into a stable internal shape.
+- `scorer.js` -- backend-owned priority score used by
+  `/api/scout/summary/scored`.
 
 ## A known rough edge, worth knowing about
 

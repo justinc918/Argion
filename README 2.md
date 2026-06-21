@@ -1,3 +1,11 @@
+# Frontend Note — Legacy Triage Console README
+
+This file is retained as an older note only. The current frontend is the
+`Argion` multi-tab workbench documented in [frontend/README.md](/Users/24williamz/Projects/asteROIDED/frontend/README.md:1).
+
+The information below describes an earlier frontend state and should not be
+treated as the current source of truth.
+
 # Frontend — Triage Console
 
 Single-file, dependency-free demo UI for the planetary-defense NEO triage stack.
