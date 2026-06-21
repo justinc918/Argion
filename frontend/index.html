@@ -2600,7 +2600,8 @@ const track=(function(){
     get ready(){return ready;},
     activate(){if(!inited){inited=true;if(!init()){return;}build();}
       resize();updateCam();if(!started){started=true;loop();}
-      addEventListener("resize",resize);setTimeout(resize,50);},
+      addEventListener("resize",resize);setTimeout(resize,50);
+      if(ready)highlight();},
     rebuild(){if(ready)build();},
     highlight(){if(ready)highlight();},
     pause(p){paused=p===undefined?!paused:p;},
