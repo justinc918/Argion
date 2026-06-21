@@ -9,6 +9,7 @@
 // scoring logic should live in separate modules (schema.js, scorer.js, not
 // written yet) so this file stays easy to read at 2am.
 
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import {
@@ -18,7 +19,8 @@ import {
   getSentry,
   getCloseApproaches,
 } from "./jplClient.js";
-import { cached } from "./cache.js";
+import { cached, getCached, setCached } from "./cache.js";
+import { analyzeAsteroid } from "./riskAnalyzer.js";
 
 const app = express();
 app.use(cors());
@@ -91,6 +93,34 @@ app.get("/api/close-approaches", async (req, res) => {
   } catch (err) {
     console.error("[/api/close-approaches]", err.message);
     res.status(502).json({ error: "Failed to fetch close approach data", detail: err.message });
+  }
+});
+
+// LLM risk analysis: lazy per-object, cached 15 minutes.
+// Fetches the object's raw data from the Scout summary cache, then runs
+// through schema → scorer → Sonnet for a structured assessment.
+app.get("/api/scout/object/:tdes/analysis", async (req, res) => {
+  const { tdes } = req.params;
+  const cacheKey = `analysis:${tdes}`;
+  try {
+    const hit = getCached(cacheKey);
+    if (hit !== undefined) { res.json(hit); return; }
+
+    const summary = await cached("scout-summary", 60_000, getScoutSummary);
+    const rows = summary?.data || [];
+    const raw = rows.find((r) => r.objectName === tdes);
+    if (!raw) {
+      res.status(404).json({ error: "Not found", detail: `Object ${tdes} not in current Scout summary` });
+      return;
+    }
+
+    const result = await analyzeAsteroid(raw);
+    const ttl = result.analysisError ? 60_000 : 15 * 60_000;
+    setCached(cacheKey, result, ttl);
+    res.json(result);
+  } catch (err) {
+    console.error(`[/api/scout/object/${tdes}/analysis]`, err.message);
+    res.status(502).json({ error: "Analysis failed", detail: err.message });
   }
 });
 

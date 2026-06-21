@@ -215,6 +215,47 @@ tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
 .tip .t1{color:var(--accent);font-weight:600;margin-bottom:3px}
 .tip .t2{color:var(--txt-3);line-height:1.5}
 
+/* ---------- AI analysis sections ---------- */
+.ai-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);
+  font-size:9px;letter-spacing:.06em;color:var(--accent);opacity:.7;text-transform:uppercase}
+.ai-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 6px var(--accent)}
+
+.analysis-loading{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  color:var(--txt-3);font-family:var(--mono);font-size:11px}
+.analysis-loading .spinner{width:14px;height:14px;border:2px solid var(--border-2);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.analysis-error{padding:10px 16px;font-family:var(--mono);font-size:10.5px;
+  color:var(--crit);opacity:.8}
+
+.risk-scales{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.risk-scale{background:var(--panel);padding:10px 11px}
+.risk-scale .scale-name{font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;
+  font-size:9px;color:var(--txt-3);margin-bottom:4px}
+.risk-scale .scale-val{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--txt);
+  margin-bottom:3px}
+.risk-scale .scale-desc{font-size:11px;line-height:1.45;color:var(--txt-2)}
+
+.ai-summary{font-size:12.5px;line-height:1.6;color:var(--txt-2);margin-bottom:10px}
+.ai-summary b{color:var(--txt);font-weight:600}
+.ai-detail{font-size:11.5px;line-height:1.5;color:var(--txt-3);margin-top:8px;
+  padding-top:8px;border-top:1px solid var(--line)}
+.ai-uncertainty{font-size:11px;line-height:1.45;color:var(--txt-3);font-style:italic;
+  margin-top:6px}
+.risk-class-tag{display:inline-block;font-family:var(--cond);text-transform:uppercase;
+  letter-spacing:.06em;font-size:10px;padding:3px 8px;border:1px solid var(--border-2);
+  color:var(--txt-2);margin-top:8px}
+
+.comp-ai-note{font-size:11px;line-height:1.4;color:var(--txt-3);margin-top:6px;
+  padding:6px 8px;border-left:2px solid var(--border-2)}
+
+.key-stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.key-stat{font-family:var(--mono);font-size:10px;padding:4px 8px;
+  border:1px solid var(--line);color:var(--txt-2)}
+.key-stat b{color:var(--txt);font-weight:500}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:1080px){
   .workspace{grid-template-columns:1fr;grid-auto-rows:min-content}
@@ -1716,6 +1757,8 @@ let selected=null;    // designation
 let sortKey="total", sortDir=-1;
 let activeTier=null;  // tier filter
 let query="";
+let analysisCache={};    // designation → {data, error, loading}
+let analysisPending=null; // abort controller for in-flight request
 
 /* ===========================================================================
    3 · DATA SOURCE  — try backend, fall back to embedded sample.
@@ -1835,11 +1878,63 @@ function renderSky(){
 }
 
 /* ---- inspector ---- */
+function renderAnalysisSection(id){
+  const entry = analysisCache[id];
+  if(!entry) return "";
+  if(entry.loading) return `<div class="insp-sec"><div class="analysis-loading"><div class="spinner"></div>Generating AI risk assessment…</div></div>`;
+  if(entry.error) return `<div class="insp-sec"><div class="analysis-error">Analysis unavailable: ${entry.error}</div></div>`;
+  const a = entry.data?.analysis;
+  if(!a){
+    const fallbackErr = entry.data?.analysisError;
+    if(fallbackErr) return `<div class="insp-sec"><div class="analysis-error">AI analysis unavailable: ${fallbackErr}</div></div>`;
+    return "";
+  }
+
+  const torino = a.torinoScale||{};
+  const palermo = a.palermoScale||{};
+  const keyStats = (a.keyStats||[]).map(s=>`<span class="key-stat"><b>${s.label}:</b> ${s.value}</span>`).join("");
+
+  return `
+    <div class="insp-sec">
+      <h4>Risk Standards <span class="ai-badge">AI Analysis</span></h4>
+      <div class="risk-scales">
+        <div class="risk-scale">
+          <div class="scale-name">Torino Scale</div>
+          <div class="scale-val">${torino.value??'—'}</div>
+          <div class="scale-desc">${torino.rationale||''}</div>
+        </div>
+        <div class="risk-scale">
+          <div class="scale-name">Palermo Scale</div>
+          <div class="scale-val">${palermo.value??'—'}</div>
+          <div class="scale-desc">${palermo.rationale||''}</div>
+        </div>
+      </div>
+      ${a.riskClass?`<div class="risk-class-tag">${a.riskClass}</div>`:''}
+    </div>
+
+    <div class="insp-sec">
+      <h4>AI Assessment <span class="ai-badge">Sonnet</span></h4>
+      <div class="ai-summary">${a.assessmentSummary||''}</div>
+      ${keyStats?`<div class="key-stats">${keyStats}</div>`:''}
+      ${a.technicalRationale?`<div class="ai-detail">${a.technicalRationale}</div>`:''}
+      ${a.uncertaintyNotes?`<div class="ai-uncertainty">${a.uncertaintyNotes}</div>`:''}
+    </div>`;
+}
+
+function renderCompAiNote(key, analysisEntry){
+  if(!analysisEntry?.data?.analysis) return "";
+  const a = analysisEntry.data.analysis;
+  const section = a[key];
+  if(!section?.summary) return "";
+  return `<div class="comp-ai-note">${section.summary}</div>`;
+}
+
 function renderInspector(){
   const el=document.getElementById("inspector");
   const r=RAW.find(x=>x.id===selected);
   if(!r){ el.innerHTML=`<div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>`; return; }
   const o=r.o, s=r.s;
+  const aEntry = analysisCache[r.id];
   const ticks=TIERS.filter(t=>t.min>0).map(t=>`<span class="tick" style="left:${t.min}%"></span>`).join("");
   const comp=(key,label,weight)=>{
     const val=s[key], c=s.tier.color;
@@ -1847,7 +1942,7 @@ function renderInspector(){
     return `<div class="comp"><div class="top"><span class="lbl">${label}</span>
       <span class="val">${Math.round(val)}<small> · w ${weight}</small></span></div>
       <div class="compbar"><i style="width:${val}%;background:${c}"></i></div>
-      <div class="terms">${terms}</div></div>`;
+      <div class="terms">${terms}</div>${renderCompAiNote(key,aEntry)}</div>`;
   };
   const kv=(l,v,u="")=>`<div class="cell"><div class="l">${l}</div><div class="v">${(v===null||v===undefined||v==="")?'<span class=dim>—</span>':v}${u?`<span class="u">${u}</span>`:""}</div></div>`;
   const sc=(l,v)=>`<div class="s ${!num(v)?'zero':''}"><div class="v">${v??0}</div><div class="l">${l}</div></div>`;
@@ -1874,6 +1969,8 @@ function renderInspector(){
       ${comp("urgency","Urgency",WEIGHTS.urgency)}
       ${comp("observability","Observability",WEIGHTS.observability)}
     </div>
+
+    ${renderAnalysisSection(r.id)}
 
     <div class="insp-sec">
       <h4>Assessment</h4>
@@ -1917,7 +2014,31 @@ function renderInspector(){
 /* ===========================================================================
    5 · INTERACTIONS
    =========================================================================== */
-function select(id){ selected = (selected===id?null:id); render(); }
+async function fetchAnalysis(id){
+  if(!id || analysisCache[id]?.data || analysisCache[id]?.loading) return;
+  if(analysisPending) analysisPending.abort();
+  const ac = new AbortController();
+  analysisPending = ac;
+  analysisCache[id] = {loading:true, data:null, error:null};
+  renderInspector();
+  try{
+    const r = await fetch(`${API_BASE}/api/scout/object/${encodeURIComponent(id)}/analysis`,
+      {signal:ac.signal, headers:{"Accept":"application/json"}});
+    if(!r.ok){ const e = await r.json().catch(()=>({})); throw new Error(e.detail||`HTTP ${r.status}`); }
+    const data = await r.json();
+    analysisCache[id] = {loading:false, data, error:null};
+  }catch(e){
+    if(e.name==="AbortError") return;
+    analysisCache[id] = {loading:false, data:null, error:e.message};
+  }
+  if(selected===id) renderInspector();
+}
+
+function select(id){
+  selected = (selected===id?null:id);
+  render();
+  if(selected) fetchAnalysis(selected);
+}
 
 document.getElementById("tbody").addEventListener("click",e=>{
   const tr=e.target.closest("tr"); if(tr) select(tr.dataset.id);
