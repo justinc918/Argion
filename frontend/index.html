@@ -2073,7 +2073,7 @@ function adaptBackendScore(s,o){
   return {
     total:s.total,
     tier:{id:tier.id,color:tier.color,raw:tier.raw},
-    D:safeNum(o.H)!==null ? diameterM(o.H) : null,
+    D:num(o.H)!==null ? diameterM(o.H) : null,
     impact:s.impact,
     urgency:s.urgency,
     observability:s.observability,
