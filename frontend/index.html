@@ -63,7 +63,8 @@ body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font
 .tabsbar{display:flex;align-items:stretch;height:42px;padding:0 10px;gap:2px;border-bottom:1px solid var(--border);background:var(--bg)}
 .tab{display:flex;align-items:center;gap:9px;padding:0 18px;background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;
   font-family:var(--cond);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;font-weight:600;color:var(--txt-3);transition:.15s}
-.tab .n{font-family:var(--mono);font-size:9px;color:var(--txt-3);border:1px solid var(--border-2);padding:1px 4px;letter-spacing:0}
+.tab .n{font-family:var(--mono);font-size:9px;color:var(--txt-3);border:1px solid var(--border-2);padding:1px 4px;letter-spacing:0;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.tab .n svg{display:block;fill:currentColor}
 .tab:hover{color:var(--txt-2)}
 .tab.on{color:var(--txt);border-bottom-color:var(--accent)}
 .tab.on .n{color:var(--accent);border-color:var(--accent)}
@@ -479,7 +480,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
     <button class="tab on" data-view="triage">Triage <span class="n" id="tabnTri">—</span></button>
     <button class="tab" data-view="tracking">Tracking <span class="n">3D</span></button>
     <button class="tab" data-view="hunting">Hunting <span class="n" id="tabnHunt">—</span></button>
-    <button class="tab" data-view="insight">Insight</button>
+    <button class="tab" data-view="insight">Insight <span class="n" aria-hidden="true"><svg viewBox="0 0 10 14" width="7" height="9"><path d="M5 0a4.5 4.5 0 0 0-4.5 4.5c0 1.7 1 3.2 2.5 4v2.5h4V8.5c1.5-1.3 2.5-2.8 2.5-4.5A4.5 4.5 0 0 0 5 0zm-.5 12.5a.5.5 0 0 0 1 0h-1z"/></svg></span></button>
     <button class="tab" data-view="deflection">Deflection <span class="n">Δv</span></button>
     <button class="tab" data-view="concierge">Concierge <span class="n">✈</span></button>
   </nav>
