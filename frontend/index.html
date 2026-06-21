@@ -2463,7 +2463,9 @@ function updatePlanSelection(){
   });
 }
 function select(id){
+  const prevSelected=selected;
   selected=(selected===id?null:id);
+  if(prevSelected!==selected) resetAgentChat(selected);
   renderTriage();
   if(VIEW==="tracking"&&track.ready)track.highlight();
   if(VIEW==="hunting"){updatePlanSelection();renderHuntDetail();}
@@ -2788,7 +2790,7 @@ function renderHuntDetail(){
   </div>`;
 }
 /* ---- classification agent (Anthropic-backed, with selected-object triage context) ---- */
-let agentMsgs=[],agentPending=false;
+let agentMsgs=[],agentPending=false,agentAbort=null,agentSession=0;
 function escapeHtml(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 function stripHtmlTags(v){return String(v??"").replace(/<[^>]*>/g,"");}
 function agentBubbleHtml(text){return escapeHtml(text).replace(/\n/g,"<br/>");}
@@ -2816,27 +2818,47 @@ function buildAgentContext(r){const t=tasking(r),[dc,dcDesc]=dynClass(r.el);
     },
     facilityCatalog:FACILITIES,
   };}
+function resetAgentChat(id=selected){
+  agentSession++;
+  if(agentAbort){agentAbort.abort();agentAbort=null;}
+  setAgentPending(false);
+  agentMsgs=[];
+  const r=RAW.find(x=>x.id===id);
+  if(r){
+    agentPush("agent",`Classification Agent\n\nNow scoped to ${r.id}. Every question will use this asteroid's current JPL Scout row plus the triage, orbital, and tasking context shown in the hunting workspace.`);
+  }else{
+    agentPush("agent","Classification Agent\n\nSelect an object in the plan first. Once selected, each question will be grounded in that asteroid's current data.");
+  }
+}
 function initAgent(){const log=document.getElementById("agentLog");log.dataset.init="1";
   document.getElementById("agentChips").innerHTML=["Classify selected","Why this telescope?","What if the arc doubles?","Is radar feasible?"].map(q=>`<span class="qc">${q}</span>`).join("");
-  agentPush("agent","Classification Agent\n\nSelect an object and ask a question. Every request includes the same per-asteroid triage, scoring, orbital, and tasking context shown in this workspace, then sends it to Anthropic for a free-form answer.");}
+  resetAgentChat(selected);}
 async function agentRespond(qRaw){const r=RAW.find(x=>x.id===selected);
   if(!r){agentPush("agent","Select an object in the plan first, then ask about that asteroid.");return;}
   if(agentPending){agentPush("agent","One classification request is already running. Wait for the current reply to finish.");return;}
+  const mySession=agentSession;
+  const ac=new AbortController();
+  agentAbort=ac;
   const pendingIdx=agentPush("agent",`Thinking about ${r.id}...`);
   setAgentPending(true);
   try{
     const res=await fetch(`${API_BASE}/api/scout/object/${encodeURIComponent(r.id)}/agent`,{
       method:"POST",
       headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({question:qRaw,context:buildAgentContext(r)})
+      body:JSON.stringify({question:qRaw,context:buildAgentContext(r)}),
+      signal:ac.signal
     });
     if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.detail||`HTTP ${res.status}`);}
     const data=await res.json();
+    if(mySession!==agentSession||selected!==r.id)return;
     agentReplace(pendingIdx,"agent",data.answer||"No answer returned.");
   }catch(err){
+    if(err.name==="AbortError")return;
+    if(mySession!==agentSession)return;
     agentReplace(pendingIdx,"agent",`Agent request failed: ${err.message}`);
   }finally{
-    setAgentPending(false);
+    if(agentAbort===ac)agentAbort=null;
+    if(mySession===agentSession)setAgentPending(false);
   }}
 document.getElementById("agentSend").addEventListener("click",sendAgent);
 document.getElementById("agentInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendAgent();});
