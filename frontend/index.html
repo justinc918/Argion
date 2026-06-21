@@ -2004,15 +2004,11 @@ function rationale(o,s){
 }
 
 /* ===========================================================================
-   2 · DERIVED ORBITS  — illustrative Keplerian elements per object.
-   Scout's summary endpoint carries no orbital elements; these are derived
-   deterministically from objectName (+ MOID/V∞ flavor) so the orbit views
-   have something physical to draw. Swap for real elements from
-   /api/scout/object/:tdes?orbits=1 when wiring the backend.
+   2 · ORBIT HELPERS
    =========================================================================== */
 function seedRand(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
   return()=>{h+=0x6D2B79F5;let t=Math.imul(h^(h>>>15),1|h);t^=t+Math.imul(t^(t>>>7),61|t);return((t^(t>>>14))>>>0)/4294967296;};}
-function elements(o){
+function fallbackElements(o){
   const r=seedRand(o.objectName||"x");const vinf=num(o.vInf)??12;
   let a=0.95+r()*1.25+clamp(vinf/45,0,0.6);
   let e=0.16+r()*0.45;
@@ -2038,24 +2034,35 @@ function dynClass(el){const q=el.a*(1-el.e),Q=el.a*(1+el.e);
    3 · STATE
    =========================================================================== */
 let RAW=[],selected=null,sortKey="total",sortDir=-1,activeTier=null,query="";
-let EARTH_ANGLE=(Date.now()/86400000*360/365.25)%360;
+let PLANETS={};
 let analysisCache={};
 let analysisPending=null;
 let summaryStreamCache={};
 let summaryStreamAbort=null;
+let orbitCache={};
+let orbitPending=null;
 
 /* ===========================================================================
    4 · DATA
    =========================================================================== */
 async function load(){
   let data,live=false;
-  try{const r=await fetch(`${API_BASE}/api/scout/summary/scored`,{signal:AbortSignal.timeout(2500)});
-    if(!r.ok)throw 0;data=await r.json();live=true;}catch(e){data=SAMPLE;}
+  try{
+    const [summaryRes, planetsRes] = await Promise.all([
+      fetch(`${API_BASE}/api/scout/summary/scored`,{signal:AbortSignal.timeout(4000)}),
+      fetch(`${API_BASE}/api/planets/elements`,{signal:AbortSignal.timeout(4000)})
+    ]);
+    if(!summaryRes.ok || !planetsRes.ok)throw 0;
+    data=await summaryRes.json();
+    const planets=await planetsRes.json();
+    hydratePlanets(planets);
+    live=true;
+  }catch(e){data=SAMPLE;buildFallbackPlanets();}
   const rows=(data&&data.data)||[];
   RAW=rows.map(row=>{
     const o=live ? (row.raw||{}) : row;
     const s=live ? adaptBackendScore(row.score, o) : score(o);
-    return {o,s,el:elements(o),id:o.objectName};
+    return {o,s,el:fallbackElements(o),id:o.objectName};
   });
   const byPri=[...RAW].sort((a,b)=>b.s.total-a.s.total);byPri.forEach((r,i)=>r.rank=i+1);
   setSource(live);renderAll();
@@ -2092,6 +2099,40 @@ function displayTerm(name){
   if(name==="brightness") return "brightness";
   if(name==="pos. unc.") return "pos. unc.";
   return name;
+}
+
+function hydratePlanets(payload){
+  PLANETS={};
+  (payload?.data||[]).forEach(p=>{
+    PLANETS[p.name]={a:p.a,e:p.e,i:p.i,Om:p.Om,w:p.w,M0:p.M0,period:(p.periodYears||0),L:null,tint:p.tint||"#9fb0c2"};
+  });
+}
+
+function buildFallbackPlanets(){
+  const PLANET_TAB={
+    Mercury:[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593,"#b4a48c"],
+    Venus:  [0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255,"#e6c98a"],
+    Earth:  [1.00000261,0.01671123,-0.00001531,100.46457166,102.93768193,0.0,"#46c9e0"],
+    Mars:   [1.52371034,0.09339410,1.84969142,-4.55343205,-23.94362959,49.55953891,"#e06a4b"],
+    Jupiter:[5.20288700,0.04838624,1.30439695,34.39644051,14.72847983,100.47390909,"#d8a878"],
+    Saturn: [9.53667594,0.05386179,2.48599187,49.95424423,92.59887831,113.66242448,"#e8d6a0"],
+    Uranus: [19.18916464,0.04725744,0.77263783,313.23810451,170.95427630,74.01692503,"#9fe0e0"],
+    Neptune:[30.06992276,0.00859048,1.77004347,-55.12002969,44.96476227,131.78422574,"#6f8ee8"],
+  };
+  PLANETS={};
+  PLANET_ORDER.forEach(name=>{
+    const [a,e,i,L,wbar,Om,tint]=PLANET_TAB[name];
+    const period=Math.pow(a,1.5);
+    const n=360/(period*365.25);
+    const d=(Date.now()-Date.UTC(2000,0,1,12,0,0))/86400000;
+    const Lnow=norm360(L+n*d);
+    PLANETS[name]={a,e,i,Om,w:norm360(wbar-Om),M0:norm360(Lnow-wbar),period,L:Lnow,tint};
+  });
+}
+
+function currentEarthAngleDeg(){
+  const earth=PLANETS.Earth;
+  return earth ? norm360(earth.M0) : (Date.now()/86400000*360/365.25)%360;
 }
 
 /* ===========================================================================
@@ -2293,7 +2334,7 @@ function miniOrbitSVG(r){
   let maxR=1.05;path.forEach(p=>maxR=Math.max(maxR,Math.hypot(p[0],p[1])));
   const sc=(W/2-20)/maxR,X=x=>cx+x*sc,Y=y=>cy-y*sc;
   const astPts=path.map(p=>`${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ");
-  const earthR=sc,ex=X(Math.cos(EARTH_ANGLE*D2R)),ey=Y(Math.sin(EARTH_ANGLE*D2R));
+  const earthA=currentEarthAngleDeg()*D2R, earthR=sc,ex=X(Math.cos(earthA)),ey=Y(Math.sin(earthA));
   const ap=posAt(el,el.M0),apx=X(ap[0]),apy=Y(ap[1]);
   const ph=rot(el.a*(1-el.e),0,el),phx=X(ph[0]),phy=Y(ph[1]);
   const c=r.s.tier.raw;
@@ -2330,6 +2371,34 @@ async function fetchAnalysis(id){
     analysisCache[id] = {loading:false, data:null, error:e.message};
   }
   if(selected===id) renderInspector();
+}
+
+async function fetchOrbit(id){
+  if(!id || orbitCache[id]?.data || orbitCache[id]?.loading) return;
+  if(orbitPending) orbitPending.abort();
+  const ac = new AbortController();
+  orbitPending = ac;
+  orbitCache[id] = {loading:true, data:null, error:null};
+  try{
+    const r = await fetch(`${API_BASE}/api/scout/object/${encodeURIComponent(id)}/orbit`,
+      {signal:ac.signal, headers:{"Accept":"application/json"}});
+    if(!r.ok){ const e = await r.json().catch(()=>({})); throw new Error(e.detail||`HTTP ${r.status}`); }
+    const data = await r.json();
+    orbitCache[id] = {loading:false, data, error:null};
+    const target = RAW.find(x=>x.id===id);
+    if(target && data?.orbit){
+      target.el = data.orbit;
+    }
+  }catch(e){
+    if(e.name==="AbortError") return;
+    orbitCache[id] = {loading:false, data:null, error:e.message};
+  }
+  if(selected===id){
+    renderTriage();
+    if(VIEW==="tracking"&&track.ready)track.rebuild();
+    if(VIEW==="deflection")renderDeflection();
+    if(VIEW==="concierge")renderConcierge();
+  }
 }
 
 async function fetchSummaryStream(id){
@@ -2400,6 +2469,7 @@ function select(id){
   if(VIEW==="hunting"){updatePlanSelection();renderHuntDetail();}
   if(VIEW==="deflection")renderDeflection();
   if(selected){
+    fetchOrbit(selected);
     fetchAnalysis(selected);
     fetchSummaryStream(selected);
   }
@@ -2522,11 +2592,12 @@ const track=(function(){
       o.label.visible=showPlanets&&showLabels;});
   }
   function updatePositions(){
-    const ea=(EARTH_ANGLE+t*(360/365.25))*D2R;
+    const earthPeriod=(PLANETS.Earth?.period||1)*365.25;
+    const ea=(currentEarthAngleDeg()+t*(360/earthPeriod))*D2R;
     earthGrp.position.set(Math.cos(ea)*SCALE,0,-Math.sin(ea)*SCALE);
-    objs.forEach(o=>{const M=o.el.M0+t*(360/(o.el.period*365.25));const p=v3(posAt(o.el,M));
+    objs.forEach(o=>{const M=o.el.M0+t*(360/((o.el.period||1)*365.25));const p=v3(posAt(o.el,M));
       o.dot.position.copy(p);o.label.position.set(p.x,p.y+5,p.z);o.label.visible=showLabels;});
-    planetObjs.forEach(o=>{const M=o.el.M0+t*(360/(o.el.period*365.25));const p=v3(posAt(o.el,M));
+    planetObjs.forEach(o=>{const M=o.el.M0+t*(360/((o.el.period||1)*365.25));const p=v3(posAt(o.el,M));
       o.dot.position.copy(p);o.label.position.set(p.x,p.y+6,p.z);});
   }
   function highlight(){
@@ -2879,37 +2950,12 @@ function wireInsight(o,s){
 /* ===== injected: Deflection + Concierge tabs ===== */
 /* ===========================================================================
    11 · SHARED ORBITAL CONSTANTS + PLANETS
-   Real heliocentric mean elements (Standish / JPL approximate positions, J2000),
-   propagated to the current epoch so positions & launch windows reflect "now".
    =========================================================================== */
 const MU_SUN=1.32712440018e20, MU_EARTH=3.986004418e14;     // m^3/s^2
 const AU_M=1.495978707e11, YR_S=365.25*86400, G0=9.80665;
-const J2000_MS=Date.UTC(2000,0,1,12,0,0);
 const R_EARTH=6.371e6;                                       // m
 function norm360(x){return((x%360)+360)%360;}
-// a(AU), e, i(deg), L(deg mean long), wbar(deg long. peri), Om(deg asc node), tint(hex)
-const PLANET_TAB={
-  Mercury:[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593,"#b4a48c"],
-  Venus:  [0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255,"#e6c98a"],
-  Earth:  [1.00000261,0.01671123,-0.00001531,100.46457166,102.93768193,0.0,"#46c9e0"],
-  Mars:   [1.52371034,0.09339410,1.84969142,-4.55343205,-23.94362959,49.55953891,"#e06a4b"],
-  Jupiter:[5.20288700,0.04838624,1.30439695,34.39644051,14.72847983,100.47390909,"#d8a878"],
-  Saturn: [9.53667594,0.05386179,2.48599187,49.95424423,92.59887831,113.66242448,"#e8d6a0"],
-  Uranus: [19.18916464,0.04725744,0.77263783,313.23810451,170.95427630,74.01692503,"#9fe0e0"],
-  Neptune:[30.06992276,0.00859048,1.77004347,-55.12002969,44.96476227,131.78422574,"#6f8ee8"],
-};
 const PLANET_ORDER=["Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune"];
-function planetElements(name,nowMs){
-  const [a,e,i,L,wbar,Om,tint]=PLANET_TAB[name];
-  const period=Math.pow(a,1.5);                              // yr
-  const n=360/(period*365.25);                               // deg/day
-  const d=(nowMs-J2000_MS)/86400000;
-  const Lnow=norm360(L+n*d);
-  return {a,e,i,Om,w:norm360(wbar-Om),M0:norm360(Lnow-wbar),period,L:Lnow,tint};
-}
-let PLANETS={};
-function buildPlanets(){const t=Date.now();PLANETS={};PLANET_ORDER.forEach(p=>PLANETS[p]=planetElements(p,t));}
-buildPlanets();
 
 /* shared formatting helpers */
 function fmtUSD(x){const a=Math.abs(x);
@@ -2999,7 +3045,7 @@ function deflFigureSVG(r,c){
   const poly=pts=>pts.map(p=>X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ");
   // earth orbit (1 AU)
   let earthRing="";for(let k=0;k<=120;k++){const A=k/120*2*Math.PI;earthRing+=(k?" ":"")+X(Math.cos(A)).toFixed(1)+","+Y(Math.sin(A)).toFixed(1);}
-  const eA=EARTH_ANGLE*D2R, eX=X(Math.cos(eA)), eY=Y(Math.sin(eA));
+  const eA=currentEarthAngleDeg()*D2R, eX=X(Math.cos(eA)), eY=Y(Math.sin(eA));
   const peri=perihelionXY(el), pX=X(peri[0]), pY=Y(peri[1]);
   const dir=progradeDirXY(el), dlen=Math.hypot(dir[0],dir[1])||1;
   const ax=pX+dir[0]/dlen*42, ay=pY-dir[1]/dlen*42;

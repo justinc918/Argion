@@ -55,6 +55,8 @@ async function rawGet(path, params = {}) {
   });
 }
 
+export { rawGet };
+
 export function getScoutSummary() {
   return rawGet("scout.api");
 }

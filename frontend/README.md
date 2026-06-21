@@ -22,7 +22,8 @@ position relative to Earth.
 
 **Tracking** — a pannable / rotatable 3D heliocentric view (Three.js): the Sun,
 a stylized Earth globe on its orbit, and the orbital paths of the **top 50
-objects by priority**, colored by tier and labeled. Drag to rotate, scroll to
+objects by priority**, colored by tier and labeled, plus the major planets from
+backend-fed JPL Horizons elements. Drag to rotate, scroll to
 zoom, shift-drag to pan, click an object to select (selection is shared with
 Triage). Pause / labels / reset-view controls in the overlay.
 
@@ -57,15 +58,17 @@ In live mode, the inspector also uses backend analysis endpoints:
 
 - `/api/scout/object/:tdes/analysis`
 - `/api/scout/object/:tdes/analysis/summary/stream`
+- `/api/scout/object/:tdes/orbit`
+- `/api/planets/elements`
 
 ## Derived orbits (important caveat)
 
-The Scout **summary** feed carries no Keplerian elements, so the orbit views
-(Tracking + the Triage mini-orbit) use **illustrative** elements derived
-deterministically per object from its designation, flavored by V∞ and forced to
-be Earth-crossing. They're labeled as such in the UI. Swap in real geometry from
-`/api/scout/object/:tdes?orbits=1` — the `elements()` function is the only hook
-to replace.
+The Scout **summary** feed carries no Keplerian elements, so selected-object
+orbit views now upgrade lazily from the backend route
+`/api/scout/object/:tdes/orbit`, which derives a representative solution from
+the object's real Scout orbit ensemble (`orbits=1`). If the backend is
+unreachable, the frontend still falls back to an illustrative local orbit so
+the demo remains usable offline.
 
 ## Offline note
 

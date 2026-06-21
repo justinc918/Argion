@@ -23,6 +23,8 @@ import { analyzeAsteroid, streamAssessmentSummary } from "./riskAnalyzer.js";
 import { DAY_MS, readFeedSyncStatus, startScheduledFeedSync } from "./feedSync.js";
 import { normalize } from "./schema.js";
 import { score } from "./scorer.js";
+import { getAllPlanetElements } from "./horizonsClient.js";
+import { representativeScoutOrbit } from "./orbitAdapter.js";
 
 const app = express();
 app.use(cors());
@@ -59,6 +61,7 @@ function scoredScoutSummary(summary) {
         raw,
         asteroid,
         score: score(asteroid),
+        orbit: null,
       };
     }),
   };
@@ -90,6 +93,16 @@ app.get("/api/scout/summary/scored", async (req, res) => {
   }
 });
 
+app.get("/api/planets/elements", async (req, res) => {
+  try {
+    const data = await cached("planet-elements", 6 * 60 * 60_000, getAllPlanetElements);
+    res.json(data);
+  } catch (err) {
+    console.error("[/api/planets/elements]", err.message);
+    res.status(502).json({ error: "Failed to fetch planet elements", detail: err.message });
+  }
+});
+
 // Per-object detail: lazy, only hit when a card is expanded on the frontend.
 // Cached longer (5 min) since a single object's orbit detail won't churn
 // minute to minute the way the summary list does.
@@ -104,6 +117,35 @@ app.get("/api/scout/object/:tdes", async (req, res) => {
   } catch (err) {
     console.error(`[/api/scout/object/${tdes}]`, err.message);
     res.status(502).json({ error: "Failed to fetch object detail", detail: err.message });
+  }
+});
+
+app.get("/api/scout/object/:tdes/orbit", async (req, res) => {
+  const { tdes } = req.params;
+  try {
+    const data = await cached(`scout-orbit:${tdes}`, 5 * 60_000, async () => {
+      const raw = await getScoutObject(tdes, { orbits: true });
+      const orbit = representativeScoutOrbit(raw);
+      if (!orbit) {
+        throw new Error(`No orbit solutions returned for ${tdes}`);
+      }
+      return {
+        designation: raw.objectName || tdes,
+        orbit,
+        rawSummary: {
+          H: raw.H ?? null,
+          vInf: raw.vInf ?? null,
+          moid: raw.moid ?? null,
+          caDist: raw.caDist ?? null,
+          arc: raw.arc ?? null,
+        },
+        source: raw.signature || null,
+      };
+    });
+    res.json(data);
+  } catch (err) {
+    console.error(`[/api/scout/object/${tdes}/orbit]`, err.message);
+    res.status(502).json({ error: "Failed to fetch Scout orbit", detail: err.message });
   }
 });
 

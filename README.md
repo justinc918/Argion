@@ -39,6 +39,7 @@ controlled way:
 - `scout.api` for JPL Scout / NEOCP summary data
 - `sentry.api` for confirmed-object impact risk data
 - `cad.api` for close-approach context
+- `horizons.api` for live heliocentric planet elements
 
 The frontend consumes that data and provides:
 
@@ -101,9 +102,11 @@ Useful endpoints:
 - `GET /api/scout/summary`
 - `GET /api/scout/summary/scored`
 - `GET /api/scout/object/:tdes`
+- `GET /api/scout/object/:tdes/orbit`
 - `GET /api/scout/ephemeris/:tdes`
 - `GET /api/scout/object/:tdes/analysis`
 - `GET /api/scout/object/:tdes/analysis/summary/stream`
+- `GET /api/planets/elements`
 - `GET /api/sentry`
 - `GET /api/close-approaches`
 - `GET /api/feed-sync/status`
@@ -308,8 +311,10 @@ If strict one-at-a-time JPL access matters, prefer:
 
 - The live queue now uses backend normalization and scoring, but the offline
   sample fallback still mirrors that scoring logic in the frontend.
-- The 3D orbit views are still illustrative in the frontend because Scout
-  summary rows do not include orbital elements.
+- Planet positions now come from backend-fed JPL Horizons elements, and
+  selected-object orbit views can upgrade to real Scout orbit data at runtime.
+- Some non-astronomy planning constants remain local in the frontend, such as
+  facility metadata, launcher assumptions, and simplified mission-cost tables.
 - There is no persistent database; storage is currently file-based snapshots.
 - Runtime verification could not be performed in this shell because `node` is
   not installed here.

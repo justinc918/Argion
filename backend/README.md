@@ -86,7 +86,8 @@ Optional env vars:
   JPL faster than ~60s on the summary endpoint.
 - `server.js` -- Express proxy. Routes: `/api/scout/summary`,
   `/api/scout/summary/scored`,
-  `/api/scout/object/:tdes`, `/api/scout/ephemeris/:tdes`, `/api/sentry`,
+  `/api/scout/object/:tdes`, `/api/scout/object/:tdes/orbit`,
+  `/api/scout/ephemeris/:tdes`, `/api/planets/elements`, `/api/sentry`,
   `/api/close-approaches`, `/api/scout/object/:tdes/analysis`, and
   `/api/scout/object/:tdes/analysis/summary/stream`. This is what the frontend
   calls.
@@ -99,6 +100,7 @@ Optional env vars:
   field names before building a schema around guesses.
 - `feedSync.js` / `syncFeeds.js` -- reusable JPL feed sync layer for periodic
   update checks and local feed snapshots.
+- `horizonsClient.js` -- live planet elements from JPL Horizons.
 - `riskAnalyzer.js` / `anthropicClient.js` -- structured per-object risk
   analysis and streaming summary support via Anthropic.
 
