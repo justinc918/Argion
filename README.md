@@ -1,94 +1,121 @@
-# Argion
+# ARGION
 
-`ARGION` is a near-Earth object triage workspace. It pulls data from JPL's
-small-body / NEO services, keeps local snapshots of key feeds, and presents a
-single-file operations console for reviewing and ranking candidate risks.
+ARGION is a planetary defense triage workspace for near-Earth objects. It pulls
+live data from JPL services through a Node backend, ranks candidates with a
+deterministic scoring model, and presents the results in a build-free frontend
+that can run either against live data or an embedded offline sample.
 
-The current repo has two active parts:
+At a glance, this repo gives you:
 
-- `backend/` -- the only code allowed to query JPL directly
-- `frontend/` -- the `Argion` browser workbench with offline sample data and
-  optional live backend integration
+- a live Scout-backed asteroid triage queue
+- per-object scoring, observability, and orbit context
+- AI-assisted risk summaries and operator Q&A through Anthropic
+- local snapshotting and feed sync jobs for longitudinal analysis
+- a single-file browser console for demos, ops, and exploration
 
-## Repository layout
+## Architecture
+
+The repository has two main parts:
+
+- `backend/`: the only layer allowed to talk directly to JPL
+- `frontend/`: the standalone ARGION workbench in `index.html`
 
 ```text
 asteROIDED/
 ├── backend/
 │   ├── src/
-│   │   ├── jplClient.js        # serialized JPL HTTP client
-│   │   ├── server.js           # Express API for frontend / agents
-│   │   ├── schema.js           # raw Scout → normalized asteroid shape
-│   │   ├── scorer.js           # backend-owned priority score
-│   │   ├── riskAnalyzer.js     # structured risk assessment orchestration
-│   │   ├── anthropicClient.js  # Anthropic API wrapper
-│   │   ├── snapshotPoller.js   # frequent Scout snapshot collector
-│   │   ├── feedSync.js         # reusable scheduled feed sync layer
-│   │   ├── syncFeeds.js        # CLI for one-shot / scheduled sync jobs
-│   │   └── inspectScout.js     # schema inspection helper
-│   └── data/                   # generated sample data and snapshots
+│   │   ├── server.js           # Express API consumed by the frontend
+│   │   ├── jplClient.js        # serialized JPL client
+│   │   ├── schema.js           # raw Scout -> normalized object shape
+│   │   ├── scorer.js           # deterministic triage score
+│   │   ├── riskAnalyzer.js     # structured AI analysis and Q&A
+│   │   ├── anthropicClient.js  # Anthropic Messages API wrapper
+│   │   ├── snapshotPoller.js   # rolling Scout snapshots
+│   │   ├── feedSync.js         # reusable feed sync logic
+│   │   ├── syncFeeds.js        # one-shot / scheduled sync CLI
+│   │   └── inspectScout.js     # live schema inspection helper
+│   └── data/                   # generated samples, snapshots, and feed caches
 └── frontend/
-    └── index.html              # single-file triage UI
+    └── index.html              # self-contained ARGION UI
 ```
 
-## What the system does
+## What It Does
 
-The backend queries JPL feeds and exposes them to the rest of the project in a
-controlled way:
+### Backend
 
-- `scout.api` for JPL Scout / NEOCP summary data
-- `sentry.api` for confirmed-object impact risk data
-- `cad.api` for close-approach context
-- `horizons.api` for live heliocentric planet elements
+The backend wraps a handful of JPL data sources and exposes them through a
+controlled API:
 
-The frontend consumes that data and provides:
+- `scout.api`: Scout / NEOCP summary and object detail
+- `sentry.api`: confirmed-object impact risk list
+- `cad.api`: close approach data
+- `horizons.api`: heliocentric planet elements
+
+On top of those feeds, the backend adds:
+
+- normalization into a stable internal asteroid shape
+- a deterministic priority score
+- cached API routes for the frontend
+- optional Anthropic-powered risk analysis and short-form operator answers
+- file-based feed snapshots for later inspection or agent workflows
+
+### Frontend
+
+The frontend is a single `index.html` file with no build step. It can run:
+
+- in offline demo mode using embedded sample Scout data
+- in live mode against the local backend at `http://localhost:8080`
+
+The UI includes:
 
 - a sortable triage queue
-- a visible scoring breakdown
-- a sky plot for quick spatial review
-- an inspector for per-object metrics plus AI-generated risk context
+- score breakdowns for impact, urgency, and observability
+- a sky plot
+- per-object inspection and AI assessment panels
 - a 3D heliocentric tracking view
-- a hunting / facility-recommendation workspace
-- an insight tab explaining the underlying physics
+- a hunting workspace with facility recommendations
+- an insight tab explaining the underlying scoring and planetary-defense context
 
-## Prerequisites
-
-- Node.js installed locally
-- npm available
-- network access to `https://ssd-api.jpl.nasa.gov/`
-
-This shell does not currently have `node` available, so if you are setting up a
-new environment, confirm your runtime first:
-
-```bash
-node --version
-npm --version
-```
-
-## Quick start
+## Quick Start
 
 ### 1. Install backend dependencies
+
+Run everything from `backend/`:
 
 ```bash
 cd backend
 npm install
 ```
 
-### 2. Inspect the live Scout schema
+### 2. Create `backend/.env`
 
-Run this before building parsing or ranking logic that assumes field names:
+Anthropic is optional for the core queue and JPL routes, but required for AI
+analysis endpoints.
+
+```bash
+ANTHROPIC_API_KEY=your_anthropic_key
+ANTHROPIC_MODEL=claude-sonnet-4-6
+PORT=8080
+```
+
+The current code reads:
+
+- `ANTHROPIC_API_KEY`
+- `ANTHROPIC_MODEL`
+- `PORT`
+
+### 3. Inspect the live Scout schema
+
+This is the safest first run when working on parsing or scoring logic:
 
 ```bash
 npm run inspect
 ```
 
-What it does:
+It fetches the live Scout summary, prints the top-level shape, and writes a
+sample payload to `backend/data/sample-scout-summary.json`.
 
-- fetches the current `scout.api` payload from JPL
-- prints top-level keys and the first object shape
-- writes a local sample to `backend/data/sample-scout-summary.json`
-
-### 3. Start the backend API
+### 4. Start the API
 
 ```bash
 npm run dev
@@ -96,7 +123,89 @@ npm run dev
 
 The backend listens on `http://localhost:8080` by default.
 
-Useful endpoints:
+### 5. Open the frontend
+
+From the repo root:
+
+```bash
+open frontend/index.html
+```
+
+When the backend is reachable, the source pill in the UI switches from
+`SAMPLE DATA` to `LIVE · JPL SCOUT`.
+
+## Common Workflows
+
+### Frontend-only demo
+
+Use this if you just want to show the interface with no backend running:
+
+```bash
+open frontend/index.html
+```
+
+### Live frontend + live backend
+
+Use this for current Scout data, backend-owned scoring, object detail, and AI
+analysis:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Then open `frontend/index.html`.
+
+### Rolling Scout snapshots
+
+Use this to build a short historical record while you are actively developing:
+
+```bash
+cd backend
+npm run poll
+```
+
+This polls the Scout summary every 3 minutes and writes:
+
+- `backend/data/snapshots/snapshot-*.json`
+- `backend/data/snapshot-index.jsonl`
+
+### Durable feed sync
+
+Use this to keep local copies of the main JPL feeds without hitting JPL on
+every analysis run.
+
+One immediate sync:
+
+```bash
+cd backend
+npm run sync:once
+```
+
+Continuous scheduler:
+
+```bash
+cd backend
+npm run sync:daily
+```
+
+By default, the sync process tracks:
+
+- `scout`
+- `sentry`
+- `closeApproaches`
+
+It writes:
+
+- `backend/data/feeds/<feed>/latest.json`
+- `backend/data/feeds/<feed>/snapshot-*.json`
+- `backend/data/feed-sync-manifest.json`
+- `backend/data/feed-sync-log.jsonl`
+
+## API Overview
+
+The frontend primarily depends on these routes:
 
 - `GET /health`
 - `GET /api/scout/summary`
@@ -106,229 +215,123 @@ Useful endpoints:
 - `GET /api/scout/ephemeris/:tdes`
 - `GET /api/scout/object/:tdes/analysis`
 - `GET /api/scout/object/:tdes/analysis/summary/stream`
+- `POST /api/scout/object/:tdes/agent`
 - `GET /api/planets/elements`
 - `GET /api/sentry`
 - `GET /api/close-approaches`
 - `GET /api/feed-sync/status`
 
-### 4. Open the frontend
+## Frontend Notes
 
-From the repo root, open:
+The frontend defaults to:
 
-```bash
-open frontend/index.html
+```text
+http://localhost:8080
 ```
 
-The frontend works in two modes:
-
-- offline demo mode using the embedded sample payload
-- live mode using backend-scored Scout data from
-  `http://localhost:8080/api/scout/summary/scored`
-
-When the backend is reachable, the source indicator in the UI flips from
-`SAMPLE DATA` to `LIVE · JPL SCOUT`.
-
-If you want to point the UI at another backend host:
+To point the UI at a different backend host:
 
 ```js
-localStorage.setItem("asteroided_api", "http://your-host:8080");
+localStorage.setItem("argion_api", "http://your-host:8080");
 location.reload();
 ```
 
-## Usage patterns
+Important behavior notes:
 
-### A. Frontend demo only
+- the triage UI works offline using embedded sample data
+- the Tracking view loads Three.js from a CDN, so that tab needs network unless
+  you vendor the library locally
+- in live mode, the queue consumes backend-scored rows from
+  `/api/scout/summary/scored`
 
-Use this when you want to show the interface without any backend running.
+## Feed Sync Options
 
-```bash
-open frontend/index.html
-```
+Run these from `backend/`.
 
-### B. Live frontend + live backend
-
-Use this when you want current JPL Scout data, backend-owned priority scoring,
-and backend AI analysis in the UI.
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-Then open `frontend/index.html` in the browser.
-
-### C. Frequent Scout snapshots during active development
-
-Use this when you want short-interval historical snapshots for model training,
-trend detection, or "what changed today" analysis.
-
-```bash
-cd backend
-npm run poll
-```
-
-What it writes:
-
-- `backend/data/snapshots/snapshot-*.json`
-- `backend/data/snapshot-index.jsonl`
-
-The current poll interval is 3 minutes.
-
-### D. Scheduled daily feed syncs
-
-Use this when you want a durable local copy of the main JPL feeds for an
-agent/model pipeline without querying JPL on every run.
-
-One immediate sync:
-
-```bash
-cd backend
-npm run sync:once
-```
-
-Continuous daily scheduler:
-
-```bash
-cd backend
-npm run sync:daily
-```
-
-The scheduled sync tracks three feeds by default:
-
-- `scout`
-- `sentry`
-- `closeApproaches`
-
-Generated outputs:
-
-- `backend/data/feeds/<feed>/latest.json`
-- `backend/data/feeds/<feed>/snapshot-*.json`
-- `backend/data/feed-sync-manifest.json`
-- `backend/data/feed-sync-log.jsonl`
-
-The sync layer hashes each payload, records the last successful check, and only
-writes a new timestamped snapshot when the payload changes unless you force it.
-
-## Feed sync commands
-
-Run from `backend/`.
-
-Sync all configured feeds once:
-
-```bash
-npm run sync:once
-```
-
-Sync only a subset:
+Sync only selected feeds:
 
 ```bash
 node src/syncFeeds.js --feeds=scout,sentry
 ```
 
-Run on a custom interval:
+Change the schedule:
 
 ```bash
 node src/syncFeeds.js --watch --interval-hours=6
 ```
 
-Force a snapshot even if the data hash is unchanged:
+Force a new snapshot even if the payload did not change:
 
 ```bash
 node src/syncFeeds.js --force-snapshot
 ```
 
-Start the scheduler without an immediate startup run:
+Start the watch mode without an immediate startup sync:
 
 ```bash
 node src/syncFeeds.js --watch --no-startup-sync
 ```
 
-## Running the scheduler inside the API server
+## Embedded Scheduler Mode
 
-If you already keep `server.js` alive, you can embed the daily sync job in that
-same Node process:
+If you already keep the API running, you can let `server.js` host the feed sync
+scheduler too:
 
 ```bash
 cd backend
 ENABLE_JPL_SYNC_SCHEDULER=1 npm run dev
 ```
 
-Optional environment variables:
+Optional environment variables for this mode:
 
 - `ENABLE_JPL_SYNC_SCHEDULER=1`
-  Enables the built-in scheduler.
 - `JPL_SYNC_INTERVAL_HOURS=24`
-  Sets the scheduler interval for the embedded mode.
 - `JPL_SYNC_RUN_ON_START=0`
-  Waits until the first interval before the first sync.
 - `JPL_CLOSE_APPROACH_DIST_MAX=10LD`
-  Overrides the `cad.api` distance filter.
 - `JPL_CLOSE_APPROACH_DATE_MIN=now`
-  Overrides the `cad.api` minimum date.
 - `JPL_CLOSE_APPROACH_SORT=dist`
-  Overrides the `cad.api` sort mode.
 
-## Data files and what they mean
+## Data Outputs
 
-- `backend/data/sample-scout-summary.json`
-  A captured sample Scout payload used for schema inspection and local testing.
-- `backend/data/snapshots/`
-  Short-interval raw Scout snapshots from `snapshotPoller.js`.
-- `backend/data/snapshot-index.jsonl`
-  One JSON line per poll run with object counts and IDs.
-- `backend/data/feeds/`
-  Feed-specific latest payloads and timestamped change snapshots.
-- `backend/data/feed-sync-manifest.json`
-  Machine-readable status file for agents or monitoring.
-- `backend/data/feed-sync-log.jsonl`
-  Append-only history of sync attempts and changes.
+Useful generated files include:
 
-## Operational notes
+- `backend/data/sample-scout-summary.json`: captured sample from `npm run inspect`
+- `backend/data/snapshots/`: frequent raw Scout snapshots
+- `backend/data/snapshot-index.jsonl`: append-only polling index
+- `backend/data/feeds/`: latest feed payloads and timestamped snapshots
+- `backend/data/feed-sync-manifest.json`: machine-readable sync status
+- `backend/data/feed-sync-log.jsonl`: append-only sync history
 
-### JPL request discipline
+## Operational Caveats
 
-The repo is intentionally structured so only `backend/src/jplClient.js` talks to
-JPL directly. That client serializes outbound requests within a single Node
-process to reduce the chance of hammering the API.
+Only `backend/src/jplClient.js` should talk to JPL directly. Within a single
+Node process, that client serializes outbound requests to avoid needlessly
+hammering the upstream APIs.
 
-### Multi-process caveat
+That protection does not extend across separate Node processes. If you run
+multiple commands at once, they can still overlap at the network level:
 
-If you run multiple Node processes at once, they do not share the same in-memory
-request queue. That means these combinations can still overlap:
+- `npm run dev` and `npm run poll`
+- `npm run dev` and `npm run sync:daily`
+- `npm run poll` and `npm run sync:daily`
 
-- `npm run dev` plus `npm run poll`
-- `npm run dev` plus `npm run sync:daily`
-- `npm run poll` plus `npm run sync:daily`
+If you want stricter one-process behavior, prefer:
 
-If strict one-at-a-time JPL access matters, prefer:
+- `ENABLE_JPL_SYNC_SCHEDULER=1 npm run dev`
+- or routing background jobs through your own backend instead of separate JPL
+  callers
 
-- one backend process with `ENABLE_JPL_SYNC_SCHEDULER=1 npm run dev`
-- or routing background jobs through your own backend endpoints instead of
-  hitting JPL directly from separate processes
+## Current Limitations
 
-## Current limitations
+- storage is file-based; there is no persistent database yet
+- the frontend still carries mirrored offline scoring logic so the sample mode
+  can rank objects without a backend
+- some hunting and planning constants are still frontend-local rather than
+  backend data
+- the selected-object orbit view can fall back to illustrative behavior when
+  live backend detail is unavailable
 
-- The live queue now uses backend normalization and scoring, but the offline
-  sample fallback still mirrors that scoring logic in the frontend.
-- Planet positions now come from backend-fed JPL Horizons elements, and
-  selected-object orbit views can upgrade to real Scout orbit data at runtime.
-- Some non-astronomy planning constants remain local in the frontend, such as
-  facility metadata, launcher assumptions, and simplified mission-cost tables.
-- There is no persistent database; storage is currently file-based snapshots.
-- Runtime verification could not be performed in this shell because `node` is
-  not installed here.
+## Additional Docs
 
-## Suggested next implementation steps
-
-1. Remove the duplicated offline scoring logic from `frontend/index.html` if you
-   want the browser to rely exclusively on backend-scored payloads.
-2. Replace the frontend's illustrative orbit generation with real geometry from
-   `/api/scout/object/:tdes?orbits=1`.
-3. Persist normalized objects and score history in a real datastore if you need
-   longitudinal querying beyond flat files.
-4. Add alerting on feed changes, newly risky objects, or rising scores.
-
-## Backend-specific notes
-
-The backend-specific README remains at [backend/README.md](/Users/24williamz/Projects/asteROIDED/backend/README.md:1) if you want implementation details for the service layer only.
+- `backend/README.md`: backend-focused notes and runbook details
+- `frontend/README.md`: frontend-specific UX and feature notes
