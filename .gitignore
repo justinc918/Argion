@@ -1,6 +1,10 @@
 node_modules/
-data/snapshots/
-data/snapshot-index.jsonl
-data/sample-scout-summary.json
+backend/node_modules/
+backend/data/snapshots/
+backend/data/snapshot-index.jsonl
+backend/data/sample-scout-summary.json
+backend/data/feeds/
+backend/data/feed-sync-manifest.json
+backend/data/feed-sync-log.jsonl
 .env
 *.log
