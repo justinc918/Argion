@@ -2048,16 +2048,16 @@ let orbitPending=null;
 async function load(){
   let data,live=false;
   try{
-    const [summaryRes, planetsRes] = await Promise.all([
-      fetch(`${API_BASE}/api/scout/summary/scored`,{signal:AbortSignal.timeout(4000)}),
-      fetch(`${API_BASE}/api/planets/elements`,{signal:AbortSignal.timeout(4000)})
-    ]);
-    if(!summaryRes.ok || !planetsRes.ok)throw 0;
+    const summaryRes=await fetch(`${API_BASE}/api/scout/summary/scored`,{signal:AbortSignal.timeout(4000)});
+    if(!summaryRes.ok)throw 0;
     data=await summaryRes.json();
-    const planets=await planetsRes.json();
-    hydratePlanets(planets);
     live=true;
-  }catch(e){data=SAMPLE;buildFallbackPlanets();}
+  }catch(e){data=SAMPLE;}
+  try{
+    const planetsRes=await fetch(`${API_BASE}/api/planets/elements`,{signal:AbortSignal.timeout(4000)});
+    if(planetsRes.ok)hydratePlanets(await planetsRes.json());
+    else buildFallbackPlanets();
+  }catch(e){buildFallbackPlanets();}
   const rows=(data&&data.data)||[];
   RAW=rows.map(row=>{
     const o=live ? (row.raw||{}) : row;
