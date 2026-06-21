@@ -446,7 +446,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
           <div class="tablewrap">
             <table id="tbl"><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
           </div>
-          <div class="qfoot"><span class="eyebrow"><span id="rowCount">—</span> objects · live JPL Scout queue via backend scoring</span></div>
         </main>
         <aside class="inspector" id="inspector">
           <div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>
@@ -2145,7 +2144,7 @@ function renderInspector(){
     <div class="insp-sec"><h4>Position & Orbit <span class="w">heliocentric</span></h4>
       <div class="miniorbit">${miniOrbitSVG(r)}</div>
       <div class="mo-legend"><span><i style="background:var(--accent-2)"></i>Earth orbit</span><span><i style="background:${s.tier.color}"></i>${o.objectName}</span><span><i style="background:var(--txt-3)"></i>perihelion</span></div>
-      <div class="derived-note">Orbit derived illustratively from designation + V∞ (summary feed has no elements). Wire <span style="color:var(--txt-2)">/api/scout/object?orbits=1</span> for true geometry.</div></div>
+      </div></div>
     <div class="insp-sec"><h4>Priority Score <span class="w">Σ weighted</span></h4>
       <div class="total"><span class="n" style="color:${s.tier.color}">${Math.round(s.total)}</span><span class="of">/ 100</span></div>
       <div class="meter"><i style="width:${s.total}%;background:${s.tier.color}"></i>${ticks}</div>
