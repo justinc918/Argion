@@ -16,7 +16,7 @@
 <style>
 /* =========================================================================
    Argion — planetary-defense workbench
-   Tabs: Triage · Tracking · Hunting · Insight
+   Tabs: Triage · Tracking · Hunting · Insight · Deflection · Concierge
    Type: IBM Plex superfamily (Sans = UI, Mono = data). Instrument-panel dark.
    ========================================================================= */
 :root{
@@ -346,6 +346,78 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
 .scale-card h5{margin:0 0 6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:11px;color:var(--txt);font-weight:600}
 .scale-card p{margin:0;font-size:12px;line-height:1.55;color:var(--txt-2)}
 @media (max-width:1100px){.scale-grid{grid-template-columns:1fr}.hunt-wrap{grid-template-columns:320px 1fr 300px}}
+
+/* ---------- DEFLECTION + CONCIERGE shared ---------- */
+.three-col{display:grid;grid-template-columns:300px minmax(0,1fr) 372px;height:100%;min-height:0}
+.tc-side,.tc-out{min-height:0;overflow-y:auto;background:var(--bg-2)}
+.tc-side{border-right:1px solid var(--border)}
+.tc-out{border-left:1px solid var(--border)}
+.tc-stage{min-height:0;overflow-y:auto;display:flex;flex-direction:column;background:
+  radial-gradient(900px 540px at 70% -8%,rgba(70,201,224,.045),transparent 60%),var(--bg)}
+.tc-sec{padding:14px 15px;border-bottom:1px solid var(--border)}
+.tc-sec h3{margin:0 0 11px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.15em;font-size:10px;color:var(--txt-3);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.tc-sec h3 .hot{color:var(--accent)}
+.tc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--txt-3);gap:10px;padding:40px}
+.tc-empty .ring{width:46px;height:46px;border:1px solid var(--border-2);transform:rotate(45deg)}
+.tc-empty p{max-width:300px;font-size:12px;line-height:1.6;margin:0}
+.opt-row{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--border);background:var(--panel);cursor:pointer;transition:.13s}
+.opt:hover{border-color:var(--border-2);background:var(--panel-2)}
+.opt.on{border-color:var(--accent);background:rgba(70,201,224,.09);box-shadow:inset 3px 0 0 var(--accent)}
+.opt .nm{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:11.5px;font-weight:600;color:var(--txt-2)}
+.opt.on .nm{color:var(--txt)}
+.opt .sub{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--txt-3)}
+.opt .sw{width:11px;height:11px;flex:none;border-radius:50%}
+.seg-btns{display:flex;border:1px solid var(--border-2)}
+.seg-btns button{flex:1;font-family:var(--cond);text-transform:uppercase;letter-spacing:.07em;font-size:10px;font-weight:600;padding:8px 6px;background:var(--panel);color:var(--txt-3);border:0;border-right:1px solid var(--border-2);cursor:pointer;transition:.13s}
+.seg-btns button:last-child{border-right:0}
+.seg-btns button.on{background:var(--accent);color:var(--bg)}
+.seg-btns button:not(.on):hover{color:var(--txt)}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
+.kpi .k{background:#0c1018;padding:11px 12px}
+.kpi .k .v{font-family:var(--mono);font-size:19px;line-height:1;color:var(--txt)}
+.kpi .k .v.hi{color:var(--accent)} .kpi .k .v.warn{color:var(--elev)} .kpi .k .v.crit{color:var(--crit)} .kpi .k .v.good{color:var(--good)}
+.kpi .k .v small{font-size:11px;color:var(--txt-3);margin-left:3px}
+.kpi .k .l{margin-top:6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:9px;color:var(--txt-3)}
+.kpi.one{grid-template-columns:1fr}
+.kpi.three{grid-template-columns:repeat(3,1fr)}
+.rowtab{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;margin-top:2px}
+.rowtab td{padding:6px 2px;border-bottom:1px solid var(--line);color:var(--txt-2);text-align:right;white-space:nowrap}
+.rowtab td:first-child{text-align:left;color:var(--txt-3);font-family:var(--cond);text-transform:uppercase;letter-spacing:.05em;font-size:10px;font-weight:600}
+.rowtab td b{color:var(--txt);font-weight:500}
+.rowtab tr:last-child td{border-bottom:0}
+.rowtab tr.tot td{border-top:1px solid var(--border-2);padding-top:8px}
+.rowtab tr.tot td b{color:var(--accent)}
+.verdict{border-left:2px solid var(--accent-2);padding:4px 0 4px 13px;margin:4px 0 0;color:var(--txt-2);font-size:12.5px;line-height:1.6}
+.verdict.bad{border-color:var(--crit)} .verdict.good{border-color:var(--good)} .verdict b{color:var(--txt)}
+.fig-cap{padding:10px 16px 16px;font-family:var(--mono);font-size:10px;color:var(--txt-3);line-height:1.7;border-bottom:1px solid var(--border)}
+.fig-cap b{color:var(--txt-2)}
+.stage-fig{padding:16px 16px 6px}
+.stage-fig svg{width:100%;height:auto;display:block;background:#080b11;border:1px solid var(--border)}
+.fig-legend{display:flex;flex-wrap:wrap;gap:14px;padding:11px 16px 0;font-family:var(--mono);font-size:10px;color:var(--txt-2)}
+.fig-legend span{display:flex;align-items:center;gap:6px}
+.fig-legend i{width:16px;height:0;border-top-width:2px;border-top-style:solid;display:inline-block}
+.fig-legend i.dot{width:9px;height:9px;border:0;border-radius:50%}
+.fig-legend i.dash{border-top-style:dashed}
+.stage-phys{padding:18px 18px 60px}
+.stage-phys .ins-mod{margin-bottom:18px}
+.tiny-note{font-family:var(--mono);font-size:9.5px;color:var(--txt-3);line-height:1.6;margin-top:8px}
+.rk{border:1px solid var(--border);background:var(--panel);padding:11px 12px;margin-bottom:8px}
+.rk.pick{border-color:var(--accent);box-shadow:0 0 0 1px rgba(70,201,224,.15)}
+.rk .rtop{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.rk .badge{font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;font-size:9px;font-weight:600;padding:2px 6px;border:1px solid var(--border-2);color:var(--txt-3)}
+.rk.pick .badge{color:var(--accent);border-color:var(--accent)}
+.rk .nm{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--txt)}
+.rk .cost{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--txt-2)}
+.rk .meta{display:flex;gap:13px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--txt-3)}
+.rk .meta b{color:var(--txt-2);font-weight:500}
+.rk.miss{opacity:.5}.rk.miss .badge{color:var(--crit);border-color:var(--crit)}
+.slider input[type=range]{width:100%;accent-color:var(--accent)}
+.tc-hero{padding:16px 18px 14px;border-bottom:1px solid var(--border)}
+.tc-hero h2{margin:0;font-family:var(--sans);font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--txt)}
+.tc-hero h2 b{color:var(--accent)}
+.tc-hero p{margin:6px 0 0;color:var(--txt-2);font-size:12px;line-height:1.55}
+@media (max-width:1100px){.three-col{grid-template-columns:260px 1fr 320px}}
 /*__VIEW_CSS__*/
 </style>
 </head>
@@ -408,6 +480,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
     <button class="tab" data-view="tracking">Tracking <span class="n">3D</span></button>
     <button class="tab" data-view="hunting">Hunting <span class="n" id="tabnHunt">—</span></button>
     <button class="tab" data-view="insight">Insight</button>
+    <button class="tab" data-view="deflection">Deflection <span class="n">Δv</span></button>
+    <button class="tab" data-view="concierge">Concierge <span class="n">✈</span></button>
   </nav>
 
   <div class="views">
@@ -465,6 +539,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
             <div class="track-ctrls">
               <button class="btn" id="trkPause">⏸ Pause</button>
               <button class="btn on" id="trkLabels">Labels</button>
+              <button class="btn on" id="trkPlanets">Planets</button>
               <button class="btn" id="trkReset">Reset View</button>
             </div>
             <div class="track-speed">
@@ -508,6 +583,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
     <!-- ===================== INSIGHT ===================== -->
     <section class="view" data-view="insight">
       <div class="insight-wrap"><div class="insight-col" id="insightCol"></div></div>
+    </section>
+
+    <!-- ===================== DEFLECTION ===================== -->
+    <section class="view" data-view="deflection">
+      <div class="three-col">
+        <aside class="tc-side" id="deflSide"></aside>
+        <main class="tc-stage" id="deflStage"></main>
+        <aside class="tc-out" id="deflOut"></aside>
+      </div>
+    </section>
+
+    <!-- ===================== CONCIERGE ===================== -->
+    <section class="view" data-view="concierge">
+      <div class="three-col">
+        <aside class="tc-side" id="concSide"></aside>
+        <main class="tc-stage" id="concStage"></main>
+        <aside class="tc-out" id="concOut"></aside>
+      </div>
     </section>
   </div>
 </div>
@@ -2304,6 +2397,7 @@ function select(id){
   renderTriage();
   if(VIEW==="tracking"&&track.ready)track.highlight();
   if(VIEW==="hunting"){updatePlanSelection();renderHuntDetail();}
+  if(VIEW==="deflection")renderDeflection();
   if(selected){
     fetchAnalysis(selected);
     fetchSummaryStream(selected);
@@ -2340,6 +2434,8 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
   if(VIEW==="tracking")track.activate();
   if(VIEW==="hunting")renderHunting();
   if(VIEW==="insight")renderInsight();
+  if(VIEW==="deflection")renderDeflection();
+  if(VIEW==="concierge")renderConcierge();
 });
 function tick(){document.getElementById("clock").textContent=new Date().toISOString().slice(11,19)+" UTC";}
 tick();setInterval(tick,1000);
@@ -2350,8 +2446,8 @@ function renderAll(){renderTriage();if(VIEW==="hunting")renderHunting();if(VIEW=
    =========================================================================== */
 const track=(function(){
   const SCALE=60;            // units per AU
-  let ready=false,inited=false,started=false,paused=false,showLabels=true;
-  let scene,cam,rndr,raf,canvas,earth,earthGrp,objs=[],t=0,speedMult=1;
+  let ready=false,inited=false,started=false,paused=false,showLabels=true,showPlanets=true;
+  let scene,cam,rndr,raf,canvas,earth,earthGrp,objs=[],planetObjs=[],t=0,speedMult=1;
   const target=new THREE.Vector3(0,0,0);
   let radius=170,theta=0.9,phi=1.02;
   const DEF={radius:170,theta:0.9,phi:1.02};
@@ -2403,11 +2499,34 @@ const track=(function(){
     });
     updatePositions();highlight();
   }
+  function buildPlanets3D(){
+    planetObjs.forEach(o=>{scene.remove(o.line);scene.remove(o.dot);scene.remove(o.label);});planetObjs=[];
+    PLANET_ORDER.forEach(name=>{
+      if(name==="Earth")return;                              // Earth already drawn as a textured globe
+      const el=PLANETS[name];
+      const col=new THREE.Color(el.tint);
+      const pts=orbitPath(el,256).map(v3);
+      const g=new THREE.BufferGeometry().setFromPoints(pts);
+      const line=new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.42}));
+      scene.add(line);
+      const dot=new THREE.Mesh(new THREE.SphereGeometry(1.7,16,16),new THREE.MeshBasicMaterial({color:col}));
+      dot.userData.planet=name;scene.add(dot);
+      const label=makeLabel(name.toUpperCase(),el.tint);label.scale.set(22,5.5,1);scene.add(label);
+      planetObjs.push({name,el,line,dot,label});
+    });
+    setPlanetVis();updatePositions();
+  }
+  function setPlanetVis(){
+    planetObjs.forEach(o=>{o.line.visible=showPlanets;o.dot.visible=showPlanets;
+      o.label.visible=showPlanets&&showLabels;});
+  }
   function updatePositions(){
     const ea=(EARTH_ANGLE+t*(360/365.25))*D2R;
     earthGrp.position.set(Math.cos(ea)*SCALE,0,-Math.sin(ea)*SCALE);
     objs.forEach(o=>{const M=o.el.M0+t*(360/(o.el.period*365.25));const p=v3(posAt(o.el,M));
       o.dot.position.copy(p);o.label.position.set(p.x,p.y+5,p.z);o.label.visible=showLabels;});
+    planetObjs.forEach(o=>{const M=o.el.M0+t*(360/(o.el.period*365.25));const p=v3(posAt(o.el,M));
+      o.dot.position.copy(p);o.label.position.set(p.x,p.y+6,p.z);});
   }
   function highlight(){
     objs.forEach(o=>{const sel=o.r.id===selected;
@@ -2459,6 +2578,7 @@ const track=(function(){
       sp.push(s2*Math.cos(th)*rr,u*rr,s2*Math.sin(th)*rr);}
     const sg=new THREE.BufferGeometry();sg.setAttribute("position",new THREE.Float32BufferAttribute(sp,3));
     scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x4a5566,size:1.4,sizeAttenuation:false})));
+    buildPlanets3D();
     bindControls();ready=true;return true;
   }
   function bindControls(){
@@ -2469,7 +2589,7 @@ const track=(function(){
         const k=radius*0.0016;target.addScaledVector(right,-dx*k);target.addScaledVector(up,dy*k);}
       else{theta-=dx*0.005;phi=Math.max(0.08,Math.min(Math.PI-0.08,phi-dy*0.005));}});
     addEventListener("pointerup",e=>{if(down&&!shift&&moved<5)pick(e);down=false;});
-    canvas.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(28,Math.min(900,radius*Math.exp(e.deltaY*0.0011)));},{passive:false});
+    canvas.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(28,Math.min(2400,radius*Math.exp(e.deltaY*0.0011)));},{passive:false});
   }
   function pick(e){const rect=canvas.getBoundingClientRect();
     const mouse=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
@@ -2484,13 +2604,15 @@ const track=(function(){
     rebuild(){if(ready)build();},
     highlight(){if(ready)highlight();},
     pause(p){paused=p===undefined?!paused:p;},
-    labels(v){showLabels=v===undefined?!showLabels:v;highlight();},
+    labels(v){showLabels=v===undefined?!showLabels:v;setPlanetVis();highlight();},
+    planets(v){showPlanets=v===undefined?!showPlanets:v;setPlanetVis();},
     reset(){radius=DEF.radius;theta=DEF.theta;phi=DEF.phi;target.set(0,0,0);},
     setSpeed(v){speedMult=Math.max(0,v);}
   };
 })();
 document.getElementById("trkPause").addEventListener("click",e=>{track.pause();e.target.classList.toggle("on");e.target.textContent=e.target.classList.contains("on")?"▶ Play":"⏸ Pause";});
 document.getElementById("trkLabels").addEventListener("click",e=>{e.target.classList.toggle("on");track.labels(e.target.classList.contains("on"));});
+document.getElementById("trkPlanets").addEventListener("click",e=>{e.target.classList.toggle("on");track.planets(e.target.classList.contains("on"));});
 document.getElementById("trkReset").addEventListener("click",()=>track.reset());
 (function(){const sl=document.getElementById("trkSpeed"),lbl=document.getElementById("trkSpeedVal");
   sl.addEventListener("input",()=>{const v=+sl.value;track.setSpeed(v);lbl.textContent=v.toFixed(2).replace(/\.?0+$/,"")+"×";});})();
@@ -2750,6 +2872,474 @@ function wireInsight(o,s){
     rho=+b.dataset.r;document.querySelectorAll("#ieRho button").forEach(x=>x.classList.toggle("on",x===b));ie();});
   ie();
 }
+
+
+/* ===== injected: Deflection + Concierge tabs ===== */
+/* ===========================================================================
+   11 · SHARED ORBITAL CONSTANTS + PLANETS
+   Real heliocentric mean elements (Standish / JPL approximate positions, J2000),
+   propagated to the current epoch so positions & launch windows reflect "now".
+   =========================================================================== */
+const MU_SUN=1.32712440018e20, MU_EARTH=3.986004418e14;     // m^3/s^2
+const AU_M=1.495978707e11, YR_S=365.25*86400, G0=9.80665;
+const J2000_MS=Date.UTC(2000,0,1,12,0,0);
+const R_EARTH=6.371e6;                                       // m
+function norm360(x){return((x%360)+360)%360;}
+// a(AU), e, i(deg), L(deg mean long), wbar(deg long. peri), Om(deg asc node), tint(hex)
+const PLANET_TAB={
+  Mercury:[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593,"#b4a48c"],
+  Venus:  [0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255,"#e6c98a"],
+  Earth:  [1.00000261,0.01671123,-0.00001531,100.46457166,102.93768193,0.0,"#46c9e0"],
+  Mars:   [1.52371034,0.09339410,1.84969142,-4.55343205,-23.94362959,49.55953891,"#e06a4b"],
+  Jupiter:[5.20288700,0.04838624,1.30439695,34.39644051,14.72847983,100.47390909,"#d8a878"],
+  Saturn: [9.53667594,0.05386179,2.48599187,49.95424423,92.59887831,113.66242448,"#e8d6a0"],
+  Uranus: [19.18916464,0.04725744,0.77263783,313.23810451,170.95427630,74.01692503,"#9fe0e0"],
+  Neptune:[30.06992276,0.00859048,1.77004347,-55.12002969,44.96476227,131.78422574,"#6f8ee8"],
+};
+const PLANET_ORDER=["Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune"];
+function planetElements(name,nowMs){
+  const [a,e,i,L,wbar,Om,tint]=PLANET_TAB[name];
+  const period=Math.pow(a,1.5);                              // yr
+  const n=360/(period*365.25);                               // deg/day
+  const d=(nowMs-J2000_MS)/86400000;
+  const Lnow=norm360(L+n*d);
+  return {a,e,i,Om,w:norm360(wbar-Om),M0:norm360(Lnow-wbar),period,L:Lnow,tint};
+}
+let PLANETS={};
+function buildPlanets(){const t=Date.now();PLANETS={};PLANET_ORDER.forEach(p=>PLANETS[p]=planetElements(p,t));}
+buildPlanets();
+
+/* shared formatting helpers */
+function fmtUSD(x){const a=Math.abs(x);
+  if(a>=1e12)return"$"+(x/1e12).toFixed(a>=1e13?0:1)+"T";
+  if(a>=1e9)return"$"+(x/1e9).toFixed(a>=1e10?0:1)+"B";
+  if(a>=1e6)return"$"+(x/1e6).toFixed(0)+"M";
+  return"$"+Math.round(x).toLocaleString();}
+function fmtBig(x,u){const a=Math.abs(x);
+  if(a>=1e9)return(x/1e9).toFixed(2)+" G"+u;
+  if(a>=1e6)return(x/1e6).toFixed(2)+" M"+u;
+  if(a>=1e3)return(x/1e3).toFixed(2)+" k"+u;
+  if(a<0.01&&a>0)return x.toExponential(2)+" "+u;
+  return x.toFixed(2)+" "+u;}
+function fmtYears(yr){if(yr<1)return Math.round(yr*365.25)+" d";if(yr<10)return yr.toFixed(2)+" yr";return Math.round(yr)+" yr";}
+function fmtCount(n){return n>=1e6?(n/1e6).toFixed(2)+" M":n>=1e3?(n/1e3).toFixed(1)+" k":n.toLocaleString();}
+
+/* conic / projection helpers (ecliptic top-down x,y, in AU) */
+function ellipseXY(el,n=220){return orbitPath(el,n).map(p=>[p[0],p[1]]);}
+function conicXY(el,eNew,RmaxAU,n=260){
+  const rp=el.a*(1-el.e), p=rp*(1+eNew), out=[];
+  const numax=(eNew>=1?Math.acos(Math.max(-0.9999,-1/Math.max(eNew,1.0001))):Math.PI)-0.02;
+  for(let k=0;k<=n;k++){const nu=-numax+2*numax*k/n;
+    const denom=1+eNew*Math.cos(nu); if(denom<=1e-4)continue;
+    const r=p/denom; if(r<=0||r>RmaxAU)continue;
+    const v=rot(r*Math.cos(nu),r*Math.sin(nu),{i:el.i,Om:el.Om,w:el.w});
+    out.push([v[0],v[1]]);}
+  return out;
+}
+function progradeDirXY(el){const v=rot(0,1,{i:el.i,Om:el.Om,w:el.w});return[v[0],v[1]];}
+function perihelionXY(el){const rp=el.a*(1-el.e),v=rot(rp,0,{i:el.i,Om:el.Om,w:el.w});return[v[0],v[1]];}
+
+/* ===========================================================================
+   12 · DEFLECTION — eject the selected NEO onto a parabolic / hyperbolic orbit
+   =========================================================================== */
+const DENSITY={ "C":1380, "S":2710, "M":5320 };
+const DENSITY_LABEL={ "C":"C-type (carbonaceous)", "S":"S-type (stony)", "M":"M-type (metallic)" };
+const ECC_TARGET={ parabolic:1.0, hyperbolic:1.6 };
+const deflState={ targetMode:"parabolic", density:"S" };
+
+function deflComputeMass(r){
+  const D=(r.s&&r.s.D!=null)?r.s.D:(diameterM(r.o.H)||140);
+  const rho=DENSITY[deflState.density];
+  const m=rho*(4/3)*Math.PI*Math.pow(D/2,3);
+  return {D,rho,m};
+}
+function deflCompute(r){
+  const el=r.el, a=el.a*AU_M, rp=el.a*(1-el.e)*AU_M;
+  const vPeri=Math.sqrt(MU_SUN*(2/rp-1/a));                  // current speed at perihelion
+  const eNew=ECC_TARGET[deflState.targetMode];
+  const vTarget=Math.sqrt(MU_SUN/rp*(1+eNew));              // speed at perihelion for new conic
+  const dv=vTarget-vPeri;                                    // prograde impulse needed
+  const vInf=Math.sqrt(Math.max(0,MU_SUN/rp*(eNew-1)));     // hyperbolic excess (0 for parabola)
+  const {D,rho,m}=deflComputeMass(r);
+  const P=m*dv;                                              // total impulse (kg m/s)
+  const Ekin=0.5*m*dv*dv;                                    // kinetic energy budget (J)
+
+  // mission models -----------------------------------------------------------
+  const KI={dp:3.6*600*6500, cost:330e6};                   // DART-class: beta*m*v ; program cost
+  const NUC={dp:1.5e9, cost:1.0e9};                          // 1-Mt standoff (order-of-mag), incl. delivery
+  const nKI=Math.ceil(P/KI.dp),  costKI=nKI*KI.cost;
+  const nNUC=Math.ceil(P/NUC.dp),costNUC=nNUC*NUC.cost;
+
+  // realistic "deflect-to-miss" reference (3x along-track leverage, 10 yr lead)
+  const lead=10, dvMiss=R_EARTH/(3*lead*YR_S), Pmiss=m*dvMiss;
+  const nMiss=Math.max(1,Math.ceil(Pmiss/KI.dp)), costMiss=nMiss*KI.cost;
+
+  // damage-averted heuristic (for ROI) --------------------------------------
+  const vinfData=num(r.o.vInf)!=null?num(r.o.vInf):18;       // km/s
+  const vImp=Math.sqrt(vinfData*vinfData+11.2*11.2)*1000;    // m/s incl. Earth focusing
+  const Emt=0.5*m*vImp*vImp/4.184e15;                        // megatons TNT
+  const lossUSD=Math.min(5e13,Math.max(1e9,5e10*Math.pow(Emt,0.55)));
+
+  const roiEject=lossUSD/costKI, roiMiss=lossUSD/costMiss;
+  return {el,rp:el.a*(1-el.e),vPeri,vTarget,dv,vInf,eNew,D,rho,m,P,Ekin,
+    nKI,costKI,nNUC,costNUC,dvMiss,nMiss,costMiss,lead,Emt,lossUSD,roiEject,roiMiss};
+}
+
+function deflFigureSVG(r,c){
+  const el=r.el, W=640,H=480;
+  const aph=el.a*(1+el.e);
+  const Rmax=Math.min(8,Math.max(2.2,aph*1.55));
+  const ell=ellipseXY(el,240);
+  const esc=conicXY(el,c.eNew,Rmax,300);
+  const cx=W*0.46, cy=H*0.5;
+  const sc=Math.min((W*0.46-26)/Rmax,(H/2-26)/Rmax);
+  const X=x=>cx+x*sc, Y=y=>cy-y*sc;
+  const poly=pts=>pts.map(p=>X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ");
+  // earth orbit (1 AU)
+  let earthRing="";for(let k=0;k<=120;k++){const A=k/120*2*Math.PI;earthRing+=(k?" ":"")+X(Math.cos(A)).toFixed(1)+","+Y(Math.sin(A)).toFixed(1);}
+  const eA=EARTH_ANGLE*D2R, eX=X(Math.cos(eA)), eY=Y(Math.sin(eA));
+  const peri=perihelionXY(el), pX=X(peri[0]), pY=Y(peri[1]);
+  const dir=progradeDirXY(el), dlen=Math.hypot(dir[0],dir[1])||1;
+  const ax=pX+dir[0]/dlen*42, ay=pY-dir[1]/dlen*42;
+  const cur=posAt(el,el.M0), curX=X(cur[0]), curY=Y(cur[1]);
+  const ang=Math.atan2(ay-pY,ax-pX);
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="dvArrow" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#F2A23B"/></marker></defs>
+    <polyline points="${earthRing}" fill="none" stroke="#5b8def" stroke-width="1" stroke-dasharray="2 4" opacity="0.65"/>
+    <polyline points="${poly(ell)}" fill="none" stroke="${r.s.tier.raw}" stroke-width="1.6" opacity="0.85"/>
+    <polyline points="${poly(esc)}" fill="none" stroke="#3FC08B" stroke-width="2" opacity="0.95"/>
+    <circle cx="${cx}" cy="${cy}" r="6" fill="#ffd27a"/>
+    <circle cx="${cx}" cy="${cy}" r="11" fill="none" stroke="#ffd27a" stroke-width="0.6" opacity="0.4"/>
+    <circle cx="${eX.toFixed(1)}" cy="${eY.toFixed(1)}" r="4" fill="#46c9e0"/>
+    <text x="${(eX+8).toFixed(1)}" y="${(eY+4).toFixed(1)}" fill="#46c9e0" font-family="monospace" font-size="10">Earth</text>
+    <circle cx="${curX.toFixed(1)}" cy="${curY.toFixed(1)}" r="3.6" fill="${r.s.tier.raw}"/>
+    <text x="${(curX+7).toFixed(1)}" y="${(curY+3).toFixed(1)}" fill="#9fb0c2" font-family="monospace" font-size="9.5">${r.id}</text>
+    <line x1="${pX.toFixed(1)}" y1="${pY.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#F2A23B" stroke-width="2.2" marker-end="url(#dvArrow)"/>
+    <circle cx="${pX.toFixed(1)}" cy="${pY.toFixed(1)}" r="3.4" fill="#F2A23B"/>
+    <text x="${(ax+Math.cos(ang)*6).toFixed(1)}" y="${(ay+Math.sin(ang)*6-4).toFixed(1)}" fill="#F2A23B" font-family="monospace" font-size="10" font-weight="600">Δv burn</text>
+    <text x="14" y="22" fill="#545e6c" font-family="monospace" font-size="9.5">ecliptic top-down · Sun-centred · 1 grid = orbit of Earth</text>
+  </svg>`;
+}
+
+function renderDeflection(){
+  const side=document.getElementById("deflSide"),stage=document.getElementById("deflStage"),out=document.getElementById("deflOut");
+  const r=RAW.find(x=>x.id===selected);
+  if(!r){
+    side.innerHTML=`<div class="tc-sec"><h3>Target</h3><div class="opt-row"><div class="opt"><span class="nm" style="color:var(--txt-3)">none selected</span></div></div></div>`;
+    stage.innerHTML=`<div class="tc-empty"><div class="ring"></div><div class="eyebrow">No target selected</div><p>Pick an object in <b>Triage</b> or <b>Hunting</b>. Deflection then computes the impulse needed to push that body onto an escape trajectory, the mission cost, and the return on investment.</p></div>`;
+    out.innerHTML="";
+    return;
+  }
+  const c=deflCompute(r),[dc,dcDesc]=dynClass(r.el);
+  const eject=c.roiEject>=1;
+  // ---- left controls ----
+  const densBtns=Object.keys(DENSITY).map(k=>`<button data-d="${k}" class="${deflState.density===k?"on":""}">${k}-type</button>`).join("");
+  side.innerHTML=`
+    <div class="tc-hero"><h2>Deflect <b>${r.id}</b></h2><p>${dc} · est. Ø ${Math.round(c.D)} m · triage ${Math.round(r.s.total)} (${r.s.tier.id})</p></div>
+    <div class="tc-sec"><h3>Escape Target</h3>
+      <div class="seg-btns" id="deflTgt">
+        <button data-t="parabolic" class="${deflState.targetMode==="parabolic"?"on":""}">Parabolic · e=1</button>
+        <button data-t="hyperbolic" class="${deflState.targetMode==="hyperbolic"?"on":""}">Hyperbolic · e=1.6</button></div>
+      <p class="tiny-note">Parabolic (e=1) is the minimum-energy ejection — the body just barely escapes the Sun. Hyperbolic leaves with residual speed v∞, costing more Δv.</p></div>
+    <div class="tc-sec"><h3>Assumed Composition</h3>
+      <div class="seg-btns" id="deflDens">${densBtns}</div>
+      <p class="tiny-note">${DENSITY_LABEL[deflState.density]} · ρ = ${c.rho} kg/m³. Mass ∝ ρD³, so this drives impulse and cost directly.</p></div>
+    <div class="tc-sec" style="border-bottom:0"><h3>Burn Geometry</h3>
+      <table class="rowtab">
+        <tr><td>Burn point</td><td><b>perihelion</b></td></tr>
+        <tr><td>Perihelion r</td><td><b>${c.rp.toFixed(3)}</b> au</td></tr>
+        <tr><td>Speed there</td><td><b>${(c.vPeri/1000).toFixed(2)}</b> km/s</td></tr>
+        <tr><td>Need</td><td><b>${(c.vTarget/1000).toFixed(2)}</b> km/s</td></tr>
+        <tr><td>Direction</td><td><b>prograde</b></td></tr>
+      </table>
+      <p class="tiny-note">Burning prograde at perihelion is the cheapest place to escape (Oberth effect): the body is fastest, so a given Δv adds the most energy.</p></div>`;
+  // ---- centre: figure + physics ----
+  stage.innerHTML=`
+    <div class="stage-fig">${deflFigureSVG(r,c)}</div>
+    <div class="fig-legend">
+      <span><i style="border-color:${r.s.tier.raw}"></i>current orbit</span>
+      <span><i style="border-color:#3FC08B"></i>post-burn escape</span>
+      <span><i class="dash" style="border-color:#5b8def"></i>Earth orbit</span>
+      <span><i class="dot" style="background:#F2A23B"></i>Δv burn (perihelion)</span></div>
+    <div class="fig-cap">The body's elliptical heliocentric orbit (<b>e=${r.el.e.toFixed(2)}</b>) is opened into a <b>${deflState.targetMode}</b> trajectory (<b>e=${c.eNew.toFixed(1)}</b>) by a single prograde burn at perihelion. The green branch is the new, unbound path leaving the solar system; Earth's orbit is drawn for scale.</div>
+    <div class="stage-phys">
+      <div class="ins-mod"><div class="mhd"><span class="mnum">Δv</span><span class="mttl">Impulse to reach escape</span><span class="mtag">vis-viva</span></div>
+        <div class="ins-body">
+          <p>Specific orbital energy fixes the shape: \\(\\varepsilon = \\tfrac{v^2}{2}-\\tfrac{\\mu_\\odot}{r}\\). A bound ellipse has \\(\\varepsilon<0\\); the body escapes when \\(\\varepsilon \\ge 0\\) (\\(e \\ge 1\\)). From the vis-viva equation the speed required at perihelion \\(r_p\\) for a target eccentricity \\(e'\\) is</p>
+          \\[ v_{\\text{target}} = \\sqrt{\\tfrac{\\mu_\\odot}{r_p}\\,(1+e')}, \\qquad \\Delta v = v_{\\text{target}} - v_{p} \\]
+          <p>Here \\(\\mu_\\odot = 1.327\\times10^{20}\\,\\mathrm{m^3 s^{-2}}\\), \\(r_p = ${c.rp.toFixed(3)}\\,\\mathrm{au}\\), current \\(v_p = ${(c.vPeri/1000).toFixed(2)}\\,\\mathrm{km/s}\\). For \\(e'=${c.eNew.toFixed(1)}\\) this gives <b>Δv = ${(c.dv/1000).toFixed(2)} km/s</b>${c.vInf>0?` with residual \\(v_\\infty = ${(c.vInf/1000).toFixed(2)}\\,\\mathrm{km/s}\\)`:` (\\(v_\\infty=0\\))`}.</p>
+          <div class="callout">A real planetary-defense Δv is centimetres per second. Demanding <b>kilometres</b> per second to fully eject a body is many orders of magnitude harder — which is exactly what the cost panel shows.</div>
+        </div></div>
+      <div class="ins-mod"><div class="mhd"><span class="mnum">m</span><span class="mttl">Mass and total impulse</span><span class="mtag">geometry</span></div>
+        <div class="ins-body">
+          <p>Mass from an assumed sphere of diameter \\(D\\) and bulk density \\(\\rho\\): \\(m = \\rho\\,\\tfrac{4}{3}\\pi (D/2)^3\\). With \\(D=${Math.round(c.D)}\\,\\mathrm{m}\\) and \\(\\rho=${c.rho}\\,\\mathrm{kg/m^3}\\), \\(m \\approx ${fmtBig(c.m,"g").replace(" G"," ×10⁹ ").replace(" M"," ×10⁶ ").replace(" k"," ×10³ ")}\\)g — about <b>${(c.m).toExponential(2)} kg</b>.</p>
+          <p>The mission must deliver total impulse \\(P = m\\,\\Delta v = ${c.P.toExponential(2)}\\,\\mathrm{kg\\,m/s}\\), or equivalently impart kinetic energy \\(E=\\tfrac12 m\\,\\Delta v^2 = ${c.Ekin.toExponential(2)}\\,\\mathrm{J}\\) (\\(\\approx${(c.Ekin/4.184e15).toExponential(1)}\\) Mt TNT).</p>
+        </div></div>
+    </div>`;
+  // ---- right: cost + ROI ----
+  out.innerHTML=`
+    <div class="tc-sec"><h3>Required Impulse <span class="hot">escape</span></h3>
+      <div class="kpi">
+        <div class="k"><div class="v hi">${(c.dv/1000).toFixed(2)}<small>km/s</small></div><div class="l">Δv at perihelion</div></div>
+        <div class="k"><div class="v">${c.vInf>0?(c.vInf/1000).toFixed(2):"0"}<small>km/s</small></div><div class="l">residual v∞</div></div>
+        <div class="k"><div class="v">${c.P.toExponential(1)}<small>kg·m/s</small></div><div class="l">total impulse</div></div>
+        <div class="k"><div class="v">${c.m.toExponential(1)}<small>kg</small></div><div class="l">target mass</div></div>
+      </div></div>
+    <div class="tc-sec"><h3>Mission Cost to Eject</h3>
+      <table class="rowtab">
+        <tr><td>Kinetic impactor</td><td><b>${fmtCount(c.nKI)}</b> × DART-class</td></tr>
+        <tr><td>↳ program cost</td><td><b>${fmtUSD(c.costKI)}</b></td></tr>
+        <tr><td>Nuclear standoff</td><td><b>${fmtCount(c.nNUC)}</b> × 1 Mt</td></tr>
+        <tr class="tot"><td>↳ program cost</td><td><b>${fmtUSD(c.costNUC)}</b></td></tr>
+      </table>
+      <p class="tiny-note">DART delivered ~600 kg at 6.5 km/s with momentum enhancement β≈3.6 (≈1.4×10⁷ kg·m/s) for ≈$330 M. Nuclear figures are order-of-magnitude.</p></div>
+    <div class="tc-sec"><h3>Reality Check · Deflect-to-Miss</h3>
+      <div class="kpi three">
+        <div class="k"><div class="v good">${c.dvMiss.toFixed(3)}<small>m/s</small></div><div class="l">Δv @ ${c.lead} yr lead</div></div>
+        <div class="k"><div class="v good">${c.nMiss}</div><div class="l">DART-class shots</div></div>
+        <div class="k"><div class="v good">${fmtUSD(c.costMiss)}</div><div class="l">cost</div></div>
+      </div>
+      <p class="tiny-note">Nudging the orbit so it simply <b>misses</b> Earth needs ~10⁵–10⁶× less Δv (a few cm/s applied a decade early, 3× along-track leverage). This is the strategy DART proved.</p></div>
+    <div class="tc-sec" style="border-bottom:0"><h3>Return on Investment</h3>
+      <div class="kpi">
+        <div class="k"><div class="v">${fmtUSD(c.lossUSD)}</div><div class="l">damage averted (≈${c.Emt<1?c.Emt.toFixed(2):Math.round(c.Emt)} Mt)</div></div>
+        <div class="k"><div class="v ${eject?'good':'crit'}">${c.roiEject>=1?c.roiEject.toFixed(1)+"×":"0."+Math.round(c.roiEject*100)+"×"}</div><div class="l">ROI · ejection</div></div>
+      </div>
+      <div class="verdict ${eject?'good':'bad'}">
+        ${eject
+          ? `Even at best, ejection returns <b>${c.roiEject.toFixed(1)}×</b>. Possible on paper, but the deflect-to-miss option below returns <b>${Math.round(c.roiMiss).toLocaleString()}×</b> for a thousandth of the outlay.`
+          : `Ejecting ${r.id} costs <b>${fmtUSD(c.costKI)}</b> to avert ~<b>${fmtUSD(c.lossUSD)}</b> of damage — an ROI of <b>${(c.roiEject).toFixed(3)}×</b>. Spending more to remove a hazard than the hazard would cost is irrational. The deflect-to-miss plan returns <b>${Math.round(c.roiMiss).toLocaleString()}×</b>: that is the move.</b>`}
+      </div></div>`;
+  renderLatex(stage);
+}
+document.getElementById("deflSide").addEventListener("click",e=>{
+  const t=e.target.closest("[data-t]"),d=e.target.closest("[data-d]");
+  if(t){deflState.targetMode=t.dataset.t;renderDeflection();}
+  if(d){deflState.density=d.dataset.d;renderDeflection();}
+});
+
+/* ===========================================================================
+   13 · CONCIERGE — interplanetary travel agent (Hohmann / bi-elliptic)
+   Circular–coplanar patched-conic model: deliberately simple, but the Δv,
+   transfer times, C3 and launch windows come out within a few % of real
+   mission design for the inner planets.
+   =========================================================================== */
+const LAUNCHERS=[
+  // name, cost(USD), payload0 kg (C3=0), kC3, c3max, note
+  ["Falcon 9 (exp.)",     67e6,  4020, 30, 45,  "workhorse · low-energy targets"],
+  ["Ariane 64",           115e6, 8000, 42, 95,  "EScA · medium-energy escape"],
+  ["New Glenn",           100e6, 13000,46, 105, "7 m fairing · reusable booster"],
+  ["Vulcan Centaur VC6",  200e6, 12000,52, 115, "high-energy Centaur upper stage"],
+  ["Falcon Heavy (exp.)", 150e6, 16000,45, 110, "highest commercial C3"],
+  ["Starship (refueled)", 150e6, 30000,72, 165, "needs orbital refuelling · speculative"],
+  ["SLS Block 1B",        2.2e9, 42000,82, 220, "super-heavy · direct outer-planet"],
+];
+const concState={ dest:"Mars", mode:"hohmann", rbFac:2.0, dry:1500, isp:320 };
+
+function hohmannTransfer(r1AU,r2AU){
+  const r1=r1AU*AU_M,r2=r2AU*AU_M,at=(r1+r2)/2;
+  const v1=Math.sqrt(MU_SUN/r1),v2=Math.sqrt(MU_SUN/r2);
+  const dv1=Math.abs(Math.sqrt(MU_SUN*(2/r1-1/at))-v1);
+  const dv2=Math.abs(v2-Math.sqrt(MU_SUN*(2/r2-1/at)));
+  const t=Math.PI*Math.sqrt(at*at*at/MU_SUN);
+  return {dv1,dv2,dv:dv1+dv2,t,at:at/AU_M};
+}
+function bielTransfer(r1AU,r2AU,rbAU){
+  const r1=r1AU*AU_M,r2=r2AU*AU_M,rb=rbAU*AU_M;
+  const a1=(r1+rb)/2,a2=(r2+rb)/2;
+  const v1=Math.sqrt(MU_SUN/r1),v2=Math.sqrt(MU_SUN/r2);
+  const dv1=Math.sqrt(MU_SUN*(2/r1-1/a1))-v1;
+  const dv2=Math.sqrt(MU_SUN*(2/rb-1/a2))-Math.sqrt(MU_SUN*(2/rb-1/a1));
+  const dv3=Math.sqrt(MU_SUN*(2/r2-1/a2))-v2;
+  const t=Math.PI*Math.sqrt(a1*a1*a1/MU_SUN)+Math.PI*Math.sqrt(a2*a2*a2/MU_SUN);
+  return {dv1:Math.abs(dv1),dv2:Math.abs(dv2),dv3:Math.abs(dv3),dv:Math.abs(dv1)+Math.abs(dv2)+Math.abs(dv3),t,rb:rbAU};
+}
+function launchWindow(destEl,tTransferS){
+  const E=PLANETS.Earth, P=destEl;
+  const T1=E.period, T2=P.period;                            // yr
+  const w1=360/T1, w2=360/T2;                                // deg/yr
+  const tYr=tTransferS/YR_S;
+  const phiReq=norm360(180-360*tYr/T2);                      // dest lead at departure (deg)
+  const phiCur=norm360(P.L-E.L);
+  const rate=w2-w1;                                          // deg/yr
+  let dphi=(phiReq-phiCur)%360;
+  if(rate>0&&dphi<0)dphi+=360; if(rate<0&&dphi>0)dphi-=360;
+  const tWaitYr=Math.abs(rate)<1e-9?0:dphi/rate;
+  const syn=1/Math.abs(1/T1-1/T2);                           // synodic period yr
+  const when=new Date(Date.now()+tWaitYr*YR_S*1000);
+  return {phiReq,phiCur,tWaitYr,syn,when};
+}
+function pickLaunchers(C3,wetKg){
+  return LAUNCHERS.map(L=>{const[name,cost,p0,k,c3max,note]=L;
+    const cap=p0*Math.exp(-C3/k);
+    const ok=C3<=c3max&&cap>=wetKg;
+    return {name,cost,cap,c3max,note,ok};
+  }).sort((a,b)=>(a.ok===b.ok)?a.cost-b.cost:(a.ok?-1:1));
+}
+function concCompute(){
+  const dest=concState.dest, P=PLANETS[dest];
+  const r1=PLANETS.Earth.a, r2=P.a;
+  const rb=Math.max(r2*concState.rbFac, r1+0.5);
+  const hoh=hohmannTransfer(r1,r2), bie=bielTransfer(r1,r2,rb);
+  const tr=concState.mode==="hohmann"?hoh:bie;
+  const win=launchWindow(P,tr.t);
+  const C3=Math.pow(tr.dv1/1000,2);                          // km^2/s^2
+  const arriveDv=concState.mode==="hohmann"?hoh.dv2:bie.dv3; // craft must brake/insert
+  const wet=concState.dry*Math.exp(arriveDv/(concState.isp*G0));
+  const launchers=pickLaunchers(C3,wet);
+  const pick=launchers.find(l=>l.ok)||null;
+  const craftCost=200e6+0.15e6*concState.dry;
+  const total=(pick?pick.cost:0)+craftCost;
+  return {dest,P,r1,r2,rb,hoh,bie,tr,win,C3,arriveDv,wet,launchers,pick,craftCost,total};
+}
+
+function concFigureSVG(c){
+  const W=640,H=480,cx=W/2,cy=H/2;
+  const r1=c.r1, r2=c.r2;
+  const rbShown=c.mode==="biell"?c.rb:0;
+  const Rmax=Math.max(r1,r2,rbShown)*1.12;
+  const sc=Math.min((W/2-30)/Rmax,(H/2-30)/Rmax);
+  const PX=(r,th)=>cx+r*Math.cos(th)*sc, PY=(r,th)=>cy-r*Math.sin(th)*sc;
+  const ringPts=r=>{let s="";for(let k=0;k<=160;k++){const A=k/160*2*Math.PI;s+=(k?" ":"")+PX(r,A).toFixed(1)+","+PY(r,A).toFixed(1);}return s;};
+  // departure at angle 0 (Earth, +x). Hohmann transfer arc: ellipse focus at Sun.
+  // place perihelion of transfer toward Earth (+x) if r2>r1 else aphelion toward Earth.
+  const inner=r2<r1;
+  function transferArc(){
+    const pts=[]; const aT=c.tr.at!=null?c.tr.at:(r1+r2)/2;
+    if(c.mode==="hohmann"){
+      const eT=Math.abs(r2-r1)/(r1+r2);
+      const rp=Math.min(r1,r2);
+      for(let k=0;k<=120;k++){const nu=k/120*Math.PI;            // 0..180deg
+        const rr=rp*(1+eT)/(1+eT*Math.cos(nu));
+        const th=inner?-nu:nu;                                   // sweep
+        pts.push(PX(rr,th).toFixed(1)+","+PY(rr,th).toFixed(1));}
+    }else{
+      const r1m=r1,r2m=r2,rb=c.rb;
+      const a1=(r1m+rb)/2,e1=Math.abs(rb-r1m)/(r1m+rb),rp1=Math.min(r1m,rb);
+      for(let k=0;k<=120;k++){const nu=k/120*Math.PI;const rr=rp1*(1+e1)/(1+e1*Math.cos(nu));pts.push(PX(rr,nu).toFixed(1)+","+PY(rr,nu).toFixed(1));}
+      const a2=(r2m+rb)/2,e2=Math.abs(rb-r2m)/(r2m+rb),rp2=Math.min(r2m,rb);
+      for(let k=0;k<=120;k++){const nu=Math.PI-k/120*Math.PI;const rr=rp2*(1+e2)/(1+e2*Math.cos(nu));pts.push(PX(rr,nu).toFixed(1)+","+PY(rr,nu).toFixed(1));}
+    }
+    return pts.join(" ");
+  }
+  const depTh=0;                                              // Earth at departure
+  const arrTh=c.mode==="hohmann"?(inner?-Math.PI:Math.PI):Math.PI;
+  const leadTh=arrTh - (inner?-1:1)*(c.win.phiReq*D2R - Math.PI) ; // dest at departure ≈ arrival - travel
+  // dest at departure sits ahead of arrival point by the angle it travels during transfer
+  const travel=(360/c.P.period)*(c.tr.t/YR_S)*D2R;
+  const destDepTh=arrTh - travel;
+  const eX=PX(r1,depTh),eY=PY(r1,depTh);
+  const aX=PX(r2,arrTh),aY=PY(r2,arrTh);
+  const dX=PX(r2,destDepTh),dY=PY(r2,destDepTh);
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="trArrow" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#46c9e0"/></marker></defs>
+    <polyline points="${ringPts(r1)}" fill="none" stroke="#46c9e0" stroke-width="1" opacity="0.6"/>
+    <polyline points="${ringPts(r2)}" fill="none" stroke="${c.P.tint}" stroke-width="1.2" opacity="0.75"/>
+    ${rbShown?`<polyline points="${ringPts(rbShown)}" fill="none" stroke="#5b8def" stroke-width="0.8" stroke-dasharray="2 5" opacity="0.4"/>`:""}
+    <polyline points="${transferArc()}" fill="none" stroke="#eaf6ff" stroke-width="1.8" stroke-dasharray="5 4" opacity="0.95" marker-end="url(#trArrow)"/>
+    <circle cx="${cx}" cy="${cy}" r="7" fill="#ffd27a"/><circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="#ffd27a" stroke-width="0.6" opacity="0.35"/>
+    <circle cx="${eX.toFixed(1)}" cy="${eY.toFixed(1)}" r="4.5" fill="#46c9e0"/><text x="${(eX+8).toFixed(1)}" y="${(eY+4).toFixed(1)}" fill="#46c9e0" font-family="monospace" font-size="10">Earth · launch</text>
+    <circle cx="${dX.toFixed(1)}" cy="${dY.toFixed(1)}" r="5" fill="${c.P.tint}"/><text x="${(dX+8).toFixed(1)}" y="${(dY+4).toFixed(1)}" fill="${c.P.tint}" font-family="monospace" font-size="10">${c.dest} @ launch</text>
+    <circle cx="${aX.toFixed(1)}" cy="${aY.toFixed(1)}" r="5" fill="none" stroke="${c.P.tint}" stroke-width="1.6"/><text x="${(aX+8).toFixed(1)}" y="${(aY+4).toFixed(1)}" fill="#9fb0c2" font-family="monospace" font-size="10">arrival</text>
+    <text x="14" y="22" fill="#545e6c" font-family="monospace" font-size="9.5">ecliptic top-down · circular-coplanar · ${c.mode==="hohmann"?"Hohmann":"bi-elliptic"} transfer</text>
+  </svg>`;
+}
+
+function renderConcierge(){
+  const side=document.getElementById("concSide"),stage=document.getElementById("concStage"),out=document.getElementById("concOut");
+  const c=concCompute(), cm=Object.assign({mode:concState.mode},c);
+  // ---- left: destination + options ----
+  const destOpts=PLANET_ORDER.filter(p=>p!=="Earth").map(p=>{const P=PLANETS[p];
+    return `<div class="opt ${concState.dest===p?"on":""}" data-dest="${p}">
+      <span class="sw" style="background:${P.tint}"></span><span class="nm">${p}</span>
+      <span class="sub">${P.a.toFixed(2)} au</span></div>`;}).join("");
+  side.innerHTML=`
+    <div class="tc-hero"><h2>Trip to <b>${c.dest}</b></h2><p>Interplanetary itinerary from Earth — transfer geometry, the next launch window, a delivery vehicle and an all-in price.</p></div>
+    <div class="tc-sec"><h3>Destination</h3><div class="opt-row">${destOpts}</div></div>
+    <div class="tc-sec"><h3>Transfer Type</h3>
+      <div class="seg-btns" id="concMode">
+        <button data-m="hohmann" class="${concState.mode==="hohmann"?"on":""}">Hohmann</button>
+        <button data-m="biell" class="${concState.mode==="biell"?"on":""}">Bi-elliptic</button></div>
+      ${concState.mode==="biell"?`<div class="slider" style="margin-top:12px"><div class="sl-top"><span class="nm">Intermediate apoapsis</span><span class="vl" id="rbVal">${c.rb.toFixed(1)} au</span></div>
+        <input type="range" id="rbSlide" min="${(c.r2*1.05).toFixed(2)}" max="${(c.r2*4).toFixed(2)}" step="0.1" value="${c.rb.toFixed(2)}"></div>`:""}
+      <p class="tiny-note">${c.r2/c.r1>11.94?`r₂/r₁ = ${(c.r2/c.r1).toFixed(1)} > 11.94 → bi-elliptic can beat Hohmann on Δv, at a large time penalty.`:`r₂/r₁ = ${(c.r2/c.r1).toFixed(2)} < 11.94 → Hohmann is the Δv-optimal two-burn transfer here.`}</p></div>
+    <div class="tc-sec" style="border-bottom:0"><h3>Spacecraft</h3>
+      <div class="slider"><div class="sl-top"><span class="nm">Dry mass</span><span class="vl" id="dryVal">${concState.dry} kg</span></div>
+        <input type="range" id="drySlide" min="500" max="6000" step="100" value="${concState.dry}"></div>
+      <p class="tiny-note">Arrival burn ${(c.arriveDv/1000).toFixed(2)} km/s via chemical stage (Iₛₚ ${concState.isp}s) ⇒ wet mass <b>${Math.round(c.wet).toLocaleString()} kg</b> by the rocket equation.</p></div>`;
+  // ---- centre: figure + window ----
+  stage.innerHTML=`
+    <div class="stage-fig">${concFigureSVG(cm)}</div>
+    <div class="fig-legend">
+      <span><i style="border-color:#46c9e0"></i>Earth orbit</span>
+      <span><i style="border-color:${c.P.tint}"></i>${c.dest} orbit</span>
+      <span><i class="dash" style="border-color:#eaf6ff"></i>transfer</span>
+      ${concState.mode==="biell"?`<span><i class="dash" style="border-color:#5b8def"></i>intermediate</span>`:""}</div>
+    <div class="fig-cap">Depart when <b>${c.dest}</b> leads Earth by <b>${c.win.phiReq.toFixed(0)}°</b> so it arrives at the rendezvous after the <b>${fmtYears(c.tr.t/YR_S)}</b> cruise. Right now the phase angle is ${c.win.phiCur.toFixed(0)}°.</div>
+    <div class="stage-phys">
+      <div class="ins-mod"><div class="mhd"><span class="mnum">01</span><span class="mttl">Transfer Δv (vis-viva)</span><span class="mtag">heliocentric</span></div>
+        <div class="ins-body">
+          <p>Both burns come from the vis-viva equation \\(v=\\sqrt{\\mu_\\odot\\left(\\tfrac{2}{r}-\\tfrac{1}{a}\\right)}\\) on a transfer ellipse of semi-major axis \\(a_t=\\tfrac{r_1+r_2}{2}=${c.hoh.at.toFixed(2)}\\,\\mathrm{au}\\). Departure raises Earth's circular speed onto the ellipse; arrival circularises at \\(r_2=${c.r2.toFixed(2)}\\,\\mathrm{au}\\).</p>
+          \\[ \\Delta v_1=${(c.hoh.dv1/1000).toFixed(2)},\\quad \\Delta v_2=${(c.hoh.dv2/1000).toFixed(2)}\\ \\mathrm{km/s} \\]
+          <p>Cruise time is half the transfer-ellipse period, \\(t=\\pi\\sqrt{a_t^3/\\mu_\\odot}=${fmtYears(c.hoh.t/YR_S)}\\).</p>
+        </div></div>
+      <div class="ins-mod"><div class="mhd"><span class="mnum">02</span><span class="mttl">Launch window</span><span class="mtag">synodic</span></div>
+        <div class="ins-body">
+          <p>Earth and ${c.dest} realign every synodic period \\(S=\\left|\\tfrac{1}{T_1}-\\tfrac{1}{T_2}\\right|^{-1}=${fmtYears(c.win.syn)}\\). A valid departure needs ${c.dest} ${c.win.phiReq.toFixed(0)}° ahead so it meets the spacecraft at arrival. The next such alignment is <b>${c.win.when.toISOString().slice(0,10)}</b> (in ${fmtYears(c.win.tWaitYr)}).</p>
+        </div></div>
+    </div>`;
+  // ---- right: numbers + rocket ----
+  const dvRows=concState.mode==="hohmann"
+    ? `<tr><td>Depart (Δv₁)</td><td><b>${(c.hoh.dv1/1000).toFixed(2)}</b> km/s</td></tr>
+       <tr><td>Arrive (Δv₂)</td><td><b>${(c.hoh.dv2/1000).toFixed(2)}</b> km/s</td></tr>
+       <tr class="tot"><td>Total Δv</td><td><b>${(c.hoh.dv/1000).toFixed(2)}</b> km/s</td></tr>`
+    : `<tr><td>Burn 1</td><td><b>${(c.bie.dv1/1000).toFixed(2)}</b> km/s</td></tr>
+       <tr><td>Burn 2 @ r_b</td><td><b>${(c.bie.dv2/1000).toFixed(2)}</b> km/s</td></tr>
+       <tr><td>Burn 3 (insert)</td><td><b>${(c.bie.dv3/1000).toFixed(2)}</b> km/s</td></tr>
+       <tr class="tot"><td>Total Δv</td><td><b>${(c.bie.dv/1000).toFixed(2)}</b> km/s</td></tr>`;
+  const cheaper=c.hoh.dv<=c.bie.dv?"Hohmann":"Bi-elliptic";
+  const rocketHTML=c.launchers.map((l,i)=>{const pick=l.ok&&i===0;
+    return `<div class="rk ${pick?"pick":(l.ok?"":"miss")}">
+      <div class="rtop"><span class="badge">${pick?"RECOMMENDED":(l.ok?"capable":"insufficient")}</span><span class="nm">${l.name}</span><span class="cost">${fmtUSD(l.cost)}</span></div>
+      <div class="meta"><div>to C3=${c.C3.toFixed(0)}: <b>${Math.round(l.cap).toLocaleString()} kg</b></div><div>C3max <b>${l.c3max}</b></div></div>
+      <div class="meta" style="margin-top:4px;color:var(--txt-3)">${l.note}</div></div>`;}).join("");
+  out.innerHTML=`
+    <div class="tc-sec"><h3>Mission Δv <span class="hot">${concState.mode==="hohmann"?"Hohmann":"bi-elliptic"}</span></h3>
+      <table class="rowtab">${dvRows}</table>
+      <p class="tiny-note">Δv-optimal here: <b>${cheaper}</b> (Hohmann ${(c.hoh.dv/1000).toFixed(2)} vs bi-elliptic ${(c.bie.dv/1000).toFixed(2)} km/s).</p></div>
+    <div class="tc-sec"><h3>Key Numbers</h3>
+      <div class="kpi three">
+        <div class="k"><div class="v hi">${c.C3.toFixed(0)}<small>km²/s²</small></div><div class="l">launch C3</div></div>
+        <div class="k"><div class="v">${fmtYears(c.tr.t/YR_S)}</div><div class="l">cruise</div></div>
+        <div class="k"><div class="v">${fmtYears(c.win.tWaitYr)}</div><div class="l">to window</div></div>
+      </div>
+      <table class="rowtab" style="margin-top:10px">
+        <tr><td>Next window</td><td><b>${c.win.when.toISOString().slice(0,10)}</b></td></tr>
+        <tr><td>Synodic period</td><td><b>${fmtYears(c.win.syn)}</b></td></tr>
+        <tr><td>Phase needed</td><td><b>${c.win.phiReq.toFixed(0)}°</b> lead</td></tr>
+        <tr><td>Wet mass</td><td><b>${Math.round(c.wet).toLocaleString()}</b> kg</td></tr>
+      </table></div>
+    <div class="tc-sec"><h3>Launch Vehicle</h3>${rocketHTML}
+      ${c.pick?"":`<p class="tiny-note" style="color:var(--elev)">No single listed vehicle delivers ${Math.round(c.wet).toLocaleString()} kg to C3=${c.C3.toFixed(0)}. Real outer-planet missions use gravity assists and/or electric propulsion to lower the demand.</p>`}</div>
+    <div class="tc-sec" style="border-bottom:0"><h3>Estimated Cost</h3>
+      <table class="rowtab">
+        <tr><td>Launch (${c.pick?c.pick.name:"—"})</td><td><b>${fmtUSD(c.pick?c.pick.cost:0)}</b></td></tr>
+        <tr><td>Spacecraft + ops</td><td><b>${fmtUSD(c.craftCost)}</b></td></tr>
+        <tr class="tot"><td>All-in</td><td><b>${fmtUSD(c.total)}</b></td></tr>
+      </table>
+      <p class="tiny-note">Rough public figures; capability curves modelled as payload = p₀·e^(−C3/k). Treat as planning-grade, not a quote.</p></div>`;
+  renderLatex(stage);
+}
+document.getElementById("concSide").addEventListener("click",e=>{
+  const d=e.target.closest("[data-dest]"),m=e.target.closest("[data-m]");
+  if(d){concState.dest=d.dataset.dest;renderConcierge();}
+  if(m){concState.mode=m.dataset.m;renderConcierge();}
+});
+document.getElementById("concSide").addEventListener("input",e=>{
+  if(e.target.id==="rbSlide"){concState.rbFac=+e.target.value/PLANETS[concState.dest].a;renderConcierge();}
+  if(e.target.id==="drySlide"){concState.dry=+e.target.value;renderConcierge();}
+});
 
 load();
 </script>
