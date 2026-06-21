@@ -21,7 +21,7 @@ The repository has two main parts:
 - `frontend/`: the standalone ARGION workbench in `index.html`
 
 ```text
-asteROIDED/
+Argion/
 ├── backend/
 │   ├── src/
 │   │   ├── server.js           # Express API consumed by the frontend
