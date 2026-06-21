@@ -3202,6 +3202,7 @@ function concFigureSVG(c){
   const Rmax=Math.max(r1,r2,rbShown)*1.12;
   const sc=Math.min((W/2-30)/Rmax,(H/2-30)/Rmax);
   const PX=(r,th)=>cx+r*Math.cos(th)*sc, PY=(r,th)=>cy-r*Math.sin(th)*sc;
+  const QX=x=>cx+x*sc, QY=y=>cy-y*sc;                        // departure-frame (AU x,y) → screen
   const ringPts=r=>{let s="";for(let k=0;k<=160;k++){const A=k/160*2*Math.PI;s+=(k?" ":"")+PX(r,A).toFixed(1)+","+PY(r,A).toFixed(1);}return s;};
   // departure at angle 0 (Earth, +x). Hohmann transfer arc: ellipse focus at Sun.
   // place perihelion of transfer toward Earth (+x) if r2>r1 else aphelion toward Earth.
@@ -3239,6 +3240,11 @@ function concFigureSVG(c){
     <polyline points="${ringPts(r2)}" fill="none" stroke="${c.P.tint}" stroke-width="1.2" opacity="0.75"/>
     ${rbShown?`<polyline points="${ringPts(rbShown)}" fill="none" stroke="#5b8def" stroke-width="0.8" stroke-dasharray="2 5" opacity="0.4"/>`:""}
     <polyline points="${transferArc()}" fill="none" stroke="#eaf6ff" stroke-width="1.8" stroke-dasharray="5 4" opacity="0.95" marker-end="url(#trArrow)"/>
+    ${(c.screen&&c.screen.list?c.screen.list.slice(0,6):[]).map(o=>{
+      const ax=QX(o.arx),ay=QY(o.ary),flag=o.distLD<c.screen.FLAG_LD,col=o.r.s.tier.raw;
+      const conn=(c.screen.outbound)?`<line x1="${QX(o.scrx).toFixed(1)}" y1="${QY(o.scry).toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="${flag?col:"#3a4453"}" stroke-width="0.7" stroke-dasharray="1 3" opacity="${flag?0.7:0.35}"/>`:"";
+      return `${conn}<rect x="${(ax-2.6).toFixed(1)}" y="${(ay-2.6).toFixed(1)}" width="5.2" height="5.2" transform="rotate(45 ${ax.toFixed(1)} ${ay.toFixed(1)})" fill="${col}" opacity="${flag?1:0.55}"/>${flag?`<text x="${(ax+6).toFixed(1)}" y="${(ay+3).toFixed(1)}" fill="${col}" font-family="monospace" font-size="8.5">${o.distLD.toFixed(1)} LD</text>`:""}`;
+    }).join("")}
     <circle cx="${cx}" cy="${cy}" r="7" fill="#ffd27a"/><circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="#ffd27a" stroke-width="0.6" opacity="0.35"/>
     <circle cx="${eX.toFixed(1)}" cy="${eY.toFixed(1)}" r="4.5" fill="#46c9e0"/><text x="${(eX+8).toFixed(1)}" y="${(eY+4).toFixed(1)}" fill="#46c9e0" font-family="monospace" font-size="10">Earth · launch</text>
     <circle cx="${dX.toFixed(1)}" cy="${dY.toFixed(1)}" r="5" fill="${c.P.tint}"/><text x="${(dX+8).toFixed(1)}" y="${(dY+4).toFixed(1)}" fill="${c.P.tint}" font-family="monospace" font-size="10">${c.dest} @ launch</text>
@@ -3247,9 +3253,85 @@ function concFigureSVG(c){
   </svg>`;
 }
 
+const LD_KM=384400, LD_AU=384400/1.495978707e8;             // 1 lunar distance
+function fmtDist(o){
+  if(o.distLD<10)return o.distLD.toFixed(2)+" LD";
+  if(o.distLD<999)return Math.round(o.distLD)+" LD";
+  return o.distAU.toFixed(2)+" au";
+}
+/* Time-resolved conjunction screen: sample the flown transfer ellipse from the
+   launch date to arrival; for every catalogued NEO whose orbit radially overlaps
+   the transfer, propagate it to the same epoch and take the minimum 3-D
+   spacecraft–asteroid distance. All positions are computed in a frame rotated so
+   Earth-at-departure lies on +x (matching the figure), so closest-approach marks
+   plot directly onto the trajectory. */
+function conjunctionScreen(c){
+  const E=PLANETS.Earth;
+  const tauDep=c.win.tWaitYr*YR_S;                          // s from now → departure
+  const wEarth=2*Math.PI/(E.period*YR_S);                   // rad/s
+  const Adep=E.L*D2R + wEarth*tauDep;                       // Earth heliocentric longitude at departure
+  const cosA=Math.cos(Adep), sinA=Math.sin(Adep);
+  const r1=c.r1, r2=c.r2, biell=concState.mode==="biell";
+  // assemble the flown ellipse leg(s)
+  const legs=[];
+  if(!biell){
+    const aT=(r1+r2)/2, eT=Math.abs(r2-r1)/(r1+r2), outbound=r2>=r1;
+    legs.push({a:aT,e:eT,Lp:outbound?Adep:Adep+Math.PI,M0:outbound?0:Math.PI,M1:outbound?Math.PI:2*Math.PI,
+      dur:Math.PI*Math.sqrt(Math.pow(aT*AU_M,3)/MU_SUN)});
+  }else{
+    const rb=c.rb, a1=(r1+rb)/2,e1=Math.abs(rb-r1)/(r1+rb), a2=(r2+rb)/2,e2=Math.abs(rb-r2)/(r2+rb);
+    legs.push({a:a1,e:e1,Lp:Adep,M0:0,M1:Math.PI,dur:Math.PI*Math.sqrt(Math.pow(a1*AU_M,3)/MU_SUN)});
+    legs.push({a:a2,e:e2,Lp:Adep,M0:Math.PI,M1:2*Math.PI,dur:Math.PI*Math.sqrt(Math.pow(a2*AU_M,3)/MU_SUN)});
+  }
+  const N=140, minR=Math.min(r1,r2), maxR=biell?c.rb:Math.max(r1,r2);
+  // sample spacecraft path → {t (s from now), x,y (AU, ecliptic), rx,ry (departure frame)}
+  const sc=[]; let acc=0;
+  for(const leg of legs){
+    for(let k=0;k<=N;k++){
+      const frac=k/N, M=leg.M0+(leg.M1-leg.M0)*frac;
+      let Ea=M; for(let it=0;it<6;it++)Ea=Ea-(Ea-leg.e*Math.sin(Ea)-M)/(1-leg.e*Math.cos(Ea));
+      const r=leg.a*(1-leg.e*Math.cos(Ea));
+      const nu=2*Math.atan2(Math.sqrt(1+leg.e)*Math.sin(Ea/2),Math.sqrt(1-leg.e)*Math.cos(Ea/2));
+      const lon=leg.Lp+nu, x=r*Math.cos(lon), y=r*Math.sin(lon);
+      sc.push({t:tauDep+acc+leg.dur*frac, x, y, rx:x*cosA+y*sinA, ry:-x*sinA+y*cosA});
+    }
+    acc+=leg.dur;
+  }
+  // candidate NEOs: orbit radially overlaps the swept annulus (cheap pre-filter)
+  let cands=RAW.filter(o=>{const q=o.el.a*(1-o.el.e), Q=o.el.a*(1+o.el.e);return Q>=minR-0.2 && q<=maxR+0.2;});
+  if(cands.length>220)cands=cands.slice(0,220);
+  const out=[];
+  for(const o of cands){
+    const el=o.el, k0=360/el.period;                        // deg per year
+    let best=1e9, bi=-1, bp=null;
+    for(let i=0;i<sc.length;i++){
+      const s=sc[i], ap=posAt(el, el.M0 + (s.t/YR_S)*k0);
+      const dx=s.x-ap[0], dy=s.y-ap[1], dz=-ap[2];          // spacecraft z=0
+      const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+      if(d<best){best=d;bi=i;bp=ap;}
+    }
+    if(bi<0)continue;
+    // relative speed via neighbouring sample
+    const j=bi<sc.length-1?bi+1:bi-1, s0=sc[bi], s1=sc[j];
+    const a0=posAt(el, el.M0+(s0.t/YR_S)*k0), a1=posAt(el, el.M0+(s1.t/YR_S)*k0);
+    const dtv=Math.abs(s1.t-s0.t)||1;
+    const rvx=(s1.x-a1[0])-(s0.x-a0[0]), rvy=(s1.y-a1[1])-(s0.y-a0[1]), rvz=(-a1[2])-(-a0[2]);
+    const vrel=Math.sqrt(rvx*rvx+rvy*rvy+rvz*rvz)*AU_M/dtv/1000;   // km/s
+    out.push({r:o, distAU:best, distLD:best*AU_M/1000/LD_KM, vrel,
+      when:new Date(Date.now()+s0.t*1000),
+      scrx:s0.rx, scry:s0.ry, arx:bp[0]*cosA+bp[1]*sinA, ary:-bp[0]*sinA+bp[1]*cosA});
+  }
+  out.sort((a,b)=>a.distAU-b.distAU);
+  const FLAG_LD=20, CLOSE_LD=5;
+  return {list:out, closest:out[0]||null,
+    flagged:out.filter(o=>o.distLD<FLAG_LD), close:out.filter(o=>o.distLD<CLOSE_LD),
+    screenedCount:cands.length, totalCount:RAW.length, outbound:r2>=r1,
+    depDate:new Date(Date.now()+tauDep*1000), FLAG_LD, CLOSE_LD};
+}
+
 function renderConcierge(){
   const side=document.getElementById("concSide"),stage=document.getElementById("concStage"),out=document.getElementById("concOut");
-  const c=concCompute(), cm=Object.assign({mode:concState.mode},c);
+  const c=concCompute(), screen=conjunctionScreen(c), cm=Object.assign({mode:concState.mode,screen},c);
   // ---- left: destination + options ----
   const destOpts=PLANET_ORDER.filter(p=>p!=="Earth").map(p=>{const P=PLANETS[p];
     return `<div class="opt ${concState.dest===p?"on":""}" data-dest="${p}">
@@ -3276,7 +3358,8 @@ function renderConcierge(){
       <span><i style="border-color:#46c9e0"></i>Earth orbit</span>
       <span><i style="border-color:${c.P.tint}"></i>${c.dest} orbit</span>
       <span><i class="dash" style="border-color:#eaf6ff"></i>transfer</span>
-      ${concState.mode==="biell"?`<span><i class="dash" style="border-color:#5b8def"></i>intermediate</span>`:""}</div>
+      ${concState.mode==="biell"?`<span><i class="dash" style="border-color:#5b8def"></i>intermediate</span>`:""}
+      ${screen.closest?`<span><i class="dot" style="background:${screen.closest.r.s.tier.raw};transform:rotate(45deg);border-radius:0"></i>NEO conjunction</span>`:""}</div>
     <div class="fig-cap">Depart when <b>${c.dest}</b> leads Earth by <b>${c.win.phiReq.toFixed(0)}°</b> so it arrives at the rendezvous after the <b>${fmtYears(c.tr.t/YR_S)}</b> cruise. Right now the phase angle is ${c.win.phiCur.toFixed(0)}°.</div>
     <div class="stage-phys">
       <div class="ins-mod"><div class="mhd"><span class="mnum">01</span><span class="mttl">Transfer Δv (vis-viva)</span><span class="mtag">heliocentric</span></div>
@@ -3288,6 +3371,13 @@ function renderConcierge(){
       <div class="ins-mod"><div class="mhd"><span class="mnum">02</span><span class="mttl">Launch window</span><span class="mtag">synodic</span></div>
         <div class="ins-body">
           <p>Earth and ${c.dest} realign every synodic period \\(S=\\left|\\tfrac{1}{T_1}-\\tfrac{1}{T_2}\\right|^{-1}=${fmtYears(c.win.syn)}\\). A valid departure needs ${c.dest} ${c.win.phiReq.toFixed(0)}° ahead so it meets the spacecraft at arrival. The next such alignment is <b>${c.win.when.toISOString().slice(0,10)}</b> (in ${fmtYears(c.win.tWaitYr)}).</p>
+        </div></div>
+      <div class="ins-mod"><div class="mhd"><span class="mnum">03</span><span class="mttl">NEO conjunction screen</span><span class="mtag">${screen.screenedCount} screened</span></div>
+        <div class="ins-body">
+          <p>The flown transfer is sampled in time from the launch date to arrival. Every catalogued NEO whose orbit radially overlaps the transfer is propagated to each epoch, and we take the closest 3-D pass: \\[ d_{\\min}=\\min_{t}\\bigl\\lVert \\mathbf r_{\\text{sc}}(t)-\\mathbf r_{\\text{NEO}}(t)\\bigr\\rVert. \\]</p>
+          ${screen.closest
+            ? `<p>Nearest of <b>${screen.screenedCount}</b> orbit-crossing NEOs is <b>${screen.closest.r.id}</b> at <b>${fmtDist(screen.closest)}</b> (~${(screen.closest.distAU*149.6).toFixed(1)} M km), ${screen.closest.vrel!=null?`closing at \\(${screen.closest.vrel.toFixed(1)}\\,\\mathrm{km/s}\\), `:""}around ${screen.closest.when.toISOString().slice(0,10)}.</p>`
+            : `<p>No catalogued NEO's orbit radially overlaps this transfer, so there is nothing to screen against on the way to ${c.dest}.</p>`}
         </div></div>
     </div>`;
   // ---- right: numbers + rocket ----
@@ -3321,6 +3411,25 @@ function renderConcierge(){
         <tr><td>Phase needed</td><td><b>${c.win.phiReq.toFixed(0)}°</b> lead</td></tr>
         <tr><td>Wet mass</td><td><b>${Math.round(c.wet).toLocaleString()}</b> kg</td></tr>
       </table></div>
+    <div class="tc-sec"><h3>Conjunction Screen <span class="hot">NEO</span></h3>
+      ${screen.closest?`<div class="kpi three">
+        <div class="k"><div class="v ${screen.close.length?"crit":"good"}">${screen.closest.distLD<10?screen.closest.distLD.toFixed(1):Math.round(screen.closest.distLD)}<small>LD</small></div><div class="l">closest pass</div></div>
+        <div class="k"><div class="v">${screen.screenedCount}</div><div class="l">NEOs screened</div></div>
+        <div class="k"><div class="v ${screen.flagged.length?"warn":"good"}">${screen.flagged.length}</div><div class="l">within ${screen.FLAG_LD} LD</div></div>
+      </div>
+      <table class="rowtab" style="margin-top:10px">
+        <tr><td style="color:var(--txt-3)">object</td><td style="color:var(--txt-3)">Ø</td><td style="color:var(--txt-3);text-align:right">closest · date</td></tr>
+        ${screen.list.slice(0,4).map(o=>`<tr><td><b>${o.r.id}</b></td><td>${o.r.s.D!=null?Math.round(o.r.s.D)+" m":"—"}</td><td style="text-align:right">${fmtDist(o)} · ${o.when.toISOString().slice(0,10)}</td></tr>`).join("")}
+      </table>
+      <div class="verdict ${screen.close.length?"bad":"good"}">
+        ${screen.close.length
+          ? `<b>${screen.close.length}</b> NEO${screen.close.length>1?"s":""} pass within ${screen.CLOSE_LD} LD of the outbound path — tighten the departure date or screen these ephemerides before committing.`
+          : screen.flagged.length
+            ? `Nearest approach is <b>${screen.closest.r.id}</b> at <b>${fmtDist(screen.closest)}</b> (~${(screen.closest.distAU*149.6).toFixed(1)} M km). A clean miss — no avoidance maneuver needed.`
+            : `Trajectory clear: the nearest tracked NEO stays <b>${fmtDist(screen.closest)}</b> (~${(screen.closest.distAU*149.6).toFixed(1)} M km) away across the entire cruise.`}
+      </div>
+      <p class="tiny-note">Screens the flown transfer from ${screen.depDate.toISOString().slice(0,10)} to arrival against orbit-crossing NEOs. Interplanetary space is vast — even the nearest passes are millions of km, so impact probability is effectively nil; this is conjunction awareness, not a collision alert.</p>`
+      :`<p class="tiny-note">No catalogued NEO orbit overlaps this transfer radially, so there is nothing to screen against en route to ${c.dest}.</p>`}</div>
     <div class="tc-sec"><h3>Launch Vehicle</h3>${rocketHTML}
       ${c.pick?"":`<p class="tiny-note" style="color:var(--elev)">No single listed vehicle delivers ${Math.round(c.wet).toLocaleString()} kg to C3=${c.C3.toFixed(0)}. Real outer-planet missions use gravity assists and/or electric propulsion to lower the demand.</p>`}</div>
     <div class="tc-sec" style="border-bottom:0"><h3>Estimated Cost</h3>
