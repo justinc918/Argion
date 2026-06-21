@@ -2083,6 +2083,7 @@ function renderInspector(){
   const o=r.o, s=r.s;
   const aEntry = analysisCache[r.id];
   const ticks=TIERS.filter(t=>t.min>0).map(t=>`<span class="tick" style="left:${t.min}%"></span>`).join("");
+  const sc=(l,v)=>`<div class="s ${!num(v)?'zero':''}"><div class="v">${v??0}</div><div class="l">${l}</div></div>`;
   const comp=(key,label,weight)=>{const val=s[key],c=s.tier.color;
     const terms=s.terms[key].map(([n,v])=>`<span class="term">${n} <b>${Math.round(v)}</b></span>`).join("");
     return `<div class="comp"><div class="top"><span class="lbl">${label}</span>
