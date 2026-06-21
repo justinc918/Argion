@@ -20,7 +20,7 @@ import {
   getCloseApproaches,
 } from "./jplClient.js";
 import { cached, getCached, setCached } from "./cache.js";
-import { analyzeAsteroid } from "./riskAnalyzer.js";
+import { analyzeAsteroid, streamAssessmentSummary } from "./riskAnalyzer.js";
 
 const app = express();
 app.use(cors());
@@ -121,6 +121,57 @@ app.get("/api/scout/object/:tdes/analysis", async (req, res) => {
   } catch (err) {
     console.error(`[/api/scout/object/${tdes}/analysis]`, err.message);
     res.status(502).json({ error: "Analysis failed", detail: err.message });
+  }
+});
+
+// Streamed assessment summary: text-only, progressive delivery via SSE.
+// If a cached full analysis exists, short-circuits with the stored summary.
+app.get("/api/scout/object/:tdes/analysis/summary/stream", async (req, res) => {
+  const { tdes } = req.params;
+  try {
+    // Short-circuit: if full analysis is cached, emit summary immediately
+    const cached_analysis = getCached(`analysis:${tdes}`);
+    if (cached_analysis?.analysis?.assessmentSummary) {
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      res.write(`data: ${JSON.stringify({ text: cached_analysis.analysis.assessmentSummary, done: true })}\n\n`);
+      res.end();
+      return;
+    }
+
+    const summary = await cached("scout-summary", 60_000, getScoutSummary);
+    const rows = summary?.data || [];
+    const raw = rows.find((r) => r.objectName === tdes);
+    if (!raw) {
+      res.status(404).json({ error: "Not found", detail: `Object ${tdes} not in current Scout summary` });
+      return;
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    let aborted = false;
+    req.on("close", () => { aborted = true; });
+
+    await streamAssessmentSummary(raw, (chunk) => {
+      if (aborted) return;
+      res.write(`data: ${JSON.stringify({ text: chunk, done: false })}\n\n`);
+    });
+
+    if (!aborted) {
+      res.write(`data: ${JSON.stringify({ text: "", done: true })}\n\n`);
+      res.end();
+    }
+  } catch (err) {
+    console.error(`[/api/scout/object/${tdes}/analysis/summary/stream]`, err.message);
+    if (!res.headersSent) {
+      res.status(502).json({ error: "Stream failed", detail: err.message });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: err.message, done: true })}\n\n`);
+      res.end();
+    }
   }
 });
 

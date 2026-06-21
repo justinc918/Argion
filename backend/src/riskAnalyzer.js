@@ -3,7 +3,7 @@
 // Assembles JPL data + deterministic scores into a structured prompt,
 // calls Sonnet, and returns a validated analysis payload for the frontend.
 
-import { callSonnet } from "./anthropicClient.js";
+import { callSonnet, callSonnetStream } from "./anthropicClient.js";
 import { normalize } from "./schema.js";
 import { score } from "./scorer.js";
 
@@ -89,6 +89,35 @@ function validateAnalysis(parsed) {
     parsed.overallSeverity = "NOMINAL";
   }
   return parsed;
+}
+
+const SUMMARY_SYSTEM_PROMPT = `You are an asteroid risk assessment specialist. Write a brief, plain-language assessment summary for a general audience. Reference both the Torino Scale and Palermo Scale in your explanation. Be scientifically cautious — most newly discovered objects are removed from risk lists after follow-up observations. Write 3-5 sentences only. Do not use markdown or special formatting.`;
+
+function buildSummaryUserMessage(asteroid, scoreResult) {
+  return `Write a plain-language assessment summary for this asteroid:
+
+Designation: ${asteroid.designation}
+Estimated Diameter: ${asteroid.diameterM !== null ? asteroid.diameterM + " m" : "unknown"}
+MOID: ${asteroid.moid !== null ? asteroid.moid + " AU" : "unknown"}
+Close Approach Distance: ${asteroid.caDist !== null ? asteroid.caDist + " lunar distances" : "unknown"}
+Arc Length: ${asteroid.arc !== null ? asteroid.arc + " days" : "unknown"}
+Observations: ${asteroid.nObs || "unknown"}
+Velocity (V∞): ${asteroid.vInf !== null ? asteroid.vInf + " km/s" : "unknown"}
+Brightness (Vmag): ${asteroid.Vmag !== null ? asteroid.Vmag : "unknown"}
+
+Priority Score: ${scoreResult.total}/100 (Tier: ${scoreResult.tier})
+Impact Relevance: ${scoreResult.impact}/100
+Urgency: ${scoreResult.urgency}/100
+Observability: ${scoreResult.observability}/100
+
+Explain what this object is, whether it poses a threat (referencing Torino and Palermo scales), and what happens next. Write for someone who is NOT an earth scientist.`;
+}
+
+export async function streamAssessmentSummary(rawData, onChunk) {
+  const asteroid = normalize(rawData);
+  const scoreResult = score(asteroid);
+  const userMessage = buildSummaryUserMessage(asteroid, scoreResult);
+  return callSonnetStream({ system: SUMMARY_SYSTEM_PROMPT, userMessage, onChunk });
 }
 
 export async function analyzeAsteroid(rawData) {

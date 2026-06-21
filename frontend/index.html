@@ -256,6 +256,9 @@ tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
   border:1px solid var(--line);color:var(--txt-2)}
 .key-stat b{color:var(--txt);font-weight:500}
 
+.stream-cursor{color:var(--accent);animation:blink .6s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:1080px){
   .workspace{grid-template-columns:1fr;grid-auto-rows:min-content}
@@ -1759,6 +1762,8 @@ let activeTier=null;  // tier filter
 let query="";
 let analysisCache={};    // designation → {data, error, loading}
 let analysisPending=null; // abort controller for in-flight request
+let summaryStreamCache={}; // designation → {text, streaming, done, error}
+let summaryStreamAbort=null; // abort controller for in-flight stream
 
 /* ===========================================================================
    3 · DATA SOURCE  — try backend, fall back to embedded sample.
@@ -1878,47 +1883,67 @@ function renderSky(){
 }
 
 /* ---- inspector ---- */
+function renderStreamedSummary(id){
+  const ss = summaryStreamCache[id];
+  if(!ss && !analysisCache[id]?.data?.analysis?.assessmentSummary){
+    return `<div class="insp-sec">
+      <h4>AI Assessment <span class="ai-badge">Sonnet</span></h4>
+      <div class="analysis-loading"><div class="spinner"></div>Generating assessment…</div>
+    </div>`;
+  }
+  const text = ss?.text || analysisCache[id]?.data?.analysis?.assessmentSummary || "";
+  const streaming = ss?.streaming;
+  const err = ss?.error;
+  return `<div class="insp-sec">
+    <h4>AI Assessment <span class="ai-badge">Sonnet</span></h4>
+    <div class="ai-summary" id="ai-summary-stream">${text}${streaming?'<span class="stream-cursor">▍</span>':''}</div>
+    ${err?`<div class="ai-uncertainty" style="color:var(--crit)">Stream error: ${err}</div>`:''}
+  </div>`;
+}
+
 function renderAnalysisSection(id){
   const entry = analysisCache[id];
-  if(!entry) return "";
-  if(entry.loading) return `<div class="insp-sec"><div class="analysis-loading"><div class="spinner"></div>Generating AI risk assessment…</div></div>`;
-  if(entry.error) return `<div class="insp-sec"><div class="analysis-error">Analysis unavailable: ${entry.error}</div></div>`;
-  const a = entry.data?.analysis;
-  if(!a){
-    const fallbackErr = entry.data?.analysisError;
-    if(fallbackErr) return `<div class="insp-sec"><div class="analysis-error">AI analysis unavailable: ${fallbackErr}</div></div>`;
-    return "";
+  let structuredHtml = "";
+
+  if(entry?.loading){
+    structuredHtml = `<div class="insp-sec"><div class="analysis-loading"><div class="spinner"></div>Loading risk standards…</div></div>`;
+  } else if(entry?.error){
+    structuredHtml = `<div class="insp-sec"><div class="analysis-error">Analysis unavailable: ${entry.error}</div></div>`;
+  } else if(entry?.data?.analysis){
+    const a = entry.data.analysis;
+    const torino = a.torinoScale||{};
+    const palermo = a.palermoScale||{};
+    const keyStats = (a.keyStats||[]).map(s=>`<span class="key-stat"><b>${s.label}:</b> ${s.value}</span>`).join("");
+    structuredHtml = `
+      <div class="insp-sec">
+        <h4>Risk Standards <span class="ai-badge">AI Analysis</span></h4>
+        <div class="risk-scales">
+          <div class="risk-scale">
+            <div class="scale-name">Torino Scale</div>
+            <div class="scale-val">${torino.value??'—'}</div>
+            <div class="scale-desc">${torino.rationale||''}</div>
+          </div>
+          <div class="risk-scale">
+            <div class="scale-name">Palermo Scale</div>
+            <div class="scale-val">${palermo.value??'—'}</div>
+            <div class="scale-desc">${palermo.rationale||''}</div>
+          </div>
+        </div>
+        ${a.riskClass?`<div class="risk-class-tag">${a.riskClass}</div>`:''}
+      </div>`;
+    if(keyStats || a.technicalRationale || a.uncertaintyNotes){
+      structuredHtml += `<div class="insp-sec">
+        <h4>Technical Detail</h4>
+        ${keyStats?`<div class="key-stats">${keyStats}</div>`:''}
+        ${a.technicalRationale?`<div class="ai-detail">${a.technicalRationale}</div>`:''}
+        ${a.uncertaintyNotes?`<div class="ai-uncertainty">${a.uncertaintyNotes}</div>`:''}
+      </div>`;
+    }
+  } else if(entry?.data?.analysisError){
+    structuredHtml = `<div class="insp-sec"><div class="analysis-error">AI analysis unavailable: ${entry.data.analysisError}</div></div>`;
   }
 
-  const torino = a.torinoScale||{};
-  const palermo = a.palermoScale||{};
-  const keyStats = (a.keyStats||[]).map(s=>`<span class="key-stat"><b>${s.label}:</b> ${s.value}</span>`).join("");
-
-  return `
-    <div class="insp-sec">
-      <h4>Risk Standards <span class="ai-badge">AI Analysis</span></h4>
-      <div class="risk-scales">
-        <div class="risk-scale">
-          <div class="scale-name">Torino Scale</div>
-          <div class="scale-val">${torino.value??'—'}</div>
-          <div class="scale-desc">${torino.rationale||''}</div>
-        </div>
-        <div class="risk-scale">
-          <div class="scale-name">Palermo Scale</div>
-          <div class="scale-val">${palermo.value??'—'}</div>
-          <div class="scale-desc">${palermo.rationale||''}</div>
-        </div>
-      </div>
-      ${a.riskClass?`<div class="risk-class-tag">${a.riskClass}</div>`:''}
-    </div>
-
-    <div class="insp-sec">
-      <h4>AI Assessment <span class="ai-badge">Sonnet</span></h4>
-      <div class="ai-summary">${a.assessmentSummary||''}</div>
-      ${keyStats?`<div class="key-stats">${keyStats}</div>`:''}
-      ${a.technicalRationale?`<div class="ai-detail">${a.technicalRationale}</div>`:''}
-      ${a.uncertaintyNotes?`<div class="ai-uncertainty">${a.uncertaintyNotes}</div>`:''}
-    </div>`;
+  return renderStreamedSummary(id) + structuredHtml;
 }
 
 function renderCompAiNote(key, analysisEntry){
@@ -2034,10 +2059,69 @@ async function fetchAnalysis(id){
   if(selected===id) renderInspector();
 }
 
+async function fetchSummaryStream(id){
+  if(!id) return;
+  if(summaryStreamCache[id]?.done || summaryStreamCache[id]?.streaming) return;
+  if(summaryStreamAbort) summaryStreamAbort.abort();
+  const ac = new AbortController();
+  summaryStreamAbort = ac;
+  summaryStreamCache[id] = {text:"", streaming:true, done:false, error:null};
+
+  try{
+    const r = await fetch(
+      `${API_BASE}/api/scout/object/${encodeURIComponent(id)}/analysis/summary/stream`,
+      {signal:ac.signal}
+    );
+    if(!r.ok){ const e = await r.json().catch(()=>({})); throw new Error(e.detail||`HTTP ${r.status}`); }
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buf += decoder.decode(value, {stream:true});
+      const lines = buf.split("\n");
+      buf = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith("data: ")) continue;
+        try{
+          const evt = JSON.parse(line.slice(6));
+          if(evt.error){
+            summaryStreamCache[id].error = evt.error;
+            summaryStreamCache[id].streaming = false;
+            summaryStreamCache[id].done = true;
+            break;
+          }
+          if(evt.text) summaryStreamCache[id].text += evt.text;
+          if(evt.done){
+            summaryStreamCache[id].streaming = false;
+            summaryStreamCache[id].done = true;
+          }
+        }catch{}
+      }
+      if(selected===id){
+        const el = document.getElementById("ai-summary-stream");
+        if(el) el.textContent = summaryStreamCache[id].text;
+      }
+    }
+  }catch(e){
+    if(e.name==="AbortError") return;
+    summaryStreamCache[id] = {text: summaryStreamCache[id]?.text||"", streaming:false, done:true, error:e.message};
+  }
+  if(selected===id){
+    const el = document.getElementById("ai-summary-stream");
+    if(el) el.textContent = summaryStreamCache[id].text;
+  }
+}
+
 function select(id){
   selected = (selected===id?null:id);
   render();
-  if(selected) fetchAnalysis(selected);
+  if(selected){
+    fetchAnalysis(selected);
+    fetchSummaryStream(selected);
+  }
 }
 
 document.getElementById("tbody").addEventListener("click",e=>{

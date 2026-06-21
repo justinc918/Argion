@@ -55,3 +55,59 @@ export async function callSonnet({ system, userMessage, maxTokens = 2048, timeou
   }
   return content;
 }
+
+// Streaming variant: calls Anthropic with stream:true and yields text chunks
+// via a callback. Returns the full accumulated text when done.
+export async function callSonnetStream({ system, userMessage, maxTokens = 1024, onChunk }) {
+  if (!API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY env var is not set");
+  }
+
+  const body = {
+    model: MODEL,
+    max_tokens: maxTokens,
+    stream: true,
+    system,
+    messages: [{ role: "user", content: userMessage }],
+  };
+
+  const res = await fetch(ANTHROPIC_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Anthropic API ${res.status}: ${text.slice(0, 500)}`);
+  }
+
+  let full = "";
+  let buffer = "";
+
+  for await (const chunk of res.body) {
+    buffer += chunk.toString();
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const payload = line.slice(6).trim();
+      if (payload === "[DONE]") continue;
+
+      try {
+        const evt = JSON.parse(payload);
+        if (evt.type === "content_block_delta" && evt.delta?.text) {
+          full += evt.delta.text;
+          if (onChunk) onChunk(evt.delta.text);
+        }
+      } catch {}
+    }
+  }
+
+  return full;
+}
