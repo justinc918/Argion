@@ -7,7 +7,7 @@ single-file operations console for reviewing and ranking candidate risks.
 The current repo has two active parts:
 
 - `backend/` -- the only code allowed to query JPL directly
-- `frontend/` -- a browser-based triage console with offline sample data and
+- `frontend/` -- the `Argion` browser workbench with offline sample data and
   optional live backend integration
 
 ## Repository layout
@@ -18,6 +18,10 @@ asteROIDED/
 │   ├── src/
 │   │   ├── jplClient.js        # serialized JPL HTTP client
 │   │   ├── server.js           # Express API for frontend / agents
+│   │   ├── schema.js           # raw Scout → normalized asteroid shape
+│   │   ├── scorer.js           # backend-owned priority score
+│   │   ├── riskAnalyzer.js     # structured risk assessment orchestration
+│   │   ├── anthropicClient.js  # Anthropic API wrapper
 │   │   ├── snapshotPoller.js   # frequent Scout snapshot collector
 │   │   ├── feedSync.js         # reusable scheduled feed sync layer
 │   │   ├── syncFeeds.js        # CLI for one-shot / scheduled sync jobs
@@ -41,7 +45,10 @@ The frontend consumes that data and provides:
 - a sortable triage queue
 - a visible scoring breakdown
 - a sky plot for quick spatial review
-- an inspector for per-object metrics
+- an inspector for per-object metrics plus AI-generated risk context
+- a 3D heliocentric tracking view
+- a hunting / facility-recommendation workspace
+- an insight tab explaining the underlying physics
 
 ## Prerequisites
 
@@ -92,8 +99,11 @@ Useful endpoints:
 
 - `GET /health`
 - `GET /api/scout/summary`
+- `GET /api/scout/summary/scored`
 - `GET /api/scout/object/:tdes`
 - `GET /api/scout/ephemeris/:tdes`
+- `GET /api/scout/object/:tdes/analysis`
+- `GET /api/scout/object/:tdes/analysis/summary/stream`
 - `GET /api/sentry`
 - `GET /api/close-approaches`
 - `GET /api/feed-sync/status`
@@ -109,7 +119,8 @@ open frontend/index.html
 The frontend works in two modes:
 
 - offline demo mode using the embedded sample payload
-- live mode using `http://localhost:8080/api/scout/summary`
+- live mode using backend-scored Scout data from
+  `http://localhost:8080/api/scout/summary/scored`
 
 When the backend is reachable, the source indicator in the UI flips from
 `SAMPLE DATA` to `LIVE · JPL SCOUT`.
@@ -133,7 +144,8 @@ open frontend/index.html
 
 ### B. Live frontend + live backend
 
-Use this when you want current JPL Scout data in the UI.
+Use this when you want current JPL Scout data, backend-owned priority scoring,
+and backend AI analysis in the UI.
 
 ```bash
 cd backend
@@ -294,18 +306,20 @@ If strict one-at-a-time JPL access matters, prefer:
 
 ## Current limitations
 
-- The ranking logic is still frontend-side; there is no backend `scorer.js` yet.
-- There is no normalized internal schema module yet.
+- The live queue now uses backend normalization and scoring, but the offline
+  sample fallback still mirrors that scoring logic in the frontend.
+- The 3D orbit views are still illustrative in the frontend because Scout
+  summary rows do not include orbital elements.
 - There is no persistent database; storage is currently file-based snapshots.
 - Runtime verification could not be performed in this shell because `node` is
   not installed here.
 
 ## Suggested next implementation steps
 
-1. Move the scoring model into `backend/src/scorer.js` so ranking has a single
-   source of truth.
-2. Add a schema normalization layer that maps raw JPL fields into a stable
-   internal object shape.
+1. Remove the duplicated offline scoring logic from `frontend/index.html` if you
+   want the browser to rely exclusively on backend-scored payloads.
+2. Replace the frontend's illustrative orbit generation with real geometry from
+   `/api/scout/object/:tdes?orbits=1`.
 3. Persist normalized objects and score history in a real datastore if you need
    longitudinal querying beyond flat files.
 4. Add alerting on feed changes, newly risky objects, or rising scores.

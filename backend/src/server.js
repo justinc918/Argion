@@ -5,9 +5,8 @@
 //
 //   npm run dev
 //
-// Routes are intentionally thin: cache + pass-through. All real parsing/
-// scoring logic should live in separate modules (schema.js, scorer.js, not
-// written yet) so this file stays easy to read at 2am.
+// Routes are intentionally thin: cache + pass-through. Parsing and scoring
+// live in dedicated modules so this file stays easy to read at 2am.
 
 import "dotenv/config";
 import express from "express";
@@ -22,6 +21,8 @@ import {
 import { cached, getCached, setCached } from "./cache.js";
 import { analyzeAsteroid, streamAssessmentSummary } from "./riskAnalyzer.js";
 import { DAY_MS, readFeedSyncStatus, startScheduledFeedSync } from "./feedSync.js";
+import { normalize } from "./schema.js";
+import { score } from "./scorer.js";
 
 const app = express();
 app.use(cors());
@@ -48,6 +49,21 @@ function syncIntervalMs() {
   return hours * 60 * 60 * 1000;
 }
 
+function scoredScoutSummary(summary) {
+  const rows = summary?.data || [];
+  return {
+    ...summary,
+    data: rows.map((raw) => {
+      const asteroid = normalize(raw);
+      return {
+        raw,
+        asteroid,
+        score: score(asteroid),
+      };
+    }),
+  };
+}
+
 // Scout summary: the core live feed. Cached ~60s per the fair-use rule --
 // poll Scout summary once every ~60s, don't hit it per-request.
 app.get("/api/scout/summary", async (req, res) => {
@@ -57,6 +73,20 @@ app.get("/api/scout/summary", async (req, res) => {
   } catch (err) {
     console.error("[/api/scout/summary]", err.message);
     res.status(502).json({ error: "Failed to fetch Scout summary", detail: err.message });
+  }
+});
+
+// Scout summary + backend-owned normalization/scoring for the triage queue.
+app.get("/api/scout/summary/scored", async (req, res) => {
+  try {
+    const data = await cached("scout-summary-scored", 60_000, async () => {
+      const summary = await cached("scout-summary", 60_000, getScoutSummary);
+      return scoredScoutSummary(summary);
+    });
+    res.json(data);
+  } catch (err) {
+    console.error("[/api/scout/summary/scored]", err.message);
+    res.status(502).json({ error: "Failed to fetch scored Scout summary", detail: err.message });
   }
 });
 

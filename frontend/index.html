@@ -446,7 +446,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
           <div class="tablewrap">
             <table id="tbl"><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
           </div>
-          <div class="qfoot"><span class="eyebrow"><span id="rowCount">—</span> objects · scoring model is a transparent stand-in for backend <span class="mono" style="color:var(--txt-2)">scorer.js</span> — tune weights &amp; terms in source</span></div>
+          <div class="qfoot"><span class="eyebrow"><span id="rowCount">—</span> objects · live JPL Scout queue via backend scoring</span></div>
         </main>
         <aside class="inspector" id="inspector">
           <div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>
@@ -1862,7 +1862,7 @@ const clamp=(x,lo=0,hi=100)=>Math.max(lo,Math.min(hi,x));
 const num=v=>(v===null||v===undefined||v==="")?null:(isNaN(+v)?null:+v);
 
 /* ===========================================================================
-   1 · SCORING MODEL  — stand-in for backend scorer.js (see frontend/README)
+   1 · SCORING MODEL  — mirrors backend scorer.js for offline sample mode.
    =========================================================================== */
 const WEIGHTS={impact:0.45,urgency:0.35,observability:0.20};
 const TIERS=[
@@ -1956,16 +1956,50 @@ let summaryStreamAbort=null;
    =========================================================================== */
 async function load(){
   let data,live=false;
-  try{const r=await fetch(`${API_BASE}/api/scout/summary`,{signal:AbortSignal.timeout(2500)});
+  try{const r=await fetch(`${API_BASE}/api/scout/summary/scored`,{signal:AbortSignal.timeout(2500)});
     if(!r.ok)throw 0;data=await r.json();live=true;}catch(e){data=SAMPLE;}
   const rows=(data&&data.data)||[];
-  RAW=rows.map(o=>({o,s:score(o),el:elements(o),id:o.objectName}));
+  RAW=rows.map(row=>{
+    const o=live ? (row.raw||{}) : row;
+    const s=live ? adaptBackendScore(row.score, o) : score(o);
+    return {o,s,el:elements(o),id:o.objectName};
+  });
   const byPri=[...RAW].sort((a,b)=>b.s.total-a.s.total);byPri.forEach((r,i)=>r.rank=i+1);
   setSource(live);renderAll();
 }
 function setSource(live){const p=document.getElementById("srcPill");p.classList.toggle("live",live);
   document.getElementById("srcText").textContent=live?"LIVE · JPL SCOUT":"SAMPLE DATA";}
 function topN(n){return[...RAW].sort((a,b)=>b.s.total-a.s.total).slice(0,n);}
+
+function tierMeta(id){
+  return TIERS.find(t=>t.id===id) || TIERS[TIERS.length-1];
+}
+
+function adaptBackendScore(s,o){
+  if(!s) return score(o);
+  const tier=tierMeta(s.tier);
+  return {
+    total:s.total,
+    tier:{id:tier.id,color:tier.color,raw:tier.raw},
+    D:safeNum(o.H)!==null ? diameterM(o.H) : null,
+    impact:s.impact,
+    urgency:s.urgency,
+    observability:s.observability,
+    terms:{
+      impact:(s.terms?.impact||[]).map(([name,val])=>[displayTerm(name),val]),
+      urgency:(s.terms?.urgency||[]).map(([name,val])=>[displayTerm(name),val]),
+      observability:(s.terms?.observability||[]).map(([name,val])=>[displayTerm(name),val]),
+    }
+  };
+}
+
+function displayTerm(name){
+  if(name==="size") return "Ø size";
+  if(name==="short arc") return "short arc";
+  if(name==="brightness") return "brightness";
+  if(name==="pos. unc.") return "pos. unc.";
+  return name;
+}
 
 /* ===========================================================================
    5 · TRIAGE RENDER
