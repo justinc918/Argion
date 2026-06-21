@@ -19,7 +19,11 @@ import {
   getCloseApproaches,
 } from "./jplClient.js";
 import { cached, getCached, setCached } from "./cache.js";
-import { analyzeAsteroid, streamAssessmentSummary } from "./riskAnalyzer.js";
+import {
+  analyzeAsteroid,
+  answerClassificationQuestion,
+  streamAssessmentSummary,
+} from "./riskAnalyzer.js";
 import { DAY_MS, readFeedSyncStatus, startScheduledFeedSync } from "./feedSync.js";
 import { normalize } from "./schema.js";
 import { score } from "./scorer.js";
@@ -28,6 +32,7 @@ import { representativeScoutOrbit } from "./orbitAdapter.js";
 
 const app = express();
 app.use(cors());
+app.use(express.json({ limit: "512kb" }));
 
 const PORT = process.env.PORT || 8080;
 let schedulerStarted = false;
@@ -264,6 +269,39 @@ app.get("/api/scout/object/:tdes/analysis/summary/stream", async (req, res) => {
       res.write(`data: ${JSON.stringify({ error: err.message, done: true })}\n\n`);
       res.end();
     }
+  }
+});
+
+// Free-form Classification Agent answer: same selected-object context as the
+// hunting panel, plus backend Scout/scoring data, sent through Anthropic.
+app.post("/api/scout/object/:tdes/agent", async (req, res) => {
+  const { tdes } = req.params;
+  const question = String(req.body?.question || "").trim();
+  const frontendContext = req.body?.context || null;
+
+  if (!question) {
+    res.status(400).json({ error: "Question required", detail: "Provide a non-empty question in the request body." });
+    return;
+  }
+
+  try {
+    const summary = await cached("scout-summary", 60_000, getScoutSummary);
+    const rows = summary?.data || [];
+    const raw = rows.find((r) => r.objectName === tdes);
+    if (!raw) {
+      res.status(404).json({ error: "Not found", detail: `Object ${tdes} not in current Scout summary` });
+      return;
+    }
+
+    const result = await answerClassificationQuestion({
+      rawData: raw,
+      question,
+      frontendContext,
+    });
+    res.json(result);
+  } catch (err) {
+    console.error(`[/api/scout/object/${tdes}/agent]`, err.message);
+    res.status(502).json({ error: "Agent request failed", detail: err.message });
   }
 });
 

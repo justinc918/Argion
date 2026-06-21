@@ -94,6 +94,19 @@ function validateAnalysis(parsed) {
 
 const SUMMARY_SYSTEM_PROMPT = `You are an asteroid risk assessment specialist. Write a brief, plain-language assessment summary for a general audience. Reference both the Torino Scale and Palermo Scale in your explanation. Be scientifically cautious — most newly discovered objects are removed from risk lists after follow-up observations. Write 3-5 sentences only. Do not use markdown or special formatting.`;
 
+const CHAT_SYSTEM_PROMPT = `You are the Classification Agent inside ARGION, a planetary defense triage console.
+
+Answer operator questions about one selected asteroid using ONLY the context provided in the user message.
+
+You MUST follow these rules:
+1. Treat the backend JPL Scout data and deterministic score as the source of truth.
+2. Use the frontend triage context when explaining telescope choice, observability, and follow-up strategy.
+3. Never invent measurements, facilities, orbital parameters, impact claims, or observing constraints.
+4. If the answer is not supported by the provided context, say so plainly and explain what is missing.
+5. Be concise but useful. Short paragraphs or bullets are fine.
+6. When relevant, call out uncertainty from short arcs, sparse observations, faint magnitudes, or preliminary solutions.
+7. Output plain text only. No JSON, no markdown tables, and no code fences.`;
+
 function buildSummaryUserMessage(asteroid, scoreResult) {
   return `Write a plain-language assessment summary for this asteroid:
 
@@ -114,11 +127,61 @@ Observability: ${scoreResult.observability}/100
 Explain what this object is, whether it poses a threat (referencing Torino and Palermo scales), and what happens next. Write for someone who is NOT an earth scientist.`;
 }
 
+function buildClassificationAgentUserMessage({ asteroid, scoreResult, rawData, question, frontendContext }) {
+  return `Answer the operator's question about the selected asteroid.
+
+## Operator Question
+${question}
+
+## Backend Context (JPL Scout + normalized score inputs)
+${JSON.stringify({
+    designation: asteroid.designation,
+    raw: rawData,
+    normalized: asteroid,
+    deterministicScore: scoreResult,
+  }, null, 2)}
+
+## Frontend Triage Context
+${JSON.stringify(frontendContext || {}, null, 2)}
+
+Important:
+- If the operator asks "why this telescope" or similar, use the provided tasking and facility ranking context.
+- If the operator asks for classification, explain the current triage state using the supplied scores and descriptors.
+- If the operator asks a hypothetical, ground the answer in the supplied data and be explicit about uncertainty.`;
+}
+
 export async function streamAssessmentSummary(rawData, onChunk) {
   const asteroid = normalize(rawData);
   const scoreResult = score(asteroid);
   const userMessage = buildSummaryUserMessage(asteroid, scoreResult);
   return callSonnetStream({ system: SUMMARY_SYSTEM_PROMPT, userMessage, onChunk });
+}
+
+export async function answerClassificationQuestion({ rawData, question, frontendContext = null }) {
+  const asteroid = normalize(rawData);
+  const scoreResult = score(asteroid);
+  const userMessage = buildClassificationAgentUserMessage({
+    asteroid,
+    scoreResult,
+    rawData,
+    question,
+    frontendContext,
+  });
+  const answer = await callSonnet({
+    system: CHAT_SYSTEM_PROMPT,
+    userMessage,
+    maxTokens: 1024,
+  });
+
+  return {
+    asteroid,
+    score: scoreResult,
+    answer: answer.trim(),
+    source: {
+      model: process.env.ANTHROPIC_MODEL || "claude-haiku-4-5",
+      answeredAt: new Date().toISOString(),
+    },
+  };
 }
 
 export async function analyzeAsteroid(rawData) {
