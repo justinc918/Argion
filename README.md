@@ -1,6 +1,6 @@
-# asteROIDED
+# Argion
 
-`asteROIDED` is a near-Earth object triage workspace. It pulls data from JPL's
+`ARGION` is a near-Earth object triage workspace. It pulls data from JPL's
 small-body / NEO services, keeps local snapshots of key feeds, and presents a
 single-file operations console for reviewing and ranking candidate risks.
 
