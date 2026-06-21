@@ -22,6 +22,61 @@ npm run poll
 npm run dev
 ```
 
+## Scheduled feed syncing
+
+If you want a durable local copy of the JPL feeds for an agent/model to read
+without hitting JPL on every prompt, use the feed sync scripts:
+
+```bash
+# one immediate sync of all configured feeds
+npm run sync:once
+
+# keep a process alive that re-checks the feeds every 24 hours
+npm run sync:daily
+```
+
+This sync job snapshots three feeds by default:
+
+- `scout` -- NEOCP / Scout summary (`scout.api`)
+- `sentry` -- confirmed-object impact risk list (`sentry.api`)
+- `closeApproaches` -- close approach feed (`cad.api`)
+
+Generated files land under `backend/data/feeds/`:
+
+- `feeds/<feed>/latest.json` -- latest changed payload for that feed
+- `feeds/<feed>/snapshot-*.json` -- timestamped snapshots written only when
+  the payload changed
+- `feed-sync-manifest.json` -- last-checked / last-changed timestamps, hashes,
+  record counts, and snapshot paths
+- `feed-sync-log.jsonl` -- append-only sync history, one JSON line per check
+
+Useful options:
+
+```bash
+# only sync Scout + Sentry once
+node src/syncFeeds.js --feeds=scout,sentry
+
+# change the schedule to every 6 hours
+node src/syncFeeds.js --watch --interval-hours=6
+
+# write a fresh snapshot even if the payload hash has not changed
+node src/syncFeeds.js --force-snapshot
+```
+
+If you already keep `server.js` alive, you can also let the backend process
+run the scheduler itself:
+
+```bash
+ENABLE_JPL_SYNC_SCHEDULER=1 npm run dev
+```
+
+Optional env vars:
+
+- `JPL_SYNC_INTERVAL_HOURS` -- scheduler interval when embedded in `server.js`
+- `JPL_SYNC_RUN_ON_START=0` -- wait until the first interval before syncing
+- `JPL_CLOSE_APPROACH_DIST_MAX`, `JPL_CLOSE_APPROACH_DATE_MIN`,
+  `JPL_CLOSE_APPROACH_SORT` -- override the `cad.api` query
+
 ## What's here
 
 - `jplClient.js` -- the ONLY module that calls JPL. Serializes requests
@@ -39,6 +94,8 @@ npm run dev
 - `inspectScout.js` -- one-shot script, dumps a real Scout summary response
   to console + `data/sample-scout-summary.json` so the team can agree on
   field names before building a schema around guesses.
+- `feedSync.js` / `syncFeeds.js` -- reusable JPL feed sync layer for periodic
+  update checks and local feed snapshots.
 
 ## Not built yet (next steps)
 
@@ -56,3 +113,8 @@ of strictly 1. For a hackathon this is a fine risk to accept. If you want
 it stricter, point the poller at your own `/api/scout/summary` endpoint
 instead of calling JPL directly -- see the comment at the top of
 `snapshotPoller.js`.
+
+The same caveat applies if you run `npm run sync:daily` as a separate process
+while `server.js` is also live. If you want strict one-at-a-time behavior
+across API traffic and scheduled syncs, prefer the embedded scheduler via
+`ENABLE_JPL_SYNC_SCHEDULER=1 npm run dev`.

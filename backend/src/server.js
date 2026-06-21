@@ -21,11 +21,32 @@ import {
 } from "./jplClient.js";
 import { cached, getCached, setCached } from "./cache.js";
 import { analyzeAsteroid, streamAssessmentSummary } from "./riskAnalyzer.js";
+import { DAY_MS, readFeedSyncStatus, startScheduledFeedSync } from "./feedSync.js";
 
 const app = express();
 app.use(cors());
 
 const PORT = process.env.PORT || 8080;
+let schedulerStarted = false;
+
+function envFlag(name, defaultValue = false) {
+  const value = process.env[name];
+  if (value === undefined) return defaultValue;
+  return !["0", "false", "no", "off"].includes(String(value).toLowerCase());
+}
+
+function syncIntervalMs() {
+  const rawHours = process.env.JPL_SYNC_INTERVAL_HOURS;
+  if (!rawHours) return DAY_MS;
+
+  const hours = Number(rawHours);
+  if (!Number.isFinite(hours) || hours <= 0) {
+    console.warn(`[feedSync] invalid JPL_SYNC_INTERVAL_HOURS=${rawHours}; falling back to 24h`);
+    return DAY_MS;
+  }
+
+  return hours * 60 * 60 * 1000;
+}
 
 // Scout summary: the core live feed. Cached ~60s per the fair-use rule --
 // poll Scout summary once every ~60s, don't hit it per-request.
@@ -129,7 +150,6 @@ app.get("/api/scout/object/:tdes/analysis", async (req, res) => {
 app.get("/api/scout/object/:tdes/analysis/summary/stream", async (req, res) => {
   const { tdes } = req.params;
   try {
-    // Short-circuit: if full analysis is cached, emit summary immediately
     const cached_analysis = getCached(`analysis:${tdes}`);
     if (cached_analysis?.analysis?.assessmentSummary) {
       res.setHeader("Content-Type", "text/event-stream");
@@ -175,9 +195,22 @@ app.get("/api/scout/object/:tdes/analysis/summary/stream", async (req, res) => {
   }
 });
 
+app.get("/api/feed-sync/status", (req, res) => {
+  res.json(readFeedSyncStatus());
+});
+
 app.get("/health", (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
 app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);
   console.log(`Try: curl http://localhost:${PORT}/api/scout/summary | head -c 1000`);
+
+  if (!schedulerStarted && envFlag("ENABLE_JPL_SYNC_SCHEDULER")) {
+    startScheduledFeedSync({
+      intervalMs: syncIntervalMs(),
+      runOnStart: envFlag("JPL_SYNC_RUN_ON_START", true),
+      unrefTimer: true,
+    });
+    schedulerStarted = true;
+  }
 });

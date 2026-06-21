@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "node src/server.js",
     "poll": "node src/snapshotPoller.js",
-    "inspect": "node src/inspectScout.js"
+    "inspect": "node src/inspectScout.js",
+    "sync:once": "node src/syncFeeds.js",
+    "sync:daily": "node src/syncFeeds.js --watch --interval-hours=24"
   },
   "dependencies": {
     "cors": "^2.8.5",
