@@ -239,7 +239,8 @@ tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
 .hunt-list{padding:10px;display:flex;flex-direction:column;gap:8px}
 .task{border:1px solid var(--border);background:var(--panel);padding:11px 12px;cursor:pointer;transition:.13s}
 .task:hover{border-color:var(--border-2);background:var(--panel-2)}
-.task.sel{border-color:var(--accent);box-shadow:inset 2px 0 0 var(--accent)}
+.task.sel{border-color:var(--accent);background:rgba(70,201,224,.1);box-shadow:inset 3px 0 0 var(--accent),0 0 0 1px rgba(70,201,224,.15)}
+.task.sel:hover{border-color:var(--accent);background:rgba(70,201,224,.14)}
 .task .t1{display:flex;align-items:center;gap:8px}
 .task .pri{font-family:var(--mono);font-size:10px;color:var(--bg);padding:1px 5px;font-weight:600}
 .task .des{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--txt)}
@@ -2254,11 +2255,16 @@ async function fetchSummaryStream(id){
   }
 }
 
+function updatePlanSelection(){
+  document.querySelectorAll("#planList .task").forEach(el=>{
+    el.classList.toggle("sel",el.dataset.id===selected);
+  });
+}
 function select(id){
   selected=(selected===id?null:id);
   renderTriage();
   if(VIEW==="tracking"&&track.ready)track.highlight();
-  if(VIEW==="hunting")renderHuntDetail();
+  if(VIEW==="hunting"){updatePlanSelection();renderHuntDetail();}
   if(selected){
     fetchAnalysis(selected);
     fetchSummaryStream(selected);
