@@ -215,6 +215,7 @@ tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
 .track-ctrls{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
 .track-ctrls .btn{padding:5px 8px;font-size:9.5px}
 .track-hint{font-family:var(--mono);font-size:9px;color:var(--txt-3);line-height:1.6;border-top:1px solid var(--line);padding-top:9px}
+.track-speed{margin-bottom:10px}.track-speed .sl-top{display:flex;justify-content:space-between;margin-bottom:5px;font-family:var(--mono);font-size:10px}.track-speed .sl-top .nm{color:var(--txt-2)}.track-speed .sl-top .vl{color:var(--accent)}.track-speed input[type=range]{width:100%;accent-color:var(--accent)}
 .track-sel{pointer-events:auto;align-self:flex-end;width:280px;background:rgba(12,16,24,.82);backdrop-filter:blur(8px);border:1px solid var(--border-2);padding:0;display:none}
 .track-sel.on{display:block}
 .track-sel .hd{padding:12px 14px;border-bottom:1px solid var(--border)}
@@ -462,6 +463,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
               <button class="btn" id="trkPause">⏸ Pause</button>
               <button class="btn on" id="trkLabels">Labels</button>
               <button class="btn" id="trkReset">Reset View</button>
+            </div>
+            <div class="track-speed">
+              <div class="sl-top"><span class="nm">Orbit speed</span><span class="vl" id="trkSpeedVal">1×</span></div>
+              <input type="range" id="trkSpeed" min="0" max="3" step="0.05" value="1">
             </div>
             <div class="track-hint">drag rotate · scroll zoom · shift-drag pan · click orbit to select</div>
           </div>
@@ -2301,7 +2306,7 @@ function renderAll(){renderTriage();if(VIEW==="hunting")renderHunting();if(VIEW=
 const track=(function(){
   const SCALE=60;            // units per AU
   let ready=false,inited=false,started=false,paused=false,showLabels=true;
-  let scene,cam,rndr,raf,canvas,earth,earthGrp,objs=[],t=0;
+  let scene,cam,rndr,raf,canvas,earth,earthGrp,objs=[],t=0,speedMult=1;
   const target=new THREE.Vector3(0,0,0);
   let radius=170,theta=0.9,phi=1.02;
   const DEF={radius:170,theta:0.9,phi:1.02};
@@ -2381,7 +2386,7 @@ const track=(function(){
   function resize(){if(!rndr)return;const w=canvas.clientWidth,h=canvas.clientHeight;
     rndr.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
   function loop(){raf=requestAnimationFrame(loop);
-    if(!paused){t+=0.5;earth.rotation.y+=0.004;updatePositions();}
+    if(!paused){t+=0.12*speedMult;earth.rotation.y+=0.001*speedMult;updatePositions();}
     updateCam();rndr.render(scene,cam);}
   function init(){
     canvas=document.getElementById("trackCanvas");
@@ -2435,12 +2440,15 @@ const track=(function(){
     highlight(){if(ready)highlight();},
     pause(p){paused=p===undefined?!paused:p;},
     labels(v){showLabels=v===undefined?!showLabels:v;highlight();},
-    reset(){radius=DEF.radius;theta=DEF.theta;phi=DEF.phi;target.set(0,0,0);}
+    reset(){radius=DEF.radius;theta=DEF.theta;phi=DEF.phi;target.set(0,0,0);},
+    setSpeed(v){speedMult=Math.max(0,v);}
   };
 })();
 document.getElementById("trkPause").addEventListener("click",e=>{track.pause();e.target.classList.toggle("on");e.target.textContent=e.target.classList.contains("on")?"▶ Play":"⏸ Pause";});
 document.getElementById("trkLabels").addEventListener("click",e=>{e.target.classList.toggle("on");track.labels(e.target.classList.contains("on"));});
 document.getElementById("trkReset").addEventListener("click",()=>track.reset());
+(function(){const sl=document.getElementById("trkSpeed"),lbl=document.getElementById("trkSpeedVal");
+  sl.addEventListener("input",()=>{const v=+sl.value;track.setSpeed(v);lbl.textContent=v.toFixed(2).replace(/\.?0+$/,"")+"×";});})();
 function renderTrackLegend(){const counts={};TIERS.forEach(t=>counts[t.id]=0);topN(50).forEach(r=>counts[r.s.tier.id]++);
   document.getElementById("trackLegend").innerHTML=TIERS.map(t=>`<div class="row"><i style="background:${t.color}"></i>${t.id}<span class="ct">${counts[t.id]}</span></div>`).join("");}
 
