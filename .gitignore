@@ -8,3 +8,4 @@ backend/data/feed-sync-manifest.json
 backend/data/feed-sync-log.jsonl
 .env
 *.log
+*/.DS_Store
