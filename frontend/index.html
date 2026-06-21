@@ -280,7 +280,7 @@ tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
 .msg{max-width:94%}.msg.user{align-self:flex-end}
 .msg .who{font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:8.5px;color:var(--txt-3);margin-bottom:4px}
 .msg.user .who{text-align:right}
-.msg .bub{padding:9px 11px;font-size:12px;line-height:1.55}
+.msg .bub{padding:9px 11px;font-size:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 .msg.agent .bub{background:var(--panel);border:1px solid var(--border)}
 .msg.user .bub{background:rgba(70,201,224,.1);border:1px solid rgba(70,201,224,.3);color:var(--txt)}
 .msg .bub b{color:var(--txt)}.msg .bub .k{font-family:var(--mono);font-size:11px}
@@ -570,7 +570,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
           <div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select a tasking to inspect</div></div>
         </div>
         <div class="hunt-agent">
-          <div class="hunt-head"><h3>Classification Agent</h3><span class="eyebrow">local</span></div>
+          <div class="hunt-head"><h3>Classification Agent</h3><span class="eyebrow">llm</span></div>
           <div class="agent-log" id="agentLog"></div>
           <div class="agent-chips" id="agentChips"></div>
           <div class="agent-input">
@@ -2463,7 +2463,9 @@ function updatePlanSelection(){
   });
 }
 function select(id){
+  const prevSelected=selected;
   selected=(selected===id?null:id);
+  if(prevSelected!==selected) resetAgentChat(selected);
   renderTriage();
   if(VIEW==="tracking"&&track.ready)track.highlight();
   if(VIEW==="hunting"){updatePlanSelection();renderHuntDetail();}
@@ -2787,42 +2789,77 @@ function renderHuntDetail(){
       <div class="rwhy" style="color:var(--txt-3);font-size:11.5px">Ask the Classification Agent →  for a deeper read, alternate facilities, or a what-if (e.g. “what if the arc doubles?”).</div></div>
   </div>`;
 }
-/* ---- classification agent (local, deterministic; wire to real agent layer) ---- */
-let agentMsgs=[];
-function agentPush(who,html){agentMsgs.push({who,html});const log=document.getElementById("agentLog");
-  log.innerHTML=agentMsgs.map(m=>`<div class="msg ${m.who}"><div class="who">${m.who==="user"?"You":"Agent"}</div><div class="bub">${m.html}</div></div>`).join("");
+/* ---- classification agent (Anthropic-backed, with selected-object triage context) ---- */
+let agentMsgs=[],agentPending=false,agentAbort=null,agentSession=0;
+function escapeHtml(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function stripHtmlTags(v){return String(v??"").replace(/<[^>]*>/g,"");}
+function agentBubbleHtml(text){return escapeHtml(text).replace(/\n/g,"<br/>");}
+function renderAgentLog(){const log=document.getElementById("agentLog");
+  log.innerHTML=agentMsgs.map(m=>`<div class="msg ${m.who}"><div class="who">${m.who==="user"?"You":"Agent"}</div><div class="bub">${agentBubbleHtml(m.text)}</div></div>`).join("");
   log.scrollTop=log.scrollHeight;}
+function agentPush(who,text){agentMsgs.push({who,text});renderAgentLog();return agentMsgs.length-1;}
+function agentReplace(idx,who,text){if(idx<0||idx>=agentMsgs.length)return;agentMsgs[idx]={who,text};renderAgentLog();}
+function setAgentPending(on){agentPending=on;document.getElementById("agentInput").disabled=on;document.getElementById("agentSend").disabled=on;}
+function topAgentDrivers(s){return Object.entries(s.terms||{}).flatMap(([bucket,terms])=>(terms||[]).map(([label,value])=>({bucket,label,score:Math.round(value)}))).sort((a,b)=>b.score-a.score).slice(0,8);}
+function buildAgentContext(r){const t=tasking(r),[dc,dcDesc]=dynClass(r.el);
+  return{
+    designation:r.id,
+    rank:r.rank||null,
+    asteroid:r.o,
+    triageScore:r.s,
+    topDrivers:topAgentDrivers(r.s),
+    orbitalClass:{name:dc,description:dcDesc,elements:r.el},
+    tasking:{
+      goal:t.goal,
+      visibilityWindow:t.win,
+      primaryFacility:t.primary,
+      rankedFacilities:t.ranked.slice(0,5).map(({f,sc})=>({facility:f,score:Math.round(sc)})),
+      rationale:stripHtmlTags(whyText(t)),
+    },
+    facilityCatalog:FACILITIES,
+  };}
+function resetAgentChat(id=selected){
+  agentSession++;
+  if(agentAbort){agentAbort.abort();agentAbort=null;}
+  setAgentPending(false);
+  agentMsgs=[];
+  const r=RAW.find(x=>x.id===id);
+  if(r){
+    agentPush("agent",`Classification Agent\n\nNow scoped to ${r.id}. Every question will use this asteroid's current JPL Scout row plus the triage, orbital, and tasking context shown in the hunting workspace.`);
+  }else{
+    agentPush("agent","Classification Agent\n\nSelect an object in the plan first. Once selected, each question will be grounded in that asteroid's current data.");
+  }
+}
 function initAgent(){const log=document.getElementById("agentLog");log.dataset.init="1";
   document.getElementById("agentChips").innerHTML=["Classify selected","Why this telescope?","What if the arc doubles?","Is radar feasible?"].map(q=>`<span class="qc">${q}</span>`).join("");
-  agentPush("agent",`<h5>Classification Agent</h5>Select an object and ask me to classify it, justify a telescope choice, or run a what-if. I reason over the same triage terms you see in the table. <span style="color:var(--txt-3)">Local rule-based stub — wire to your agent layer / Anthropic API for free-form reasoning.</span>`);}
-function buildClassification(r){const o=r.o,s=r.s,[dc,dcDesc]=dynClass(r.el);
-  const D=s.D!==null?Math.round(s.D):null;
-  const sizeClass=D===null?"unknown size":D<25?"small (airburst-class)":D<140?"sub-PHA (regional airburst)":D<1000?"hazardous (PHA-scale)":"large (global-scale)";
-  const top=Object.entries({impact:s.impact,urgency:s.urgency,observability:s.observability}).sort((a,b)=>b[1]-a[1]);
-  const t=tasking(r);
-  return`<h5>${r.id} — classification</h5>
-    <b>Dynamical class:</b> ${dc} <span class="k">(${dcDesc})</span><br/>
-    <b>Size class:</b> ${sizeClass}${D?` <span class="k">~${D} m from H=${o.H}</span>`:""}<br/>
-    <b>Triage:</b> ${Math.round(s.total)} → <b style="color:${s.tier.color}">${s.tier.id}</b>, led by <b>${top[0][0]}</b> (${Math.round(top[0][1])}).
-    <ul>
-      <li>Drivers: ${s.terms.impact.concat(s.terms.urgency).filter(x=>x[1]>=60).slice(0,3).map(x=>`${x[0]} ${Math.round(x[1])}`).join(", ")||"none dominant"}.</li>
-      <li>Recommended: <b>${t.goal.label}</b> on <b>${t.primary.name}</b> — ${windowFor(r).label}.</li>
-      <li>Watch-for: ${num(o.arc)<1?"orbit may degrade — re-observe within 24–48 h":"stable arc — routine cadence"}.</li>
-    </ul>`;
-}
-function agentRespond(qRaw){const q=qRaw.toLowerCase();const r=RAW.find(x=>x.id===selected);
-  if(!r&&!/[a-z0-9]{5,}/i.test(qRaw)){agentPush("agent","Select an object in the plan first, then ask — e.g. “classify selected”.");return;}
-  if(/what if.*(arc|double)/.test(q)){if(!r)return agentPush("agent","Select an object first.");
-    const o=r.o,arc=num(o.arc)||1;agentPush("agent",`<h5>What-if · arc ×2</h5>Doubling the arc to ~<b>${(arc*2).toFixed(2)} d</b> would shrink the short-arc urgency term and tighten the positional uncertainty (currently <span class="k">${o.unc??"—"}</span>). Triage urgency would fall, likely dropping it toward a lower tier — which is exactly why securing astrometry tonight is worthwhile.`);return;}
-  if(/radar|goldstone|feasible/.test(q)){if(!r)return agentPush("agent","Select an object first.");
-    const ca=num(r.o.caDist),v=num(r.o.Vmag);const ok=ca!==null&&ca<10;
-    agentPush("agent",`<h5>Radar feasibility · ${r.id}</h5>${ok?`Approach of <b>${ca} LD</b> is within Goldstone's practical reach for a body this size — radar would deliver ranging, size and spin. Schedule around closest approach.`:`Closest approach is <b>${ca??"—"} LD</b> — likely too distant for a useful radar return. Prioritize optical astrometry instead.`} ${v!==null&&v>24?"Note it is faint (Vmag "+v+"), so optical pre-recovery on an 8 m may be needed first.":""}`);return;}
-  if(/why.*(telescope|facility|instrument)/.test(q)){if(!r)return agentPush("agent","Select an object first.");
-    const t=tasking(r);agentPush("agent",`<h5>Facility rationale · ${r.id}</h5>Goal is <b>${t.goal.label}</b>. <b>${t.primary.name}</b> wins because it matches that goal type, its limiting magnitude (V≤${t.primary.limit>90?"—":t.primary.limit}) covers Vmag ${r.o.Vmag??"—"}, and the target's Dec ${r.o.dec??"—"}° is reachable from ${t.primary.site}. Backups: ${t.ranked.slice(1,3).map(x=>x.f.code).join(", ")||"—"}.`);return;}
-  // default: classify
-  if(r)agentPush("agent",buildClassification(r));
-  else agentPush("agent","Tell me a designation to classify, or select one in the plan.");
-}
+  resetAgentChat(selected);}
+async function agentRespond(qRaw){const r=RAW.find(x=>x.id===selected);
+  if(!r){agentPush("agent","Select an object in the plan first, then ask about that asteroid.");return;}
+  if(agentPending){agentPush("agent","One classification request is already running. Wait for the current reply to finish.");return;}
+  const mySession=agentSession;
+  const ac=new AbortController();
+  agentAbort=ac;
+  const pendingIdx=agentPush("agent",`Thinking about ${r.id}...`);
+  setAgentPending(true);
+  try{
+    const res=await fetch(`${API_BASE}/api/scout/object/${encodeURIComponent(r.id)}/agent`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({question:qRaw,context:buildAgentContext(r)}),
+      signal:ac.signal
+    });
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.detail||`HTTP ${res.status}`);}
+    const data=await res.json();
+    if(mySession!==agentSession||selected!==r.id)return;
+    agentReplace(pendingIdx,"agent",data.answer||"No answer returned.");
+  }catch(err){
+    if(err.name==="AbortError")return;
+    if(mySession!==agentSession)return;
+    agentReplace(pendingIdx,"agent",`Agent request failed: ${err.message}`);
+  }finally{
+    if(agentAbort===ac)agentAbort=null;
+    if(mySession===agentSession)setAgentPending(false);
+  }}
 document.getElementById("agentSend").addEventListener("click",sendAgent);
 document.getElementById("agentInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendAgent();});
 document.getElementById("agentChips").addEventListener("click",e=>{const c=e.target.closest(".qc");if(!c)return;agentPush("user",c.textContent);agentRespond(c.textContent);});
