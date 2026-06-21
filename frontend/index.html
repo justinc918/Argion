@@ -3,303 +3,469 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>asteROIDED — Planetary Defense Triage</title>
+<title>Argion — Planetary Defense Workbench</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJhZy1nbG9iZSIgY3g9IjQyJSIgY3k9IjM4JSIgcj0iNzIlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxQjNBNTUiLz48c3RvcCBvZmZzZXQ9IjcwJSIgc3RvcC1jb2xvcj0iIzBFMjIzNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBBMTcyNiIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJhZy1kaXNjIiBjeD0iNTAlIiBjeT0iNDAlIiByPSI3NSUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzBFMTYyNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzA4MEIxNCIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGNsaXBQYXRoIGlkPSJhZy1jbGlwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyMCIvPjwvY2xpcFBhdGg+CjwvZGVmcz4KPGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDkiIGZpbGw9InVybCgjYWctZGlzYykiIHN0cm9rZT0iIzJDMzY0NSIgc3Ryb2tlLXdpZHRoPSIwLjgiLz4KPGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDUuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM0E0NjYwIiBzdHJva2Utd2lkdGg9IjAuNSIgb3BhY2l0eT0iMC42Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM4IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NkM5RTAiIHN0cm9rZS13aWR0aD0iMC43IiBzdHJva2UtZGFzaGFycmF5PSIwLjQgMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIwLjU1Ii8+CjxjaXJjbGUgY3g9IjgxLjEiIGN5PSIyOC4yIiByPSIxLjUiIGZpbGw9IiM0NkM5RTAiLz4KPGxpbmUgeDE9IjUwIiB5MT0iMTMuNSIgeDI9IjUwIiB5Mj0iMTkuNSIgc3Ryb2tlPSIjQUVDM0Q5IiBzdHJva2Utd2lkdGg9IjAuOSIvPgo8bGluZSB4MT0iNTAiIHkxPSI4MC41IiB4Mj0iNTAiIHkyPSI4Ni41IiBzdHJva2U9IiNBRUMzRDkiIHN0cm9rZS13aWR0aD0iMC45Ii8+CjwhLS0gZ2xvYmUgaXJpcyAtLT4KPGcgY2xpcC1wYXRoPSJ1cmwoI2FnLWNsaXApIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyMCIgZmlsbD0idXJsKCNhZy1nbG9iZSkiLz4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiM0NkM5RTAiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjU1Ij4KICAgIDxlbGxpcHNlIGN4PSI1MCIgY3k9IjUwIiByeD0iMjAiIHJ5PSIyMCIvPgogICAgPGVsbGlwc2UgY3g9IjUwIiBjeT0iNTAiIHJ4PSIxMyIgcnk9IjIwIi8+CiAgICA8ZWxsaXBzZSBjeD0iNTAiIGN5PSI1MCIgcng9IjYuNSIgcnk9IjIwIi8+CiAgICA8bGluZSB4MT0iNTAiIHkxPSIzMCIgeDI9IjUwIiB5Mj0iNzAiLz4KICAgIDxlbGxpcHNlIGN4PSI1MCIgY3k9IjUwIiByeD0iMjAiIHJ5PSIxMyIvPgogICAgPGVsbGlwc2UgY3g9IjUwIiBjeT0iNTAiIHJ4PSIyMCIgcnk9IjYuNSIvPgogICAgPGxpbmUgeDE9IjMwIiB5MT0iNTAiIHgyPSI3MCIgeTI9IjUwIi8+CiAgPC9nPgogIDxsaW5lIHgxPSIzMyIgeTE9IjYzIiB4Mj0iNzEiIHkyPSIzOSIgc3Ryb2tlPSIjQkZENEVFIiBzdHJva2Utd2lkdGg9IjAuNiIgb3BhY2l0eT0iMC4zNSIvPgo8L2c+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM1RkI2RDkiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjwhLS0gdHJhY2tlZCBzcGFya2xlcyAtLT4KPGc+CiAgPGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNiIgZmlsbD0iIzQ2QzlFMCIgb3BhY2l0eT0iMC4yNSIvPgogIDxwYXRoIGQ9Ik01MCw0NC44IEw1MC44NSw0OS4xNSBMNTUuMiw1MCBMNTAuODUsNTAuODUgTDUwLDU1LjIgTDQ5LjE1LDUwLjg1IEw0NC44LDUwIEw0OS4xNSw0OS4xNSBaIiBmaWxsPSIjRUFGNkZGIi8+CiAgPGNpcmNsZSBjeD0iNjMiIGN5PSI0MCIgcj0iMy4yIiBmaWxsPSIjNDZDOUUwIiBvcGFjaXR5PSIwLjI1Ii8+CiAgPHBhdGggZD0iTTYzLDM3LjQgTDYzLjQ1LDM5LjU1IEw2NS42LDQwIEw2My40NSw0MC40NSBMNjMsNDIuNiBMNjIuNTUsNDAuNDUgTDYwLjQsNDAgTDYyLjU1LDM5LjU1IFoiIGZpbGw9IiNFQUY2RkYiLz4KICA8Y2lyY2xlIGN4PSIzOSIgY3k9IjYxIiByPSIzLjIiIGZpbGw9IiM0NkM5RTAiIG9wYWNpdHk9IjAuMjUiLz4KICA8cGF0aCBkPSJNMzksNTguNCBMMzkuNDUsNjAuNTUgTDQxLjYsNjEgTDM5LjQ1LDYxLjQ1IEwzOSw2My42IEwzOC41NSw2MS40NSBMMzYuNCw2MSBMMzguNTUsNjAuNTUgWiIgZmlsbD0iI0VBRjZGRiIvPgo8L2c+CjwhLS0gZXllIGFwZXJ0dXJlIG91dGxpbmUgLS0+CjxwYXRoIGQ9Ik0xMSw1MCBDMzAsMjcgNzAsMjcgODksNTAgQzcwLDczIDMwLDczIDExLDUwIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0RDRUJGRiIgc3Ryb2tlLXdpZHRoPSIyLjIiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+"/>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet" />
+<!-- Three.js (Tracking tab only). Triage / Hunting / Insight need no network. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 /* =========================================================================
-   asteROIDED — planetary defense triage console
-   Single-file demo. Aesthetic: instrument-panel / Gotham-style ops console.
-   Type: IBM Plex superfamily (Sans for UI, Mono for data) — reads as
-   scientific instrumentation rather than generic dashboard.
+   Argion — planetary-defense workbench
+   Tabs: Triage · Tracking · Hunting · Insight
+   Type: IBM Plex superfamily (Sans = UI, Mono = data). Instrument-panel dark.
    ========================================================================= */
 :root{
   --bg:#0A0D12; --bg-2:#0E121A; --panel:#12161F; --panel-2:#171C27;
   --raised:#1C2330; --border:#232B38; --border-2:#2C3645; --line:#1A2029;
   --txt:#D6DCE5; --txt-2:#828D9C; --txt-3:#545E6C;
-  --accent:#46C9E0;            /* signature cyan — interactive + plot */
-  --crit:#F2566B; --elev:#F2A23B; --rout:#4FB3D9; --nom:#6B7686;
-  --good:#3FC08B;
+  --accent:#46C9E0; --accent-2:#5B8DEF;
+  --crit:#F2566B; --elev:#F2A23B; --rout:#4FB3D9; --nom:#6B7686; --good:#3FC08B;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
   --cond:"IBM Plex Sans Condensed",var(--sans);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{
-  margin:0; background:var(--bg); color:var(--txt);
-  font-family:var(--sans); font-size:13px; line-height:1.45;
-  -webkit-font-smoothing:antialiased;
-  background-image:
-    radial-gradient(1200px 600px at 80% -10%, rgba(70,201,224,.05), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(91,141,239,.04), transparent 60%);
-}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:13px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+  background-image:radial-gradient(1200px 600px at 80% -10%,rgba(70,201,224,.05),transparent 60%),
+    radial-gradient(900px 500px at -10% 110%,rgba(91,141,239,.04),transparent 60%);}
 ::selection{background:rgba(70,201,224,.28)}
-/* scrollbars */
 *::-webkit-scrollbar{width:9px;height:9px}
-*::-webkit-scrollbar-thumb{background:#222a36;border-radius:0}
-*::-webkit-scrollbar-thumb:hover{background:#2c3644}
+*::-webkit-scrollbar-thumb{background:#222a36}*::-webkit-scrollbar-thumb:hover{background:#2c3644}
 *::-webkit-scrollbar-track{background:transparent}
+.eyebrow{font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;font-size:10px;color:var(--txt-3);font-weight:600}
+.mono{font-family:var(--mono)} .dim{color:var(--txt-3)}
 
-.eyebrow{font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;
-  font-size:10px;color:var(--txt-3);font-weight:600}
-.mono{font-family:var(--mono)}
-
-/* ---------- shell layout ---------- */
-.app{display:grid;grid-template-rows:auto 1fr;height:100vh;min-height:0}
-.topbar{
-  display:flex;align-items:center;gap:18px;height:46px;padding:0 16px;
-  border-bottom:1px solid var(--border);background:var(--bg-2);
-}
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-rows:auto auto 1fr;height:100vh;min-height:0}
+.topbar{display:flex;align-items:center;gap:16px;height:46px;padding:0 16px;border-bottom:1px solid var(--border);background:var(--bg-2)}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
-.brand .glyph{width:14px;height:14px;transform:rotate(45deg);
-  border:1.5px solid var(--accent);box-shadow:0 0 14px rgba(70,201,224,.5) inset}
+.brand .logo{width:30px;height:30px;display:block;flex:none;filter:drop-shadow(0 0 6px rgba(70,201,224,.28))}
+.brand .wordmark{font-weight:700;letter-spacing:.2em;font-size:14px;color:var(--txt)}
 .brand b{color:var(--txt)} .brand .rid{color:var(--accent)}
-.topbar .sub{font-family:var(--cond);text-transform:uppercase;letter-spacing:.16em;
-  font-size:10px;color:var(--txt-2)}
+.topbar .sub{font-family:var(--cond);text-transform:uppercase;letter-spacing:.16em;font-size:10px;color:var(--txt-2)}
 .topbar .spacer{flex:1}
-.src-pill{display:flex;align-items:center;gap:7px;padding:4px 9px;border:1px solid var(--border-2);
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--txt-2);background:var(--panel)}
+.src-pill{display:flex;align-items:center;gap:7px;padding:4px 9px;border:1px solid var(--border-2);font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--txt-2);background:var(--panel)}
 .src-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--elev);box-shadow:0 0 8px currentColor}
 .src-pill.live .dot{background:var(--good)} .src-pill.live{color:var(--good)}
 .clock{font-family:var(--mono);font-size:11px;color:var(--txt-2);letter-spacing:.03em}
-.btn{font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;
-  font-weight:600;color:var(--txt-2);background:var(--panel);border:1px solid var(--border-2);
-  padding:6px 11px;cursor:pointer;transition:.15s}
+.btn{font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;font-weight:600;color:var(--txt-2);background:var(--panel);border:1px solid var(--border-2);padding:6px 11px;cursor:pointer;transition:.15s}
 .btn:hover{color:var(--accent);border-color:var(--accent)}
+.btn.on{color:var(--bg);background:var(--accent);border-color:var(--accent)}
 
-.workspace{display:grid;grid-template-columns:248px minmax(0,1fr) 374px;min-height:0}
+/* tabs */
+.tabsbar{display:flex;align-items:stretch;height:42px;padding:0 10px;gap:2px;border-bottom:1px solid var(--border);background:var(--bg)}
+.tab{display:flex;align-items:center;gap:9px;padding:0 18px;background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;
+  font-family:var(--cond);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;font-weight:600;color:var(--txt-3);transition:.15s}
+.tab .n{font-family:var(--mono);font-size:9px;color:var(--txt-3);border:1px solid var(--border-2);padding:1px 4px;letter-spacing:0}
+.tab:hover{color:var(--txt-2)}
+.tab.on{color:var(--txt);border-bottom-color:var(--accent)}
+.tab.on .n{color:var(--accent);border-color:var(--accent)}
+
+.views{position:relative;min-height:0;overflow:hidden}
+.view{position:absolute;inset:0;display:none}
+.view.on{display:block}
+
+/* ---------- TRIAGE (workspace) ---------- */
+.workspace{display:grid;grid-template-columns:248px minmax(0,1fr) 392px;height:100%;min-height:0}
 .rail,.center,.inspector{min-height:0;min-width:0;overflow:hidden}
-.rail{border-right:1px solid var(--border);background:var(--bg-2);
-  display:flex;flex-direction:column;overflow-y:auto}
+.rail{border-right:1px solid var(--border);background:var(--bg-2);display:flex;flex-direction:column;overflow-y:auto}
 .inspector{border-left:1px solid var(--border);background:var(--bg-2);overflow-y:auto}
 .center{display:grid;grid-template-rows:auto minmax(0,1fr) auto}
-
-/* ---------- left rail ---------- */
 .rail-sec{padding:14px 14px 16px;border-bottom:1px solid var(--border)}
-.rail-sec h3{margin:0 0 11px;font-family:var(--cond);text-transform:uppercase;
-  letter-spacing:.16em;font-size:10px;color:var(--txt-3);font-weight:600;
-  display:flex;justify-content:space-between;align-items:center}
-.tier-row{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;
-  border-bottom:1px solid var(--line)}
+.rail-sec h3{margin:0 0 11px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.16em;font-size:10px;color:var(--txt-3);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.tier-row{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;border-bottom:1px solid var(--line)}
 .tier-row:last-child{border-bottom:0}
 .tier-row .swatch{width:9px;height:9px;flex:none}
-.tier-row .name{flex:1;font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;
-  font-size:11px;color:var(--txt-2)}
-.tier-row .ct{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--txt)}
-.tier-row.muted{opacity:.32}
-.tier-row:hover .name{color:var(--txt)}
-
-.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);
-  border:1px solid var(--border)}
+.tier-row .name{flex:1;font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:var(--txt-2)}
+.tier-row .ct{font-family:var(--mono);font-size:13px;color:var(--txt)}
+.tier-row.muted{opacity:.32}.tier-row:hover .name{color:var(--txt)}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
 .stat{background:var(--panel);padding:10px 11px}
-.stat .v{font-family:var(--mono);font-size:21px;font-weight:500;line-height:1;color:var(--txt)}
-.stat .v.alert{color:var(--crit)}
-.stat .l{margin-top:6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;
-  font-size:9.5px;color:var(--txt-3)}
-
-/* sky plot (signature element) */
+.stat .v{font-family:var(--mono);font-size:21px;line-height:1;color:var(--txt)} .stat .v.alert{color:var(--crit)}
+.stat .l{margin-top:6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;font-size:9.5px;color:var(--txt-3)}
 .skywrap{padding:12px 12px 6px}
-.sky{position:relative;width:100%;aspect-ratio:1/.82;background:
-  linear-gradient(180deg,#0b1018,#0a0d13);border:1px solid var(--border)}
+.sky{position:relative;width:100%;aspect-ratio:1/.82;background:linear-gradient(180deg,#0b1018,#0a0d13);border:1px solid var(--border)}
 .sky svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .sky .pt{cursor:pointer;transition:r .15s,opacity .15s}
-.sky-cap{display:flex;justify-content:space-between;padding:7px 2px 0;
-  font-family:var(--mono);font-size:9.5px;color:var(--txt-3);letter-spacing:.03em}
-
-/* ---------- center: toolbar + table ---------- */
-.toolbar{display:flex;align-items:center;gap:10px;padding:9px 14px;
-  border-bottom:1px solid var(--border);background:var(--bg-2)}
-.toolbar .title{font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;
-  font-size:11px;color:var(--txt-2);font-weight:600}
-.toolbar .title b{color:var(--txt)}
-.search{flex:1;max-width:300px;display:flex;align-items:center;gap:7px;
-  background:var(--panel);border:1px solid var(--border-2);padding:5px 9px}
-.search input{flex:1;background:none;border:0;outline:0;color:var(--txt);
-  font-family:var(--mono);font-size:12px}
-.search input::placeholder{color:var(--txt-3)}
-.search svg{opacity:.5}
+.sky-cap{display:flex;justify-content:space-between;padding:7px 2px 0;font-family:var(--mono);font-size:9.5px;color:var(--txt-3);letter-spacing:.03em}
+.toolbar{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg-2)}
+.toolbar .title{font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--txt-2);font-weight:600}.toolbar .title b{color:var(--txt)}
+.search{flex:1;max-width:300px;display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border-2);padding:5px 9px}
+.search input{flex:1;background:none;border:0;outline:0;color:var(--txt);font-family:var(--mono);font-size:12px}
+.search input::placeholder{color:var(--txt-3)}.search svg{opacity:.5}
 .chips{display:flex;gap:5px}
-.chip{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:10px;
-  font-weight:600;padding:5px 9px;border:1px solid var(--border-2);color:var(--txt-3);
-  background:var(--panel);cursor:pointer;transition:.12s}
-.chip.on{color:var(--bg);border-color:transparent}
-.chip:hover{color:var(--txt)}
-
+.chip{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:10px;font-weight:600;padding:5px 9px;border:1px solid var(--border-2);color:var(--txt-3);background:var(--panel);cursor:pointer;transition:.12s}
+.chip.on{color:var(--bg);border-color:transparent}.chip:hover{color:var(--txt)}
 .tablewrap{overflow:auto;position:relative;border-bottom:1px solid var(--border)}
-.qfoot{padding:8px 14px;background:var(--bg-2);border-top:1px solid var(--line);
-  display:flex;align-items:center}
+.qfoot{padding:8px 14px;background:var(--bg-2);border-top:1px solid var(--line);display:flex;align-items:center}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{position:sticky;top:0;z-index:2;background:var(--bg-2);
-  font-family:var(--cond);text-transform:uppercase;letter-spacing:.07em;font-size:10px;
-  font-weight:600;color:var(--txt-3);text-align:right;padding:9px 12px;
-  border-bottom:1px solid var(--border-2);cursor:pointer;white-space:nowrap;user-select:none}
+thead th{position:sticky;top:0;z-index:2;background:var(--bg-2);font-family:var(--cond);text-transform:uppercase;letter-spacing:.07em;font-size:10px;font-weight:600;color:var(--txt-3);text-align:right;padding:9px 12px;border-bottom:1px solid var(--border-2);cursor:pointer;white-space:nowrap;user-select:none}
 thead th:first-child,thead th.l{text-align:left}
-thead th:hover{color:var(--accent)}
-thead th .ar{color:var(--accent);font-size:8px;margin-left:3px}
-tbody td{text-align:right;padding:0 12px;height:34px;border-bottom:1px solid var(--line);
-  font-family:var(--mono);color:var(--txt-2);white-space:nowrap}
-tbody td.l{text-align:left}
-tbody tr{cursor:pointer;transition:background .1s}
+thead th:hover{color:var(--accent)} thead th .ar{color:var(--accent);font-size:8px;margin-left:3px}
+tbody td{text-align:right;padding:0 12px;height:34px;border-bottom:1px solid var(--line);font-family:var(--mono);color:var(--txt-2);white-space:nowrap}
+tbody td.l{text-align:left} tbody tr{cursor:pointer;transition:background .1s}
 tbody tr:hover{background:rgba(70,201,224,.05)}
 tbody tr.sel{background:rgba(70,201,224,.1);box-shadow:inset 2px 0 0 var(--accent)}
 tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
 .pcell{display:flex;align-items:center;gap:9px;justify-content:flex-start}
 .pscore{width:26px;text-align:right;font-weight:600;color:var(--txt)}
 .pbar{flex:1;max-width:54px;height:5px;background:#1b2230;position:relative;overflow:hidden}
-.pbar i{position:absolute;left:0;top:0;bottom:0;display:block}
-.tierdot{width:7px;height:7px;flex:none;border-radius:50%}
+.pbar i{position:absolute;left:0;top:0;bottom:0}
 .tiertag{font-family:var(--cond);text-transform:uppercase;letter-spacing:.05em;font-size:10px}
-.dim{color:var(--txt-3)}
-
-/* ---------- inspector ---------- */
-.insp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100%;gap:12px;color:var(--txt-3);text-align:center;padding:24px}
+/* inspector */
+.insp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--txt-3);text-align:center;padding:24px}
 .insp-empty .ring{width:42px;height:42px;border:1px solid var(--border-2);transform:rotate(45deg)}
-.insp-head{padding:16px 16px 14px;border-bottom:1px solid var(--border);position:relative}
+.insp-head{padding:16px 16px 14px;border-bottom:1px solid var(--border)}
 .insp-head .des{font-family:var(--mono);font-size:25px;font-weight:600;letter-spacing:.01em;color:var(--txt)}
-.insp-head .meta{margin-top:5px;font-family:var(--cond);text-transform:uppercase;
-  letter-spacing:.1em;font-size:10px;color:var(--txt-3)}
-.tierband{display:inline-flex;align-items:center;gap:7px;margin-top:11px;
-  padding:4px 10px;border:1px solid;font-family:var(--cond);text-transform:uppercase;
-  letter-spacing:.1em;font-size:10.5px;font-weight:600}
-
+.insp-head .meta{margin-top:5px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10px;color:var(--txt-3)}
+.tierband{display:inline-flex;align-items:center;gap:7px;margin-top:11px;padding:4px 10px;border:1px solid;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;font-weight:600}
+.tierdot{width:7px;height:7px;border-radius:50%}
 .insp-sec{padding:15px 16px;border-bottom:1px solid var(--border)}
-.insp-sec h4{margin:0 0 12px;font-family:var(--cond);text-transform:uppercase;
-  letter-spacing:.14em;font-size:10px;color:var(--txt-3);font-weight:600;
-  display:flex;justify-content:space-between}
+.insp-sec h4{margin:0 0 12px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;font-size:10px;color:var(--txt-3);font-weight:600;display:flex;justify-content:space-between}
 .insp-sec h4 .w{color:var(--txt-3);font-family:var(--mono);letter-spacing:0;text-transform:none}
-
 .total{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
-.total .n{font-family:var(--mono);font-size:40px;font-weight:600;line-height:.9}
-.total .of{font-family:var(--mono);font-size:13px;color:var(--txt-3)}
+.total .n{font-family:var(--mono);font-size:40px;font-weight:600;line-height:.9}.total .of{font-family:var(--mono);font-size:13px;color:var(--txt-3)}
 .meter{height:6px;background:#161c28;position:relative;margin-bottom:8px}
 .meter i{position:absolute;left:0;top:0;bottom:0;transition:width .4s ease}
 .meter .tick{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--border-2)}
-.weights{font-family:var(--mono);font-size:10px;color:var(--txt-3);letter-spacing:.02em}
-
-.comp{margin-bottom:14px}
-.comp:last-child{margin-bottom:0}
+.weights{font-family:var(--mono);font-size:10px;color:var(--txt-3)}
+.comp{margin-bottom:14px}.comp:last-child{margin-bottom:0}
 .comp .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
 .comp .lbl{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:var(--txt)}
-.comp .val{font-family:var(--mono);font-size:13px;color:var(--txt);font-weight:500}
-.comp .val small{color:var(--txt-3);font-size:10px}
-.compbar{height:7px;background:#161c28;position:relative;overflow:hidden}
-.compbar i{position:absolute;left:0;top:0;bottom:0;transition:width .4s ease}
+.comp .val{font-family:var(--mono);font-size:13px;color:var(--txt)}.comp .val small{color:var(--txt-3);font-size:10px}
+.compbar{height:7px;background:#161c28;position:relative;overflow:hidden}.compbar i{position:absolute;left:0;top:0;bottom:0;transition:width .4s ease}
 .comp .terms{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
-.term{font-family:var(--mono);font-size:9.5px;color:var(--txt-3);
-  border:1px solid var(--line);padding:2px 6px;letter-spacing:.02em}
-.term b{color:var(--txt-2);font-weight:500}
-
-.rationale{font-size:12.5px;line-height:1.55;color:var(--txt-2)}
-.rationale b{color:var(--txt);font-weight:600}
-
+.term{font-family:var(--mono);font-size:9.5px;color:var(--txt-3);border:1px solid var(--line);padding:2px 6px}.term b{color:var(--txt-2)}
+.rationale{font-size:12.5px;line-height:1.55;color:var(--txt-2)}.rationale b{color:var(--txt)}
 .kv{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
 .kv .cell{background:var(--panel);padding:9px 11px}
-.kv .cell .l{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;
-  font-size:9px;color:var(--txt-3);margin-bottom:3px}
-.kv .cell .v{font-family:var(--mono);font-size:13px;color:var(--txt)}
-.kv .cell .v .u{font-size:10px;color:var(--txt-3);margin-left:2px}
-.scoregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
-.scoregrid .s{background:var(--panel);padding:8px 9px;text-align:center}
-.scoregrid .s .v{font-family:var(--mono);font-size:15px;color:var(--txt)}
-.scoregrid .s.zero .v{color:var(--txt-3)}
-.scoregrid .s .l{font-family:var(--cond);text-transform:uppercase;letter-spacing:.04em;
-  font-size:8.5px;color:var(--txt-3);margin-top:3px}
-
-/* tooltip */
-.tip{position:fixed;z-index:50;pointer-events:none;background:#0c1119;border:1px solid var(--border-2);
-  padding:7px 9px;font-family:var(--mono);font-size:10.5px;color:var(--txt);
-  box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .1s;max-width:200px}
-.tip .t1{color:var(--accent);font-weight:600;margin-bottom:3px}
-.tip .t2{color:var(--txt-3);line-height:1.5}
+.kv .cell .l{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:9px;color:var(--txt-3);margin-bottom:3px}
+.kv .cell .v{font-family:var(--mono);font-size:13px;color:var(--txt)}.kv .cell .v .u{font-size:10px;color:var(--txt-3);margin-left:2px}
+/* mini orbit (inspector) */
+.miniorbit{position:relative;width:100%;aspect-ratio:1/1;background:radial-gradient(120% 120% at 50% 50%,#0c1119,#090c12);border:1px solid var(--border)}
+.miniorbit svg{position:absolute;inset:0;width:100%;height:100%}
+.mo-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.mo-legend span{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;color:var(--txt-3)}
+.mo-legend i{width:10px;height:2px;display:inline-block}
+.derived-note{margin-top:9px;font-family:var(--mono);font-size:9px;color:var(--txt-3);line-height:1.5}
+.tip{position:fixed;z-index:50;pointer-events:none;background:#0c1119;border:1px solid var(--border-2);padding:7px 9px;font-family:var(--mono);font-size:10.5px;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .1s;max-width:220px}
+.tip .t1{color:var(--accent);font-weight:600;margin-bottom:3px}.tip .t2{color:var(--txt-3);line-height:1.5}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-@media (max-width:1080px){
-  .workspace{grid-template-columns:1fr;grid-auto-rows:min-content}
-  .rail{border-right:0;border-bottom:1px solid var(--border)}
-  .inspector{border-left:0;border-top:1px solid var(--border)}
-  .center{grid-template-rows:auto 460px auto}
-}
-.fade{animation:fade .3s ease}
-@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.fade{animation:fade .3s ease}@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+/* ---------- TRACKING ---------- */
+.track-wrap{position:relative;width:100%;height:100%;background:#06080c;overflow:hidden}
+#trackCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+#trackCanvas:active{cursor:grabbing}
+.track-overlay{position:absolute;inset:0;pointer-events:none;padding:16px;display:flex;flex-direction:column;justify-content:space-between}
+.track-card{pointer-events:auto;width:260px;background:rgba(12,16,24,.78);backdrop-filter:blur(8px);border:1px solid var(--border-2);padding:14px 15px}
+.track-card h3{margin:0;font-family:var(--cond);text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--txt);font-weight:600}
+.track-sub{margin-top:4px;font-family:var(--mono);font-size:10px;color:var(--txt-3)}.track-sub b{color:var(--accent)}
+.track-legend{margin:12px 0;display:flex;flex-direction:column;gap:6px}
+.track-legend .row{display:flex;align-items:center;gap:8px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:10px;color:var(--txt-2)}
+.track-legend .row i{width:14px;height:3px}.track-legend .row .ct{margin-left:auto;font-family:var(--mono);color:var(--txt-3)}
+.track-ctrls{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.track-ctrls .btn{padding:5px 8px;font-size:9.5px}
+.track-hint{font-family:var(--mono);font-size:9px;color:var(--txt-3);line-height:1.6;border-top:1px solid var(--line);padding-top:9px}
+.track-sel{pointer-events:auto;align-self:flex-end;width:280px;background:rgba(12,16,24,.82);backdrop-filter:blur(8px);border:1px solid var(--border-2);padding:0;display:none}
+.track-sel.on{display:block}
+.track-sel .hd{padding:12px 14px;border-bottom:1px solid var(--border)}
+.track-sel .hd .des{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--txt)}
+.track-sel .hd .tg{font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10px;font-weight:600;margin-top:3px}
+.track-sel .bd{padding:11px 14px;display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
+.track-sel .bd .l{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:9px;color:var(--txt-3)}
+.track-sel .bd .v{font-family:var(--mono);font-size:12px;color:var(--txt)}
+.track-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--txt-3);gap:4px;padding:40px}
+.track-fallback[hidden]{display:none}
+.track-fallback .ring{width:46px;height:46px;border:1px solid var(--border-2);transform:rotate(45deg)}
+.track-fallback p{max-width:320px;font-size:12px;line-height:1.6}.track-fallback .mono{color:var(--txt-2)}
+
+/* ---------- HUNTING ---------- */
+.hunt-wrap{display:grid;grid-template-columns:380px minmax(0,1fr) 340px;height:100%;min-height:0}
+.hunt-plan,.hunt-detail,.hunt-agent{min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+.hunt-plan{border-right:1px solid var(--border);background:var(--bg-2)}
+.hunt-agent{border-left:1px solid var(--border);background:var(--bg-2)}
+.hunt-head{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-2);z-index:2}
+.hunt-head h3{margin:0;font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--txt);font-weight:600}
+.hunt-list{padding:10px;display:flex;flex-direction:column;gap:8px}
+.task{border:1px solid var(--border);background:var(--panel);padding:11px 12px;cursor:pointer;transition:.13s}
+.task:hover{border-color:var(--border-2);background:var(--panel-2)}
+.task.sel{border-color:var(--accent);box-shadow:inset 2px 0 0 var(--accent)}
+.task .t1{display:flex;align-items:center;gap:8px}
+.task .pri{font-family:var(--mono);font-size:10px;color:var(--bg);padding:1px 5px;font-weight:600}
+.task .des{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--txt)}
+.task .tier{margin-left:auto;font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:9.5px;font-weight:600}
+.task .t2{margin-top:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.task .fac{font-family:var(--cond);text-transform:uppercase;letter-spacing:.05em;font-size:10px;color:var(--txt);background:var(--raised);border:1px solid var(--border-2);padding:2px 7px}
+.task .method{font-family:var(--mono);font-size:9.5px;color:var(--accent)}
+.task .win{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--txt-3)}
+.task .why{margin-top:7px;font-size:11px;color:var(--txt-2);line-height:1.5}
+.hunt-detail{align-items:stretch}
+.hd-head{padding:18px 18px 15px;border-bottom:1px solid var(--border)}
+.hd-head .des{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--txt)}
+.hd-head .sub{margin-top:5px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10px;color:var(--txt-3)}
+.hd-sec{padding:15px 18px;border-bottom:1px solid var(--border)}
+.hd-sec h4{margin:0 0 11px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.14em;font-size:10px;color:var(--txt-3);font-weight:600}
+.recos{display:flex;flex-direction:column;gap:9px}
+.reco{border:1px solid var(--border);background:var(--panel);padding:12px 13px}
+.reco.primary{border-color:var(--accent);box-shadow:0 0 0 1px rgba(70,201,224,.15)}
+.reco .rtop{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.reco .badge{font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;font-size:9px;font-weight:600;padding:2px 6px;border:1px solid}
+.reco .fname{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--txt)}
+.reco .ap{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--txt-3)}
+.reco .meta{display:flex;gap:14px;margin:8px 0;flex-wrap:wrap}
+.reco .meta div{font-family:var(--mono);font-size:10px;color:var(--txt-3)}.reco .meta b{color:var(--txt-2);font-weight:500}
+.reco .rwhy{font-size:12px;line-height:1.55;color:var(--txt-2)}.reco .rwhy b{color:var(--txt)}
+.timeline{position:relative;height:46px;background:#0d121a;border:1px solid var(--border);margin-top:4px}
+.timeline .seg{position:absolute;top:0;bottom:0;background:rgba(70,201,224,.16);border-left:1px solid var(--accent);border-right:1px solid var(--accent)}
+.timeline .lab{position:absolute;bottom:3px;font-family:var(--mono);font-size:8.5px;color:var(--txt-3)}
+.timeline .tk{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.timeline .now{position:absolute;top:0;bottom:0;width:1px;background:var(--elev)}
+/* agent */
+.agent-log{flex:1;padding:13px;display:flex;flex-direction:column;gap:11px;overflow-y:auto}
+.msg{max-width:94%}.msg.user{align-self:flex-end}
+.msg .who{font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:8.5px;color:var(--txt-3);margin-bottom:4px}
+.msg.user .who{text-align:right}
+.msg .bub{padding:9px 11px;font-size:12px;line-height:1.55}
+.msg.agent .bub{background:var(--panel);border:1px solid var(--border)}
+.msg.user .bub{background:rgba(70,201,224,.1);border:1px solid rgba(70,201,224,.3);color:var(--txt)}
+.msg .bub b{color:var(--txt)}.msg .bub .k{font-family:var(--mono);font-size:11px}
+.msg .bub h5{margin:2px 0 6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10px;color:var(--accent)}
+.msg .bub ul{margin:6px 0 0;padding-left:16px}.msg .bub li{margin-bottom:3px;color:var(--txt-2)}
+.agent-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 13px 10px}
+.agent-chips .qc{font-family:var(--cond);text-transform:uppercase;letter-spacing:.05em;font-size:9.5px;font-weight:600;color:var(--txt-2);background:var(--panel);border:1px solid var(--border-2);padding:4px 8px;cursor:pointer;transition:.12s}
+.agent-chips .qc:hover{color:var(--accent);border-color:var(--accent)}
+.agent-input{display:flex;gap:6px;padding:11px 13px;border-top:1px solid var(--border)}
+.agent-input input{flex:1;background:var(--panel);border:1px solid var(--border-2);outline:0;color:var(--txt);font-family:var(--mono);font-size:12px;padding:7px 9px}
+.agent-input input:focus{border-color:var(--accent)}
+.agent-note{font-family:var(--mono);font-size:9px;color:var(--txt-3);padding:0 13px 11px;line-height:1.5}
+
+/* ---------- INSIGHT ---------- */
+.insight-wrap{height:100%;overflow-y:auto;background:
+  radial-gradient(900px 500px at 90% -5%,rgba(70,201,224,.04),transparent 60%)}
+.insight-col{max-width:880px;margin:0 auto;padding:28px 32px 80px}
+.ins-hero{padding-bottom:22px;border-bottom:1px solid var(--border);margin-bottom:26px}
+.ins-hero h1{margin:0;font-family:var(--sans);font-size:30px;font-weight:700;letter-spacing:-.01em;color:var(--txt)}
+.ins-hero p{margin:9px 0 0;color:var(--txt-2);font-size:14px;line-height:1.6;max-width:640px}
+.ins-toggle{display:inline-flex;margin-top:18px;border:1px solid var(--border-2)}
+.ins-toggle button{font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;font-weight:600;padding:7px 15px;background:var(--panel);color:var(--txt-3);border:0;cursor:pointer;transition:.13s}
+.ins-toggle button.on{background:var(--accent);color:var(--bg)}
+.ins-mod{margin-bottom:30px;border:1px solid var(--border);background:var(--panel)}
+.ins-mod>.mhd{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--border)}
+.ins-mod .mnum{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--border-2);padding:3px 7px}
+.ins-mod .mttl{font-family:var(--sans);font-size:17px;font-weight:600;color:var(--txt)}
+.ins-mod .mtag{margin-left:auto;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:9.5px;color:var(--txt-3)}
+.ins-body{padding:18px}
+.plain,.deep{font-size:13.5px;line-height:1.68;color:var(--txt-2)}
+.plain b,.deep b{color:var(--txt)}
+.plain{display:block}.deep{display:none}
+.insight-wrap.show-deep .plain{display:none}.insight-wrap.show-deep .deep{display:block}
+.lead{color:var(--txt);font-size:14.5px;font-weight:500;margin-bottom:10px}
+.formula{font-family:var(--mono);font-size:13px;color:var(--accent);background:#0c1119;border:1px solid var(--border);padding:11px 13px;margin:13px 0;overflow-x:auto;letter-spacing:.02em}
+.formula .c{color:var(--txt-3)}
+.callout{border-left:2px solid var(--accent-2);padding:3px 0 3px 13px;margin:13px 0;color:var(--txt-2);font-size:13px}
+.widget{margin:16px 0;border:1px solid var(--border-2);background:#0c1018}
+.widget .whd{padding:10px 14px;border-bottom:1px solid var(--border);font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:10px;color:var(--txt-2);font-weight:600;display:flex;justify-content:space-between}
+.widget .wbd{padding:15px 14px}
+.slider{margin-bottom:14px}.slider:last-child{margin-bottom:0}
+.slider .sl-top{display:flex;justify-content:space-between;margin-bottom:6px;font-family:var(--mono);font-size:11px}
+.slider .sl-top .nm{color:var(--txt-2)}.slider .sl-top .vl{color:var(--accent)}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:#1d2533;outline:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);cursor:pointer;box-shadow:0 0 8px rgba(70,201,224,.5)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--accent);border:0;cursor:pointer}
+.seg-toggle{display:inline-flex;border:1px solid var(--border-2);margin-bottom:6px}
+.seg-toggle button{font-family:var(--mono);font-size:10px;padding:4px 9px;background:var(--panel);color:var(--txt-3);border:0;cursor:pointer}
+.seg-toggle button.on{background:var(--raised);color:var(--accent)}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:14px}
+.readout .ro{background:#0c1018;padding:11px 12px;text-align:center}
+.readout .ro .v{font-family:var(--mono);font-size:20px;color:var(--txt);line-height:1}
+.readout .ro .v.big{color:var(--accent)}
+.readout .ro .l{margin-top:6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:9px;color:var(--txt-3)}
+.cmp{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+.cmp .bar{display:flex;align-items:center;gap:10px}
+.cmp .bar .nm{width:120px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.04em;font-size:10px;color:var(--txt-2);text-align:right;flex:none}
+.cmp .bar .track{flex:1;height:14px;background:#0d121a;position:relative;overflow:hidden}
+.cmp .bar .track i{position:absolute;left:0;top:0;bottom:0;transition:width .35s}
+.cmp .bar .vl{width:84px;font-family:var(--mono);font-size:10px;color:var(--txt-3);flex:none}
+.deep-link{font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;font-size:10px;font-weight:600;color:var(--accent);cursor:pointer;border-bottom:1px dashed var(--accent);display:inline-block;margin-top:6px}
+.scale-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.scale-card{border:1px solid var(--border);background:#0c1018;padding:13px 14px}
+.scale-card h5{margin:0 0 6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:.1em;font-size:11px;color:var(--txt);font-weight:600}
+.scale-card p{margin:0;font-size:12px;line-height:1.55;color:var(--txt-2)}
+@media (max-width:1100px){.scale-grid{grid-template-columns:1fr}.hunt-wrap{grid-template-columns:320px 1fr 300px}}
+/*__VIEW_CSS__*/
 </style>
 </head>
 <body>
-<div class="app">
-  <!-- ───────────────────────── topbar ───────────────────────── -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="argion-mark" viewBox="0 0 100 100">
+<defs>
+  <radialGradient id="ag-globe" cx="42%" cy="38%" r="72%">
+    <stop offset="0%" stop-color="#1B3A55"/><stop offset="70%" stop-color="#0E2236"/><stop offset="100%" stop-color="#0A1726"/>
+  </radialGradient>
+  <radialGradient id="ag-disc" cx="50%" cy="40%" r="75%">
+    <stop offset="0%" stop-color="#0E1626"/><stop offset="100%" stop-color="#080B14"/>
+  </radialGradient>
+  <clipPath id="ag-clip"><circle cx="50" cy="50" r="20"/></clipPath>
+</defs>
+<circle cx="50" cy="50" r="49" fill="url(#ag-disc)" stroke="#2C3645" stroke-width="0.8"/>
+<circle cx="50" cy="50" r="45.5" fill="none" stroke="#3A4660" stroke-width="0.5" opacity="0.6"/>
+<circle cx="50" cy="50" r="38" fill="none" stroke="#46C9E0" stroke-width="0.7" stroke-dasharray="0.4 3" stroke-linecap="round" opacity="0.55"/>
+<circle cx="81.1" cy="28.2" r="1.5" fill="#46C9E0"/>
+<line x1="50" y1="13.5" x2="50" y2="19.5" stroke="#AEC3D9" stroke-width="0.9"/>
+<line x1="50" y1="80.5" x2="50" y2="86.5" stroke="#AEC3D9" stroke-width="0.9"/>
+<!-- globe iris -->
+<g clip-path="url(#ag-clip)">
+  <circle cx="50" cy="50" r="20" fill="url(#ag-globe)"/>
+  <g fill="none" stroke="#46C9E0" stroke-width="0.5" opacity="0.55">
+    <ellipse cx="50" cy="50" rx="20" ry="20"/>
+    <ellipse cx="50" cy="50" rx="13" ry="20"/>
+    <ellipse cx="50" cy="50" rx="6.5" ry="20"/>
+    <line x1="50" y1="30" x2="50" y2="70"/>
+    <ellipse cx="50" cy="50" rx="20" ry="13"/>
+    <ellipse cx="50" cy="50" rx="20" ry="6.5"/>
+    <line x1="30" y1="50" x2="70" y2="50"/>
+  </g>
+  <line x1="33" y1="63" x2="71" y2="39" stroke="#BFD4EE" stroke-width="0.6" opacity="0.35"/>
+</g>
+<circle cx="50" cy="50" r="20" fill="none" stroke="#5FB6D9" stroke-width="0.8"/>
+<!-- tracked sparkles -->
+<g>
+  <circle cx="50" cy="50" r="6" fill="#46C9E0" opacity="0.25"/>
+  <path d="M50,44.8 L50.85,49.15 L55.2,50 L50.85,50.85 L50,55.2 L49.15,50.85 L44.8,50 L49.15,49.15 Z" fill="#EAF6FF"/>
+  <circle cx="63" cy="40" r="3.2" fill="#46C9E0" opacity="0.25"/>
+  <path d="M63,37.4 L63.45,39.55 L65.6,40 L63.45,40.45 L63,42.6 L62.55,40.45 L60.4,40 L62.55,39.55 Z" fill="#EAF6FF"/>
+  <circle cx="39" cy="61" r="3.2" fill="#46C9E0" opacity="0.25"/>
+  <path d="M39,58.4 L39.45,60.55 L41.6,61 L39.45,61.45 L39,63.6 L38.55,61.45 L36.4,61 L38.55,60.55 Z" fill="#EAF6FF"/>
+</g>
+<!-- eye aperture outline -->
+<path d="M11,50 C30,27 70,27 89,50 C70,73 30,73 11,50 Z" fill="none" stroke="#DCEBFF" stroke-width="2.2" stroke-linejoin="round"/>
+</symbol></svg>
+  <div class="app">
   <header class="topbar">
-    <div class="brand"><span class="glyph"></span><span><b>aste</b><span class="rid">ROIDED</span></span></div>
-    <span class="sub">Planetary Defense · NEO Triage</span>
+    <div class="brand"><svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Argion"><use href="#argion-mark"/></svg><span class="wordmark">ARGION</span></div>
+    <span class="sub">Planetary Defense Workbench</span>
     <div class="spacer"></div>
     <div class="src-pill" id="srcPill"><span class="dot"></span><span id="srcText">SAMPLE DATA</span></div>
     <span class="clock" id="clock">--:--:-- UTC</span>
     <button class="btn" id="refreshBtn">⟳ Refresh</button>
   </header>
 
-  <div class="workspace">
-    <!-- ───────────────────────── left rail ───────────────────────── -->
-    <aside class="rail">
-      <div class="rail-sec">
-        <h3>Watch Floor</h3>
-        <div class="statgrid">
-          <div class="stat"><div class="v" id="stTotal">—</div><div class="l">Tracked</div></div>
-          <div class="stat"><div class="v alert" id="stAct">—</div><div class="l">Act Tonight</div></div>
-          <div class="stat"><div class="v" id="stObs">—</div><div class="l">Observable</div></div>
-          <div class="stat"><div class="v" id="stMaxd">—</div><div class="l">Largest Ø·m</div></div>
+  <nav class="tabsbar" id="tabs">
+    <button class="tab on" data-view="triage">Triage <span class="n" id="tabnTri">—</span></button>
+    <button class="tab" data-view="tracking">Tracking <span class="n">3D</span></button>
+    <button class="tab" data-view="hunting">Hunting <span class="n" id="tabnHunt">—</span></button>
+    <button class="tab" data-view="insight">Insight</button>
+  </nav>
+
+  <div class="views">
+    <!-- ===================== TRIAGE ===================== -->
+    <section class="view on" data-view="triage">
+      <div class="workspace">
+        <aside class="rail">
+          <div class="rail-sec">
+            <h3>Watch Floor</h3>
+            <div class="statgrid">
+              <div class="stat"><div class="v" id="stTotal">—</div><div class="l">Tracked</div></div>
+              <div class="stat"><div class="v alert" id="stAct">—</div><div class="l">Act Tonight</div></div>
+              <div class="stat"><div class="v" id="stObs">—</div><div class="l">Observable</div></div>
+              <div class="stat"><div class="v" id="stMaxd">—</div><div class="l">Largest Ø·m</div></div>
+            </div>
+          </div>
+          <div class="rail-sec">
+            <h3>Priority Tiers <span class="eyebrow" id="filterNote"></span></h3>
+            <div id="tierList"></div>
+          </div>
+          <div class="rail-sec skywrap" style="border-bottom:0;flex:1">
+            <h3 style="padding:0 2px">All-Sky · RA / Dec</h3>
+            <div class="sky"><svg id="sky" viewBox="0 0 360 240" preserveAspectRatio="none"></svg></div>
+            <div class="sky-cap"><span>RA 24ʰ → 0ʰ</span><span id="skyCount">—</span><span>Dec ±90°</span></div>
+          </div>
+        </aside>
+        <main class="center">
+          <div class="toolbar">
+            <span class="title"><b>Triage Queue</b></span>
+            <div class="search">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+              <input id="search" placeholder="filter designation…" spellcheck="false" />
+            </div>
+            <div class="chips" id="chips"></div>
+          </div>
+          <div class="tablewrap">
+            <table id="tbl"><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
+          </div>
+          <div class="qfoot"><span class="eyebrow"><span id="rowCount">—</span> objects · scoring model is a transparent stand-in for backend <span class="mono" style="color:var(--txt-2)">scorer.js</span> — tune weights &amp; terms in source</span></div>
+        </main>
+        <aside class="inspector" id="inspector">
+          <div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===================== TRACKING ===================== -->
+    <section class="view" data-view="tracking">
+      <div class="track-wrap">
+        <canvas id="trackCanvas"></canvas>
+        <div class="track-overlay">
+          <div class="track-card">
+            <h3>Tracking · Heliocentric</h3>
+            <div class="track-sub">Top <b id="trkN">50</b> by priority · derived orbits</div>
+            <div class="track-legend" id="trackLegend"></div>
+            <div class="track-ctrls">
+              <button class="btn" id="trkPause">⏸ Pause</button>
+              <button class="btn on" id="trkLabels">Labels</button>
+              <button class="btn" id="trkReset">Reset View</button>
+            </div>
+            <div class="track-hint">drag rotate · scroll zoom · shift-drag pan · click orbit to select</div>
+          </div>
+          <div class="track-sel" id="trackSel"></div>
+        </div>
+        <div class="track-fallback" id="trackFallback" hidden>
+          <div class="ring"></div>
+          <div class="eyebrow" style="margin-top:14px">3D engine unavailable offline</div>
+          <p>The Tracking globe loads Three.js from a CDN. Reconnect, or vendor <span class="mono">three.min.js</span> locally (see frontend/README).</p>
         </div>
       </div>
+    </section>
 
-      <div class="rail-sec">
-        <h3>Priority Tiers <span class="eyebrow" id="filterNote"></span></h3>
-        <div id="tierList"></div>
-      </div>
-
-      <div class="rail-sec skywrap" style="border-bottom:0;flex:1">
-        <h3 style="padding:0 2px">All-Sky · RA / Dec</h3>
-        <div class="sky"><svg id="sky" viewBox="0 0 360 240" preserveAspectRatio="none"></svg></div>
-        <div class="sky-cap"><span>RA 24ʰ → 0ʰ</span><span id="skyCount">—</span><span>Dec ±90°</span></div>
-      </div>
-    </aside>
-
-    <!-- ───────────────────────── center ───────────────────────── -->
-    <main class="center">
-      <div class="toolbar">
-        <span class="title"><b>Triage Queue</b></span>
-        <div class="search">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
-          <input id="search" placeholder="filter designation…" spellcheck="false" />
+    <!-- ===================== HUNTING ===================== -->
+    <section class="view" data-view="hunting">
+      <div class="hunt-wrap">
+        <div class="hunt-plan">
+          <div class="hunt-head"><h3>Observation Plan</h3><span class="eyebrow" id="planMeta"></span></div>
+          <div class="hunt-list" id="planList"></div>
         </div>
-        <div class="chips" id="chips"></div>
+        <div class="hunt-detail" id="huntDetail">
+          <div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select a tasking to inspect</div></div>
+        </div>
+        <div class="hunt-agent">
+          <div class="hunt-head"><h3>Classification Agent</h3><span class="eyebrow">local</span></div>
+          <div class="agent-log" id="agentLog"></div>
+          <div class="agent-chips" id="agentChips"></div>
+          <div class="agent-input">
+            <input id="agentInput" placeholder="ask the agent to classify…" spellcheck="false"/>
+            <button class="btn" id="agentSend">Send</button>
+          </div>
+        </div>
       </div>
-      <div class="tablewrap">
-        <table id="tbl">
-          <thead><tr id="thead"></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <div class="qfoot">
-        <span class="eyebrow"><span id="rowCount">—</span> objects · scoring model is a transparent stand-in for backend <span class="mono" style="color:var(--txt-2)">scorer.js</span> — tune weights &amp; terms in source</span>
-      </div>
-    </main>
+    </section>
 
-    <!-- ───────────────────────── inspector ───────────────────────── -->
-    <aside class="inspector" id="inspector">
-      <div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>
-    </aside>
+    <!-- ===================== INSIGHT ===================== -->
+    <section class="view" data-view="insight">
+      <div class="insight-wrap"><div class="insight-col" id="insightCol"></div></div>
+    </section>
   </div>
 </div>
 <div class="tip" id="tip"></div>
 
 <script>
 /* ===========================================================================
-   0 · CONFIG  —  point this at the backend; falls back to embedded sample.
+   0 · CONFIG
    =========================================================================== */
-const API_BASE = (window.localStorage.getItem("asteroided_api") || "http://localhost:8080");
-
-/* Embedded NASA/JPL Scout sample so the page is a working demo with no backend.
-   Replace by running the backend (`npm run dev`) — the app auto-detects it. */
+const API_BASE = (window.localStorage.getItem("argion_api") || "http://localhost:8080");
 const SAMPLE = {
   "data": [
     {
@@ -1635,345 +1801,659 @@ const SAMPLE = {
     "version": "1.3"
   }
 };
+const D2R=Math.PI/180, R2D=180/Math.PI;
+const clamp=(x,lo=0,hi=100)=>Math.max(lo,Math.min(hi,x));
+const num=v=>(v===null||v===undefined||v==="")?null:(isNaN(+v)?null:+v);
 
 /* ===========================================================================
-   1 · SCORING MODEL  —  the not-yet-built backend `scorer.js`, made visible.
-   Three transparent 0–100 components, each a weighted blend of named terms.
-   Everything here is intentionally legible so it maps 1:1 onto a real module.
+   1 · SCORING MODEL  — stand-in for backend scorer.js (see frontend/README)
    =========================================================================== */
-const WEIGHTS = { impact:0.45, urgency:0.35, observability:0.20 };
-const TIERS = [
-  { id:"CRITICAL", min:70, color:"var(--crit)", raw:"#F2566B" },
-  { id:"ELEVATED", min:50, color:"var(--elev)", raw:"#F2A23B" },
-  { id:"ROUTINE",  min:30, color:"var(--rout)", raw:"#4FB3D9" },
-  { id:"NOMINAL",  min:0,  color:"var(--nom)",  raw:"#6B7686" },
+const WEIGHTS={impact:0.45,urgency:0.35,observability:0.20};
+const TIERS=[
+  {id:"CRITICAL",min:70,color:"var(--crit)",raw:"#F2566B"},
+  {id:"ELEVATED",min:50,color:"var(--elev)",raw:"#F2A23B"},
+  {id:"ROUTINE", min:30,color:"var(--rout)",raw:"#4FB3D9"},
+  {id:"NOMINAL", min:0, color:"var(--nom)", raw:"#6B7686"},
 ];
-const clamp = (x,lo=0,hi=100)=>Math.max(lo,Math.min(hi,x));
-const num = v => (v===null||v===undefined||v==="")?null:(isNaN(+v)?null:+v);
-
-// Estimated diameter (m) from absolute magnitude H, assuming albedo 0.14.
-// D[km] = 1329 / sqrt(pv) * 10^(-H/5).  (H≈22 → ~140 m, the PHA threshold.)
-function diameterM(H){ const h=num(H); if(h===null) return null;
-  return 1329/Math.sqrt(0.14)*Math.pow(10,-h/5)*1000; }
-
+function diameterM(H){const h=num(H);if(h===null)return null;return 1329/Math.sqrt(0.14)*Math.pow(10,-h/5)*1000;}
 function score(o){
-  const H=num(o.H), moid=num(o.moid), ca=num(o.caDist), vinf=num(o.vInf),
-        arc=num(o.arc), vmag=num(o.Vmag), elong=num(o.elong), rate=num(o.rate),
-        unc=num(o.unc), pha=num(o.phaScore)||0, neo1km=num(o.neo1kmScore)||0;
-  const D = diameterM(H);
-
-  /* --- IMPACT RELEVANCE — how much it would matter if real --- */
-  const tSize  = D!==null ? clamp(Math.log10(D)/3*100) : 30;              // 1m→0, 1km→100
-  const tMoid  = moid!==null ? clamp((0.05-moid)/0.05*100) : 40;          // PHA cut at 0.05 au
-  const tCaIR  = ca!==null ? clamp((20-ca)/20*100) : 30;                  // lunar distances
-  const impact = clamp(0.40*tSize + 0.25*tMoid + 0.20*tCaIR + 0.15*pha);
-
-  /* --- URGENCY — how fast the decision window is closing --- */
-  const tArc   = arc!==null ? clamp((3-arc)/3*100) : 60;                  // short arc = act now
-  const tCaUR  = ca!==null ? clamp((10-ca)/10*100) : 30;                  // imminent approach
-  const tUnc   = unc!==null ? clamp(Math.log10(unc+1)/Math.log10(361)*100) : 40; // about to be lost
-  const tVel   = vinf!==null ? clamp((vinf-5)/35*100) : 30;               // less reaction time
-  const urgency= clamp(0.40*tArc + 0.25*tCaUR + 0.20*tUnc + 0.15*tVel);
-
-  /* --- OBSERVABILITY — can we collect more data tonight --- */
-  const tMag   = vmag!==null ? clamp((26-vmag)/9*100) : 25;               // 17→100, 26→0
-  const tElong = elong!==null ? clamp((elong-20)/160*100) : 40;          // near sun → unobservable
-  const tRate  = rate!==null ? clamp((20-rate)/20*100) : 60;             // fast mover → hard
-  const observability = clamp(0.55*tMag + 0.30*tElong + 0.15*tRate);
-
-  const total = clamp(WEIGHTS.impact*impact + WEIGHTS.urgency*urgency + WEIGHTS.observability*observability);
-  const tier = TIERS.find(t=>total>=t.min);
-  return { total, tier, D,
-    impact, urgency, observability,
-    terms:{
-      impact:[["Ø size",tSize],["MOID",tMoid],["approach",tCaIR],["PHA",pha]],
+  const H=num(o.H),moid=num(o.moid),ca=num(o.caDist),vinf=num(o.vInf),arc=num(o.arc),
+        vmag=num(o.Vmag),elong=num(o.elong),rate=num(o.rate),unc=num(o.unc),pha=num(o.phaScore)||0;
+  const D=diameterM(H);
+  const tSize=D!==null?clamp(Math.log10(D)/3*100):30;
+  const tMoid=moid!==null?clamp((0.05-moid)/0.05*100):40;
+  const tCaIR=ca!==null?clamp((20-ca)/20*100):30;
+  const impact=clamp(0.40*tSize+0.25*tMoid+0.20*tCaIR+0.15*pha);
+  const tArc=arc!==null?clamp((3-arc)/3*100):60;
+  const tCaUR=ca!==null?clamp((10-ca)/10*100):30;
+  const tUnc=unc!==null?clamp(Math.log10(unc+1)/Math.log10(361)*100):40;
+  const tVel=vinf!==null?clamp((vinf-5)/35*100):30;
+  const urgency=clamp(0.40*tArc+0.25*tCaUR+0.20*tUnc+0.15*tVel);
+  const tMag=vmag!==null?clamp((26-vmag)/9*100):25;
+  const tElong=elong!==null?clamp((elong-20)/160*100):40;
+  const tRate=rate!==null?clamp((20-rate)/20*100):60;
+  const observability=clamp(0.55*tMag+0.30*tElong+0.15*tRate);
+  const total=clamp(WEIGHTS.impact*impact+WEIGHTS.urgency*urgency+WEIGHTS.observability*observability);
+  const tier=TIERS.find(t=>total>=t.min);
+  return{total,tier,D,impact,urgency,observability,
+    terms:{impact:[["Ø size",tSize],["MOID",tMoid],["approach",tCaIR],["PHA",pha]],
       urgency:[["short arc",tArc],["approach",tCaUR],["pos. unc.",tUnc],["velocity",tVel]],
-      observability:[["brightness",tMag],["elongation",tElong],["sky rate",tRate]],
-    } };
+      observability:[["brightness",tMag],["elongation",tElong],["sky rate",tRate]]}};
 }
-
-// Plain-English rationale generated from the dominant / limiting terms.
 function rationale(o,s){
-  const up=[]; const down=[];
-  const D = s.D!==null ? Math.round(s.D)+" m" : "unknown size";
-  if(num(o.arc)!==null && num(o.arc)<0.5) up.push(`very short arc (${o.arc} d)`);
-  if(num(o.moid)!==null && num(o.moid)<0.01) up.push(`close MOID (${o.moid} au)`);
-  if(num(o.caDist)!==null && num(o.caDist)<3) up.push(`near approach (${o.caDist} LD)`);
-  if(num(o.phaScore)>0) up.push(`PHA score ${o.phaScore}`);
-  if(num(o.vInf)!==null && num(o.vInf)>25) up.push(`high V∞ (${o.vInf} km/s)`);
-  if(num(o.Vmag)!==null && num(o.Vmag)>23) down.push(`faint at Vmag ${o.Vmag}`);
-  if(num(o.elong)!==null && num(o.elong)<45) down.push(`low solar elongation (${o.elong}°)`);
-  const u = up.length? `Raised by ${up.slice(0,2).join(" and ")}` : `Limited drivers`;
-  const d = down.length? `; constrained by ${down.slice(0,2).join(" and ")}.` : ".";
-  return `<b>${s.tier.id}</b> · est. <b>${D}</b>. ${u}${d}`;
+  const up=[],down=[];const D=s.D!==null?Math.round(s.D)+" m":"unknown size";
+  if(num(o.arc)!==null&&num(o.arc)<0.5)up.push(`very short arc (${o.arc} d)`);
+  if(num(o.moid)!==null&&num(o.moid)<0.01)up.push(`close MOID (${o.moid} au)`);
+  if(num(o.caDist)!==null&&num(o.caDist)<3)up.push(`near approach (${o.caDist} LD)`);
+  if(num(o.phaScore)>0)up.push(`PHA score ${o.phaScore}`);
+  if(num(o.vInf)!==null&&num(o.vInf)>25)up.push(`high V∞ (${o.vInf} km/s)`);
+  if(num(o.Vmag)!==null&&num(o.Vmag)>23)down.push(`faint at Vmag ${o.Vmag}`);
+  if(num(o.elong)!==null&&num(o.elong)<45)down.push(`low solar elongation (${o.elong}°)`);
+  const u=up.length?`Raised by ${up.slice(0,2).join(" and ")}`:`Limited drivers`;
+  const d=down.length?`; constrained by ${down.slice(0,2).join(" and ")}.`:".";
+  return`<b>${s.tier.id}</b> · est. <b>${D}</b>. ${u}${d}`;
 }
 
 /* ===========================================================================
-   2 · STATE
+   2 · DERIVED ORBITS  — illustrative Keplerian elements per object.
+   Scout's summary endpoint carries no orbital elements; these are derived
+   deterministically from objectName (+ MOID/V∞ flavor) so the orbit views
+   have something physical to draw. Swap for real elements from
+   /api/scout/object/:tdes?orbits=1 when wiring the backend.
    =========================================================================== */
-let RAW=[];           // scored objects
-let selected=null;    // designation
-let sortKey="total", sortDir=-1;
-let activeTier=null;  // tier filter
-let query="";
+function seedRand(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
+  return()=>{h+=0x6D2B79F5;let t=Math.imul(h^(h>>>15),1|h);t^=t+Math.imul(t^(t>>>7),61|t);return((t^(t>>>14))>>>0)/4294967296;};}
+function elements(o){
+  const r=seedRand(o.objectName||"x");const vinf=num(o.vInf)??12;
+  let a=0.95+r()*1.25+clamp(vinf/45,0,0.6);
+  let e=0.16+r()*0.45;
+  if(a*(1-e)>0.98)e=clamp(1-0.95/a,0.05,0.85);
+  const i=(r()*r())*20+clamp(vinf/55*8,0,8);
+  const Om=r()*360,w=r()*360,M0=r()*360;
+  return{a,e,i,Om,w,M0,period:Math.pow(a,1.5)};
+}
+function rot(xo,yo,el){const ci=Math.cos(el.i*D2R),si=Math.sin(el.i*D2R),cO=Math.cos(el.Om*D2R),sO=Math.sin(el.Om*D2R),cw=Math.cos(el.w*D2R),sw=Math.sin(el.w*D2R);
+  const x1=xo*cw-yo*sw,y1=xo*sw+yo*cw;return[x1*cO-y1*ci*sO,x1*sO+y1*ci*cO,y1*si];}
+function orbitPath(el,n=256){const p=[];for(let k=0;k<=n;k++){const E=k/n*2*Math.PI;
+  p.push(rot(el.a*(Math.cos(E)-el.e),el.a*Math.sqrt(1-el.e*el.e)*Math.sin(E),el));}return p;}
+function posAt(el,Mdeg){let M=Mdeg*D2R,E=M;for(let k=0;k<6;k++)E=E-(E-el.e*Math.sin(E)-M)/(1-el.e*Math.cos(E));
+  return rot(el.a*(Math.cos(E)-el.e),el.a*Math.sqrt(1-el.e*el.e)*Math.sin(E),el);}
+function dynClass(el){const q=el.a*(1-el.e),Q=el.a*(1+el.e);
+  if(Q<0.983)return["Atira","orbit entirely inside Earth's"];
+  if(el.a<1.0)return["Aten","Earth-crossing, smaller orbit"];
+  if(q<1.017)return["Apollo","Earth-crossing, larger orbit"];
+  if(q<1.3)return["Amor","approaches, doesn't cross"];
+  return["NEO","near-Earth"];}
 
 /* ===========================================================================
-   3 · DATA SOURCE  — try backend, fall back to embedded sample.
+   3 · STATE
+   =========================================================================== */
+let RAW=[],selected=null,sortKey="total",sortDir=-1,activeTier=null,query="";
+let EARTH_ANGLE=(Date.now()/86400000*360/365.25)%360;
+
+/* ===========================================================================
+   4 · DATA
    =========================================================================== */
 async function load(){
-  let data, live=false;
-  try{
-    const r = await fetch(`${API_BASE}/api/scout/summary`, {signal:AbortSignal.timeout(2500)});
-    if(!r.ok) throw new Error(r.status);
-    data = await r.json(); live=true;
-  }catch(e){ data = SAMPLE; }
-  const rows = (data&&data.data)||[];
-  RAW = rows.map(o=>({ o, s:score(o), id:o.objectName }));
-  setSource(live);
-  render();
+  let data,live=false;
+  try{const r=await fetch(`${API_BASE}/api/scout/summary`,{signal:AbortSignal.timeout(2500)});
+    if(!r.ok)throw 0;data=await r.json();live=true;}catch(e){data=SAMPLE;}
+  const rows=(data&&data.data)||[];
+  RAW=rows.map(o=>({o,s:score(o),el:elements(o),id:o.objectName}));
+  const byPri=[...RAW].sort((a,b)=>b.s.total-a.s.total);byPri.forEach((r,i)=>r.rank=i+1);
+  setSource(live);renderAll();
 }
-function setSource(live){
-  const p=document.getElementById("srcPill");
-  p.classList.toggle("live",live);
-  document.getElementById("srcText").textContent = live?"LIVE · JPL SCOUT":"SAMPLE DATA";
-}
+function setSource(live){const p=document.getElementById("srcPill");p.classList.toggle("live",live);
+  document.getElementById("srcText").textContent=live?"LIVE · JPL SCOUT":"SAMPLE DATA";}
+function topN(n){return[...RAW].sort((a,b)=>b.s.total-a.s.total).slice(0,n);}
 
 /* ===========================================================================
-   4 · RENDER
+   5 · TRIAGE RENDER
    =========================================================================== */
 const COLS=[
-  {k:"total", h:"PRI", l:true, cell:r=>priCell(r)},
-  {k:"id",    h:"Designation", l:true, cell:r=>`<td class="l des">${r.id}</td>`},
-  {k:"tier",  h:"Tier", l:true, cell:r=>`<td class="l"><span class="tiertag" style="color:${r.s.tier.color}">${r.s.tier.id}</span></td>`},
-  {k:"D",     h:"Ø·m", cell:r=>`<td>${r.s.D!==null?Math.round(r.s.D):"<span class=dim>—</span>"}</td>`},
-  {k:"moid",  h:"MOID·au", cell:r=>tdNum(r.o.moid)},
-  {k:"caDist",h:"CA·LD", cell:r=>tdNum(r.o.caDist)},
-  {k:"Vmag",  h:"Vmag", cell:r=>tdNum(r.o.Vmag)},
-  {k:"arc",   h:"Arc·d", cell:r=>tdNum(r.o.arc)},
-  {k:"vInf",  h:"V∞", cell:r=>tdNum(r.o.vInf)},
-  {k:"nObs",  h:"Obs", cell:r=>tdNum(r.o.nObs)},
+  {k:"total",h:"PRI",l:true,cell:r=>priCell(r)},
+  {k:"id",h:"Designation",l:true,cell:r=>`<td class="l des">${r.id}</td>`},
+  {k:"tier",h:"Tier",l:true,cell:r=>`<td class="l"><span class="tiertag" style="color:${r.s.tier.color}">${r.s.tier.id}</span></td>`},
+  {k:"D",h:"Ø·m",cell:r=>`<td>${r.s.D!==null?Math.round(r.s.D):"<span class=dim>—</span>"}</td>`},
+  {k:"moid",h:"MOID·au",cell:r=>tdNum(r.o.moid)},
+  {k:"caDist",h:"CA·LD",cell:r=>tdNum(r.o.caDist)},
+  {k:"Vmag",h:"Vmag",cell:r=>tdNum(r.o.Vmag)},
+  {k:"arc",h:"Arc·d",cell:r=>tdNum(r.o.arc)},
+  {k:"vInf",h:"V∞",cell:r=>tdNum(r.o.vInf)},
+  {k:"nObs",h:"Obs",cell:r=>tdNum(r.o.nObs)},
 ];
-const tdNum = v => `<td>${v===null||v===undefined||v===""?"<span class=dim>—</span>":v}</td>`;
-function priCell(r){
-  const pct=r.s.total, c=r.s.tier.color;
-  return `<td class="l"><div class="pcell"><span class="pscore">${Math.round(pct)}</span>
-    <span class="pbar"><i style="width:${pct}%;background:${c}"></i></span></div></td>`;
-}
-function sortVal(r,k){
-  if(k==="total") return r.s.total;
-  if(k==="tier")  return r.s.total;
-  if(k==="D")     return r.s.D??-1;
-  if(k==="id")    return r.id;
-  return num(r.o[k]) ?? -Infinity;
-}
-function visible(){
-  let rows=RAW.filter(r=>!query || r.id.toLowerCase().includes(query));
-  if(activeTier) rows=rows.filter(r=>r.s.tier.id===activeTier);
-  rows.sort((a,b)=>{const va=sortVal(a,sortKey),vb=sortVal(b,sortKey);
-    if(va<vb) return -sortDir; if(va>vb) return sortDir; return 0;});
-  return rows;
-}
+const tdNum=v=>`<td>${v===null||v===undefined||v===""?"<span class=dim>—</span>":v}</td>`;
+function priCell(r){const p=r.s.total,c=r.s.tier.color;
+  return`<td class="l"><div class="pcell"><span class="pscore">${Math.round(p)}</span><span class="pbar"><i style="width:${p}%;background:${c}"></i></span></div></td>`;}
+function sortVal(r,k){if(k==="total"||k==="tier")return r.s.total;if(k==="D")return r.s.D??-1;if(k==="id")return r.id;return num(r.o[k])??-Infinity;}
+function visible(){let rows=RAW.filter(r=>!query||r.id.toLowerCase().includes(query));
+  if(activeTier)rows=rows.filter(r=>r.s.tier.id===activeTier);
+  rows.sort((a,b)=>{const va=sortVal(a,sortKey),vb=sortVal(b,sortKey);if(va<vb)return -sortDir;if(va>vb)return sortDir;return 0;});return rows;}
+function renderTriage(){renderStats();renderTiers();renderHead();renderBody();renderSky();renderInspector();}
+function renderHead(){document.getElementById("thead").innerHTML=COLS.map(c=>{
+  const ar=sortKey===c.k?`<span class="ar">${sortDir<0?"▼":"▲"}</span>`:"";return`<th class="${c.l?"l":""}" data-k="${c.k}">${c.h}${ar}</th>`;}).join("");}
+function renderBody(){const rows=visible();
+  document.getElementById("tbody").innerHTML=rows.map(r=>`<tr data-id="${r.id}" class="${selected===r.id?"sel":""}">${COLS.map(c=>c.cell(r)).join("")}</tr>`).join("");
+  document.getElementById("skyCount").textContent=rows.length+" plotted";
+  const rc=document.getElementById("rowCount");if(rc)rc.textContent=rows.length;}
+function renderStats(){const obs=RAW.filter(r=>r.s.observability>=45).length;
+  const act=RAW.filter(r=>r.s.total>=50&&r.s.observability>=45).length;const maxd=Math.max(0,...RAW.map(r=>r.s.D||0));
+  document.getElementById("stTotal").textContent=RAW.length;document.getElementById("stObs").textContent=obs;
+  document.getElementById("stAct").textContent=act;document.getElementById("stMaxd").textContent=maxd?Math.round(maxd):"—";
+  const t1=document.getElementById("tabnTri");if(t1)t1.textContent=RAW.length;
+  const t2=document.getElementById("tabnHunt");if(t2)t2.textContent=act;}
+function renderTiers(){const counts={};TIERS.forEach(t=>counts[t.id]=0);RAW.forEach(r=>counts[r.s.tier.id]++);
+  document.getElementById("filterNote").textContent=activeTier?"filtered":"";
+  document.getElementById("tierList").innerHTML=TIERS.map(t=>`<div class="tier-row ${activeTier&&activeTier!==t.id?"muted":""}" data-tier="${t.id}"><span class="swatch" style="background:${t.color}"></span><span class="name">${t.id}</span><span class="ct">${counts[t.id]}</span></div>`).join("");}
+function raDeg(ra){if(!ra)return null;const [h,m]=String(ra).split(":").map(Number);if(isNaN(h))return null;return(h+(m||0)/60)*15;}
+function decDeg(d){if(d===null||d===undefined||d==="")return null;const v=parseFloat(d);return isNaN(v)?null:v;}
+function renderSky(){const W=360,H=240,svg=document.getElementById("sky");let g="";
+  for(let r=0;r<=24;r+=6){const x=W-(r/24*W);g+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="var(--line)"/>`;}
+  for(let d=-90;d<=90;d+=30){const y=H/2-(d/90*H/2);g+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${d===0?'#222b38':'var(--line)'}"/>`;}
+  visible().forEach(r=>{const ra=raDeg(r.o.ra),dec=decDeg(r.o.dec);if(ra===null||dec===null)return;
+    const x=W-(ra/360*W),y=H/2-(dec/90*H/2);const rad=r.s.D!==null?clamp(1.8+Math.log10(Math.max(r.s.D,1))*1.4,2,7):2.2;const sel=selected===r.id;
+    g+=`<circle class="pt" data-id="${r.id}" cx="${x}" cy="${y}" r="${sel?rad+2:rad}" fill="${r.s.tier.raw}" fill-opacity="${sel?1:.72}" stroke="${sel?'#fff':'none'}" stroke-width="${sel?1.2:0}"/>`;
+    if(sel)g+=`<circle cx="${x}" cy="${y}" r="${rad+5}" fill="none" stroke="var(--accent)" stroke-width="1"/>`;});
+  svg.innerHTML=g;}
 
-function render(){ renderStats(); renderTiers(); renderHead(); renderBody(); renderSky(); renderInspector(); }
-
-function renderHead(){
-  document.getElementById("thead").innerHTML = COLS.map(c=>{
-    const ar = sortKey===c.k ? `<span class="ar">${sortDir<0?"▼":"▲"}</span>`:"";
-    return `<th class="${c.l?"l":""}" data-k="${c.k}">${c.h}${ar}</th>`;
-  }).join("");
-}
-function renderBody(){
-  const rows=visible();
-  document.getElementById("tbody").innerHTML = rows.map(r=>
-    `<tr data-id="${r.id}" class="${selected===r.id?"sel":""}">${COLS.map(c=>c.cell(r)).join("")}</tr>`
-  ).join("");
-  document.getElementById("skyCount").textContent = rows.length+" plotted";
-  const rc=document.getElementById("rowCount"); if(rc) rc.textContent=rows.length;
-}
-function renderStats(){
-  const obs=RAW.filter(r=>r.s.observability>=45).length;
-  const act=RAW.filter(r=>r.s.total>=50 && r.s.observability>=45).length;
-  const maxd=Math.max(0,...RAW.map(r=>r.s.D||0));
-  document.getElementById("stTotal").textContent=RAW.length;
-  document.getElementById("stObs").textContent=obs;
-  document.getElementById("stAct").textContent=act;
-  document.getElementById("stMaxd").textContent=maxd?Math.round(maxd):"—";
-}
-function renderTiers(){
-  const counts={}; TIERS.forEach(t=>counts[t.id]=0);
-  RAW.forEach(r=>counts[r.s.tier.id]++);
-  document.getElementById("filterNote").textContent = activeTier?"filtered":"";
-  document.getElementById("tierList").innerHTML = TIERS.map(t=>
-    `<div class="tier-row ${activeTier&&activeTier!==t.id?"muted":""}" data-tier="${t.id}">
-       <span class="swatch" style="background:${t.color}"></span>
-       <span class="name">${t.id}</span><span class="ct">${counts[t.id]}</span></div>`
-  ).join("");
-}
-
-/* ---- sky plot: RA(0–360) × Dec(±90) scatter, sized by Ø, colored by tier ---- */
-function raDeg(ra){ if(!ra) return null; const [h,m]=String(ra).split(":").map(Number);
-  if(isNaN(h)) return null; return (h+(m||0)/60)*15; }
-function decDeg(d){ if(d===null||d===undefined||d==="") return null; const v=parseFloat(d); return isNaN(v)?null:v; }
-function renderSky(){
-  const W=360,H=240, svg=document.getElementById("sky");
-  let g=`<rect width="${W}" height="${H}" fill="none"/>`;
-  // grid
-  for(let r=0;r<=24;r+=6){ const x=W-(r/24*W); g+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="var(--line)"/>`;}
-  for(let d=-90;d<=90;d+=30){ const y=H/2-(d/90*H/2); g+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${d===0?'#222b38':'var(--line)'}"/>`;}
-  const rows=visible();
-  rows.forEach(r=>{
-    const ra=raDeg(r.o.ra), dec=decDeg(r.o.dec); if(ra===null||dec===null) return;
-    const x=W-(ra/360*W), y=H/2-(dec/90*H/2);
-    const rad = r.s.D!==null ? clamp(1.8+Math.log10(Math.max(r.s.D,1))*1.4,2,7) : 2.2;
-    const isSel = selected===r.id;
-    g+=`<circle class="pt" data-id="${r.id}" cx="${x}" cy="${y}" r="${isSel?rad+2:rad}"
-        fill="${r.s.tier.raw}" fill-opacity="${isSel?1:.72}"
-        stroke="${isSel?'#fff':'none'}" stroke-width="${isSel?1.2:0}"/>`;
-    if(isSel) g+=`<circle cx="${x}" cy="${y}" r="${rad+5}" fill="none" stroke="var(--accent)" stroke-width="1" opacity=".9"/>`;
-  });
-  svg.innerHTML=g;
-}
-
-/* ---- inspector ---- */
 function renderInspector(){
-  const el=document.getElementById("inspector");
-  const r=RAW.find(x=>x.id===selected);
-  if(!r){ el.innerHTML=`<div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>`; return; }
-  const o=r.o, s=r.s;
+  const el=document.getElementById("inspector");const r=RAW.find(x=>x.id===selected);
+  if(!r){el.innerHTML=`<div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>`;return;}
+  const o=r.o,s=r.s;
   const ticks=TIERS.filter(t=>t.min>0).map(t=>`<span class="tick" style="left:${t.min}%"></span>`).join("");
-  const comp=(key,label,weight)=>{
-    const val=s[key], c=s.tier.color;
+  const comp=(key,label,weight)=>{const val=s[key],c=s.tier.color;
     const terms=s.terms[key].map(([n,v])=>`<span class="term">${n} <b>${Math.round(v)}</b></span>`).join("");
-    return `<div class="comp"><div class="top"><span class="lbl">${label}</span>
-      <span class="val">${Math.round(val)}<small> · w ${weight}</small></span></div>
-      <div class="compbar"><i style="width:${val}%;background:${c}"></i></div>
-      <div class="terms">${terms}</div></div>`;
-  };
+    return`<div class="comp"><div class="top"><span class="lbl">${label}</span><span class="val">${Math.round(val)}<small> · w ${weight}</small></span></div><div class="compbar"><i style="width:${val}%;background:${c}"></i></div><div class="terms">${terms}</div></div>`;};
   const kv=(l,v,u="")=>`<div class="cell"><div class="l">${l}</div><div class="v">${(v===null||v===undefined||v==="")?'<span class=dim>—</span>':v}${u?`<span class="u">${u}</span>`:""}</div></div>`;
-  const sc=(l,v)=>`<div class="s ${!num(v)?'zero':''}"><div class="v">${v??0}</div><div class="l">${l}</div></div>`;
-
-  el.innerHTML=`
-  <div class="fade">
-    <div class="insp-head">
-      <div class="des">${o.objectName}</div>
+  el.innerHTML=`<div class="fade">
+    <div class="insp-head"><div class="des">${o.objectName}</div>
       <div class="meta">NEO Candidate · JPL Scout · last run ${o.lastRun||"—"}</div>
-      <span class="tierband" style="color:${s.tier.color};border-color:${s.tier.color}">
-        <span class="tierdot" style="background:${s.tier.color}"></span>${s.tier.id}</span>
-    </div>
-
-    <div class="insp-sec">
-      <h4>Priority Score <span class="w">Σ weighted</span></h4>
+      <span class="tierband" style="color:${s.tier.color};border-color:${s.tier.color}"><span class="tierdot" style="background:${s.tier.color}"></span>${s.tier.id}</span></div>
+    <div class="insp-sec"><h4>Position & Orbit <span class="w">heliocentric</span></h4>
+      <div class="miniorbit">${miniOrbitSVG(r)}</div>
+      <div class="mo-legend"><span><i style="background:var(--accent-2)"></i>Earth orbit</span><span><i style="background:${s.tier.color}"></i>${o.objectName}</span><span><i style="background:var(--txt-3)"></i>perihelion</span></div>
+      <div class="derived-note">Orbit derived illustratively from designation + V∞ (summary feed has no elements). Wire <span style="color:var(--txt-2)">/api/scout/object?orbits=1</span> for true geometry.</div></div>
+    <div class="insp-sec"><h4>Priority Score <span class="w">Σ weighted</span></h4>
       <div class="total"><span class="n" style="color:${s.tier.color}">${Math.round(s.total)}</span><span class="of">/ 100</span></div>
       <div class="meter"><i style="width:${s.total}%;background:${s.tier.color}"></i>${ticks}</div>
-      <div class="weights">impact ${WEIGHTS.impact} · urgency ${WEIGHTS.urgency} · observability ${WEIGHTS.observability}</div>
-    </div>
-
-    <div class="insp-sec">
-      <h4>Decomposition</h4>
-      ${comp("impact","Impact Relevance",WEIGHTS.impact)}
-      ${comp("urgency","Urgency",WEIGHTS.urgency)}
-      ${comp("observability","Observability",WEIGHTS.observability)}
-    </div>
-
-    <div class="insp-sec">
-      <h4>Assessment</h4>
-      <div class="rationale">${rationale(o,s)}</div>
-    </div>
-
-    <div class="insp-sec">
-      <h4>Physical & Approach</h4>
-      <div class="kv">
-        ${kv("Est. Diameter", s.D!==null?Math.round(s.D):null,"m")}
-        ${kv("Abs. Mag H", o.H)}
-        ${kv("MOID", o.moid,"au")}
-        ${kv("Close Approach", o.caDist,"LD")}
-        ${kv("V∞", o.vInf,"km/s")}
-        ${kv("Arc", o.arc,"d")}
-      </div>
-    </div>
-
-    <div class="insp-sec">
-      <h4>Observability Window</h4>
-      <div class="kv">
-        ${kv("Vmag", o.Vmag)}
-        ${kv("Solar Elong.", o.elong,"°")}
-        ${kv("RA", o.ra)}
-        ${kv("Dec", o.dec,"°")}
-        ${kv("Sky Rate", o.rate)}
-        ${kv("Pos. Unc.", o.unc)}
-      </div>
-    </div>
-
-    <div class="insp-sec" style="border-bottom:0">
-      <h4>Raw Scout Scores</h4>
-      <div class="scoregrid">
-        ${sc("NEO",o.neoScore)} ${sc("PHA",o.phaScore)} ${sc("NEO≥1km",o.neo1kmScore)}
-        ${sc("Tisserand",o.tisserandScore)} ${sc("Geocentric",o.geocentricScore)} ${sc("IEO",o.ieoScore)}
-      </div>
-    </div>
+      <div class="weights">impact ${WEIGHTS.impact} · urgency ${WEIGHTS.urgency} · observability ${WEIGHTS.observability}</div></div>
+    <div class="insp-sec"><h4>Decomposition</h4>${comp("impact","Impact Relevance",WEIGHTS.impact)}${comp("urgency","Urgency",WEIGHTS.urgency)}${comp("observability","Observability",WEIGHTS.observability)}</div>
+    <div class="insp-sec"><h4>Assessment</h4><div class="rationale">${rationale(o,s)}</div></div>
+    <div class="insp-sec"><h4>Physical & Approach</h4><div class="kv">
+      ${kv("Est. Diameter",s.D!==null?Math.round(s.D):null,"m")}${kv("Abs. Mag H",o.H)}${kv("MOID",o.moid,"au")}
+      ${kv("Close Approach",o.caDist,"LD")}${kv("V∞",o.vInf,"km/s")}${kv("Arc",o.arc,"d")}</div></div>
+    <div class="insp-sec" style="border-bottom:0"><h4>Observability Window</h4><div class="kv">
+      ${kv("Vmag",o.Vmag)}${kv("Solar Elong.",o.elong,"°")}${kv("RA",o.ra)}${kv("Dec",o.dec,"°")}${kv("Sky Rate",o.rate)}${kv("Pos. Unc.",o.unc)}</div></div>
   </div>`;
+}
+function miniOrbitSVG(r){
+  const W=300,H=300,cx=W/2,cy=H/2;const el=r.el;
+  const path=orbitPath(el,160).map(p=>[p[0],p[1]]);
+  let maxR=1.05;path.forEach(p=>maxR=Math.max(maxR,Math.hypot(p[0],p[1])));
+  const sc=(W/2-20)/maxR,X=x=>cx+x*sc,Y=y=>cy-y*sc;
+  const astPts=path.map(p=>`${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ");
+  const earthR=sc,ex=X(Math.cos(EARTH_ANGLE*D2R)),ey=Y(Math.sin(EARTH_ANGLE*D2R));
+  const ap=posAt(el,el.M0),apx=X(ap[0]),apy=Y(ap[1]);
+  const ph=rot(el.a*(1-el.e),0,el),phx=X(ph[0]),phy=Y(ph[1]);
+  const c=r.s.tier.raw;
+  let g=`<defs><radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffd27a"/><stop offset="60%" stop-color="#f4a23b"/><stop offset="100%" stop-color="#f4a23b" stop-opacity="0"/></radialGradient></defs>`;
+  for(let rr=0.5;rr<=maxR;rr+=0.5)g+=`<circle cx="${cx}" cy="${cy}" r="${rr*sc}" fill="none" stroke="var(--line)"/>`;
+  g+=`<circle cx="${cx}" cy="${cy}" r="${earthR}" fill="none" stroke="var(--accent-2)" stroke-opacity=".6" stroke-dasharray="3 3"/>`;
+  g+=`<polyline points="${astPts}" fill="none" stroke="${c}" stroke-width="1.6" stroke-opacity=".95"/>`;
+  g+=`<circle cx="${cx}" cy="${cy}" r="9" fill="url(#sun)"/><circle cx="${cx}" cy="${cy}" r="2.4" fill="#ffd27a"/>`;
+  g+=`<circle cx="${phx}" cy="${phy}" r="2.6" fill="var(--txt-3)"/>`;
+  g+=`<circle cx="${ex}" cy="${ey}" r="3.4" fill="var(--accent-2)"/><circle cx="${ex}" cy="${ey}" r="6" fill="none" stroke="var(--accent-2)" stroke-opacity=".4"/>`;
+  g+=`<circle cx="${apx}" cy="${apy}" r="4" fill="${c}"/><circle cx="${apx}" cy="${apy}" r="7.5" fill="none" stroke="${c}" stroke-opacity=".5"/>`;
+  g+=`<text x="8" y="${H-8}" font-family="monospace" font-size="9" fill="var(--txt-3)">ecliptic plane · rings 0.5 AU</text>`;
+  return`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
 }
 
 /* ===========================================================================
-   5 · INTERACTIONS
+   6 · TRIAGE INTERACTIONS
    =========================================================================== */
-function select(id){ selected = (selected===id?null:id); render(); }
-
-document.getElementById("tbody").addEventListener("click",e=>{
-  const tr=e.target.closest("tr"); if(tr) select(tr.dataset.id);
-});
-document.getElementById("thead").addEventListener("click",e=>{
-  const th=e.target.closest("th"); if(!th) return; const k=th.dataset.k;
-  if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir = k==="id"?1:-1; }
-  renderHead(); renderBody();
-});
-document.getElementById("tierList").addEventListener("click",e=>{
-  const row=e.target.closest(".tier-row"); if(!row) return;
-  const t=row.dataset.tier; activeTier = activeTier===t?null:t; render();
-});
-document.getElementById("search").addEventListener("input",e=>{
-  query=e.target.value.trim().toLowerCase(); renderBody(); renderSky();
-});
+function select(id){selected=(selected===id?null:id);renderTriage();
+  if(VIEW==="tracking"&&track.ready)track.highlight();
+  if(VIEW==="hunting")renderHuntDetail();}
+window.select=select;
+document.getElementById("tbody").addEventListener("click",e=>{const tr=e.target.closest("tr");if(tr)select(tr.dataset.id);});
+document.getElementById("thead").addEventListener("click",e=>{const th=e.target.closest("th");if(!th)return;const k=th.dataset.k;
+  if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="id"?1:-1;}renderHead();renderBody();});
+document.getElementById("tierList").addEventListener("click",e=>{const row=e.target.closest(".tier-row");if(!row)return;
+  const t=row.dataset.tier;activeTier=activeTier===t?null:t;renderTriage();});
+document.getElementById("search").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();renderBody();renderSky();});
 document.getElementById("refreshBtn").addEventListener("click",load);
-
-// sky plot: click selects, hover shows tooltip
+const sky=document.getElementById("sky");
+sky.addEventListener("click",e=>{const c=e.target.closest(".pt");if(c)select(c.dataset.id);});
 const tip=document.getElementById("tip");
-document.getElementById("sky").addEventListener("click",e=>{
-  const c=e.target.closest(".pt"); if(c) select(c.dataset.id);
-});
-document.getElementById("sky").addEventListener("mousemove",e=>{
-  const c=e.target.closest(".pt");
-  if(!c){ tip.style.opacity=0; return; }
-  const r=RAW.find(x=>x.id===c.dataset.id); if(!r) return;
+sky.addEventListener("mousemove",e=>{const c=e.target.closest(".pt");if(!c){tip.style.opacity=0;return;}
+  const r=RAW.find(x=>x.id===c.dataset.id);if(!r)return;
   tip.innerHTML=`<div class="t1">${r.id}</div><div class="t2">${r.s.tier.id} · ${Math.round(r.s.total)}<br/>RA ${r.o.ra||"—"} · Dec ${r.o.dec||"—"}° · Ø ${r.s.D!==null?Math.round(r.s.D)+"m":"—"}</div>`;
-  tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY+14)+"px"; tip.style.opacity=1;
-});
-document.getElementById("sky").addEventListener("mouseleave",()=>tip.style.opacity=0);
-
-// chips (quick tier filters mirrored in toolbar)
-document.getElementById("chips").innerHTML =
-  `<span class="chip" data-t="" >ALL</span>`+
-  TIERS.map(t=>`<span class="chip" data-t="${t.id}" style="--c:${t.raw}">${t.id}</span>`).join("");
-document.getElementById("chips").addEventListener("click",e=>{
-  const c=e.target.closest(".chip"); if(!c) return;
-  activeTier = c.dataset.t || null;
-  document.querySelectorAll(".chip").forEach(x=>{
-    const on = (x.dataset.t||null)===activeTier;
-    x.classList.toggle("on",on);
-    x.style.background = on ? (x.style.getPropertyValue("--c")||"var(--accent)") : "";
-  });
-  render();
-});
-
-// clock
-function tick(){ const d=new Date();
-  document.getElementById("clock").textContent =
-    d.toISOString().slice(11,19)+" UTC"; }
-tick(); setInterval(tick,1000);
+  tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY+14)+"px";tip.style.opacity=1;});
+sky.addEventListener("mouseleave",()=>tip.style.opacity=0);
+document.getElementById("chips").innerHTML=`<span class="chip" data-t="">ALL</span>`+TIERS.map(t=>`<span class="chip" data-t="${t.id}" style="--c:${t.raw}">${t.id}</span>`).join("");
+document.getElementById("chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;activeTier=c.dataset.t||null;
+  document.querySelectorAll(".chip").forEach(x=>{const on=(x.dataset.t||null)===activeTier;x.classList.toggle("on",on);x.style.background=on?(x.style.getPropertyValue("--c")||"var(--accent)"):"";});renderTriage();});
 
 /* ===========================================================================
-   6 · INIT
+   7 · TABS
    =========================================================================== */
+let VIEW="triage";
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;
+  VIEW=b.dataset.view;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.dataset.view===VIEW));
+  if(VIEW==="tracking")track.activate();
+  if(VIEW==="hunting")renderHunting();
+  if(VIEW==="insight")renderInsight();
+});
+function tick(){document.getElementById("clock").textContent=new Date().toISOString().slice(11,19)+" UTC";}
+tick();setInterval(tick,1000);
+function renderAll(){renderTriage();if(VIEW==="hunting")renderHunting();if(VIEW==="tracking"&&track.ready)track.rebuild();}
+
+/* ===========================================================================
+   8 · TRACKING — heliocentric 3D (Three.js). Hand-rolled orbit controls.
+   =========================================================================== */
+const track=(function(){
+  const SCALE=60;            // units per AU
+  let ready=false,inited=false,started=false,paused=false,showLabels=true;
+  let scene,cam,rndr,raf,canvas,earth,earthGrp,objs=[],t=0;
+  const target=new THREE.Vector3(0,0,0);
+  let radius=170,theta=0.9,phi=1.02;
+  const DEF={radius:170,theta:0.9,phi:1.02};
+
+  function tierRaw(r){return r.s.tier.raw;}
+  function v3(p){return new THREE.Vector3(p[0]*SCALE,p[2]*SCALE,-p[1]*SCALE);} // ecliptic→three (y up)
+
+  function makeLabel(text,color){
+    const c=document.createElement("canvas"),s=4;c.width=256*s/2;c.height=64*s/2;
+    const x=c.getContext("2d");x.scale(s/2,s/2);
+    x.font="600 22px 'IBM Plex Mono', monospace";x.textBaseline="middle";
+    x.fillStyle=color;x.fillText(text,4,32);
+    const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;
+    const m=new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false});
+    const sp=new THREE.Sprite(m);sp.scale.set(34,8.5,1);return sp;
+  }
+  function earthTexture(){
+    const c=document.createElement("canvas");c.width=512;c.height=256;const x=c.getContext("2d");
+    x.fillStyle="#0c2233";x.fillRect(0,0,512,256);
+    // stylized landmasses
+    x.fillStyle="#16384a";const r=seedRand("earth");
+    for(let i=0;i<140;i++){const px=r()*512,py=30+r()*196,rr=6+r()*34;
+      x.beginPath();x.ellipse(px,py,rr,rr*(0.5+r()*0.6),r()*6,0,7);x.fill();}
+    // graticule
+    x.strokeStyle="rgba(70,201,224,.12)";x.lineWidth=1;
+    for(let lon=0;lon<512;lon+=512/12){x.beginPath();x.moveTo(lon,0);x.lineTo(lon,256);x.stroke();}
+    for(let lat=0;lat<256;lat+=256/6){x.beginPath();x.moveTo(0,lat);x.lineTo(512,lat);x.stroke();}
+    const tex=new THREE.CanvasTexture(c);return tex;
+  }
+  function ring(au,color,op,dash){
+    const pts=[];for(let i=0;i<=128;i++){const a=i/128*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*au*SCALE,0,-Math.sin(a)*au*SCALE));}
+    const g=new THREE.BufferGeometry().setFromPoints(pts);
+    const m=dash?new THREE.LineDashedMaterial({color,transparent:true,opacity:op,dashSize:3,gapSize:3}):new THREE.LineBasicMaterial({color,transparent:true,opacity:op});
+    const l=new THREE.Line(g,m);if(dash)l.computeLineDistances();return l;
+  }
+  function build(){
+    objs.forEach(o=>{scene.remove(o.line);scene.remove(o.dot);scene.remove(o.label);});objs=[];
+    const list=topN(+document.getElementById("trkN").textContent||50);
+    list.forEach(r=>{
+      const col=new THREE.Color(tierRaw(r));
+      const pts=orbitPath(r.el,200).map(v3);
+      const g=new THREE.BufferGeometry().setFromPoints(pts);
+      const line=new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.34}));
+      scene.add(line);
+      const dot=new THREE.Mesh(new THREE.SphereGeometry(1.1,12,12),new THREE.MeshBasicMaterial({color:col}));
+      dot.userData.id=r.id;scene.add(dot);
+      const label=makeLabel(r.id,"#9fb0c2");scene.add(label);
+      objs.push({r,line,dot,label,el:r.el});
+    });
+    updatePositions();highlight();
+  }
+  function updatePositions(){
+    const ea=(EARTH_ANGLE+t*(360/365.25))*D2R;
+    earthGrp.position.set(Math.cos(ea)*SCALE,0,-Math.sin(ea)*SCALE);
+    objs.forEach(o=>{const M=o.el.M0+t*(360/(o.el.period*365.25));const p=v3(posAt(o.el,M));
+      o.dot.position.copy(p);o.label.position.set(p.x,p.y+5,p.z);o.label.visible=showLabels;});
+  }
+  function highlight(){
+    objs.forEach(o=>{const sel=o.r.id===selected;
+      o.line.material.opacity=sel?.95:(selected?.12:.34);
+      o.dot.scale.setScalar(sel?2.1:1);
+      o.label.material.opacity=sel?1:(showLabels?.85:0);
+      o.label.visible=showLabels||sel;});
+    const box=document.getElementById("trackSel");const r=RAW.find(x=>x.id===selected);
+    if(!r){box.classList.remove("on");return;}
+    const o=r.o,s=r.s,[dc]=dynClass(r.el);
+    box.classList.add("on");box.innerHTML=`<div class="hd"><div class="des">${r.id}</div><div class="tg" style="color:${s.tier.color}">${s.tier.id} · ${Math.round(s.total)} · ${dc}</div></div>
+      <div class="bd"><div class="l">Ø est</div><div class="v">${s.D!==null?Math.round(s.D)+" m":"—"}</div>
+      <div class="l">MOID</div><div class="v">${o.moid??"—"} au</div>
+      <div class="l">Approach</div><div class="v">${o.caDist??"—"} LD</div>
+      <div class="l">V∞</div><div class="v">${o.vInf??"—"} km/s</div></div>`;
+  }
+  function updateCam(){
+    cam.position.set(target.x+radius*Math.sin(phi)*Math.cos(theta),target.y+radius*Math.cos(phi),target.z+radius*Math.sin(phi)*Math.sin(theta));
+    cam.lookAt(target);
+  }
+  function resize(){if(!rndr)return;const w=canvas.clientWidth,h=canvas.clientHeight;
+    rndr.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+  function loop(){raf=requestAnimationFrame(loop);
+    if(!paused){t+=0.5;earth.rotation.y+=0.004;updatePositions();}
+    updateCam();rndr.render(scene,cam);}
+  function init(){
+    canvas=document.getElementById("trackCanvas");
+    if(typeof THREE==="undefined"){document.getElementById("trackFallback").hidden=false;return false;}
+    rndr=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});rndr.setPixelRatio(Math.min(devicePixelRatio,2));
+    scene=new THREE.Scene();
+    cam=new THREE.PerspectiveCamera(45,2,0.5,6000);
+    scene.add(new THREE.AmbientLight(0x6b7686,0.9));
+    const sun=new THREE.PointLight(0xfff0d0,2.2,0,0);scene.add(sun);
+    // Sun
+    const sunMesh=new THREE.Mesh(new THREE.SphereGeometry(7,24,24),new THREE.MeshBasicMaterial({color:0xffd27a}));scene.add(sunMesh);
+    const glowTex=(()=>{const c=document.createElement("canvas");c.width=c.height=128;const x=c.getContext("2d");
+      const g=x.createRadialGradient(64,64,4,64,64,64);g.addColorStop(0,"rgba(255,210,120,.9)");g.addColorStop(.4,"rgba(244,162,59,.35)");g.addColorStop(1,"rgba(244,162,59,0)");
+      x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);})();
+    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,depthWrite:false}));glow.scale.set(46,46,1);scene.add(glow);
+    // Earth
+    earthGrp=new THREE.Group();scene.add(earthGrp);
+    earth=new THREE.Mesh(new THREE.SphereGeometry(3.1,40,40),new THREE.MeshStandardMaterial({map:earthTexture(),roughness:1,metalness:0,emissive:0x0a1a26,emissiveIntensity:.6}));
+    earth.rotation.z=23.4*D2R;earthGrp.add(earth);
+    const atmo=new THREE.Mesh(new THREE.SphereGeometry(3.5,40,40),new THREE.MeshBasicMaterial({color:0x46c9e0,transparent:true,opacity:.12,side:THREE.BackSide}));earthGrp.add(atmo);
+    const eLabel=makeLabel("EARTH","#46c9e0");eLabel.scale.set(26,6.5,1);eLabel.position.y=6;earthGrp.add(eLabel);
+    scene.add(ring(1,0x5b8def,.5,true));
+    // stars
+    const sp=[];for(let i=0;i<900;i++){const rr=900+Math.random()*1600,u=Math.random()*2-1,th=Math.random()*Math.PI*2,s2=Math.sqrt(1-u*u);
+      sp.push(s2*Math.cos(th)*rr,u*rr,s2*Math.sin(th)*rr);}
+    const sg=new THREE.BufferGeometry();sg.setAttribute("position",new THREE.Float32BufferAttribute(sp,3));
+    scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x4a5566,size:1.4,sizeAttenuation:false})));
+    bindControls();ready=true;return true;
+  }
+  function bindControls(){
+    let down=false,shift=false,lx=0,ly=0,moved=0;
+    canvas.addEventListener("pointerdown",e=>{down=true;shift=e.shiftKey;lx=e.clientX;ly=e.clientY;moved=0;canvas.setPointerCapture(e.pointerId);});
+    canvas.addEventListener("pointermove",e=>{if(!down)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);
+      if(shift){const right=new THREE.Vector3().setFromMatrixColumn(cam.matrix,0),up=new THREE.Vector3().setFromMatrixColumn(cam.matrix,1);
+        const k=radius*0.0016;target.addScaledVector(right,-dx*k);target.addScaledVector(up,dy*k);}
+      else{theta-=dx*0.005;phi=Math.max(0.08,Math.min(Math.PI-0.08,phi-dy*0.005));}});
+    addEventListener("pointerup",e=>{if(down&&!shift&&moved<5)pick(e);down=false;});
+    canvas.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(28,Math.min(900,radius*Math.exp(e.deltaY*0.0011)));},{passive:false});
+  }
+  function pick(e){const rect=canvas.getBoundingClientRect();
+    const mouse=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
+    const rc=new THREE.Raycaster();rc.params.Points={threshold:3};rc.setFromCamera(mouse,cam);
+    const hit=rc.intersectObjects(objs.map(o=>o.dot));
+    if(hit.length)select(hit[0].object.userData.id);}
+  return{
+    get ready(){return ready;},
+    activate(){if(!inited){inited=true;if(!init()){return;}build();}
+      resize();updateCam();if(!started){started=true;loop();}
+      addEventListener("resize",resize);setTimeout(resize,50);},
+    rebuild(){if(ready)build();},
+    highlight(){if(ready)highlight();},
+    pause(p){paused=p===undefined?!paused:p;},
+    labels(v){showLabels=v===undefined?!showLabels:v;highlight();},
+    reset(){radius=DEF.radius;theta=DEF.theta;phi=DEF.phi;target.set(0,0,0);}
+  };
+})();
+document.getElementById("trkPause").addEventListener("click",e=>{track.pause();e.target.classList.toggle("on");e.target.textContent=e.target.classList.contains("on")?"▶ Play":"⏸ Pause";});
+document.getElementById("trkLabels").addEventListener("click",e=>{e.target.classList.toggle("on");track.labels(e.target.classList.contains("on"));});
+document.getElementById("trkReset").addEventListener("click",()=>track.reset());
+function renderTrackLegend(){const counts={};TIERS.forEach(t=>counts[t.id]=0);topN(50).forEach(r=>counts[r.s.tier.id]++);
+  document.getElementById("trackLegend").innerHTML=TIERS.map(t=>`<div class="row"><i style="background:${t.color}"></i>${t.id}<span class="ct">${counts[t.id]}</span></div>`).join("");}
+
+/* ===========================================================================
+   9 · HUNTING — facility-matching recommendation engine + classification agent
+   =========================================================================== */
+const FACILITIES=[
+  {code:"PS2",name:"Pan-STARRS 2",site:"Haleakalā, HI",lat:20.7,type:"astrometry",aperture:"1.8 m",limit:22.5,note:"wide-field survey & recovery"},
+  {code:"CSS",name:"Catalina Sky Survey",site:"Mt Lemmon, AZ",lat:32.4,type:"astrometry",aperture:"1.5 m",limit:21.5,note:"NEO discovery & confirmation"},
+  {code:"ATLAS",name:"ATLAS Network",site:"HI · ZA · CL",lat:0,global:true,type:"astrometry",aperture:"0.5 m",limit:19.5,note:"4×/night last-alert cadence"},
+  {code:"LCO",name:"Las Cumbres (LCOGT)",site:"global robotic",lat:0,global:true,type:"astrometry",aperture:"1.0 m",limit:21.5,note:"rapid on-demand, any hemisphere"},
+  {code:"GSSR",name:"Goldstone Radar",site:"Barstow, CA",lat:35.4,type:"radar",aperture:"70 m DSS-14",limit:99,note:"ranging · size · spin (needs close pass)"},
+  {code:"GEMINI",name:"Gemini N/S",site:"HI · CL",lat:0,global:true,type:"spectroscopy",aperture:"8.1 m",limit:25.5,note:"taxonomy / composition"},
+  {code:"VLT",name:"ESO VLT",site:"Paranal, CL",lat:-24.6,type:"spectroscopy",aperture:"8.2 m",limit:26,note:"deep astrometry & spectra"},
+  {code:"SW",name:"Spacewatch",site:"Kitt Peak, AZ",lat:31.96,type:"astrometry",aperture:"1.8 m",limit:21.7,note:"faint recovery"},
+];
+function decReach(fac,dec){if(dec===null)return true;if(fac.global)return true;return Math.abs(dec-fac.lat)<78;}
+function goalFor(r){const o=r.o,s=r.s;
+  if(num(o.arc)!==null&&num(o.arc)<0.7)return{key:"astrometry",label:"Astrometry — pin the orbit",icon:"◎"};
+  if(num(o.caDist)!==null&&num(o.caDist)<6)return{key:"radar",label:"Radar — range, size & spin",icon:"((·))"};
+  if(s.D!==null&&s.D>140)return{key:"spectroscopy",label:"Spectroscopy — composition",icon:"⌇"};
+  return{key:"astrometry",label:"Astrometry — track maintenance",icon:"◎"};
+}
+function rankFacilities(r,goal){const vmag=num(r.o.Vmag),dec=decReach2(r),ca=num(r.o.caDist);
+  return FACILITIES.map(f=>{let sc=0,ok=true;
+    // type match dominates
+    sc += (f.type===goal.key)?100:-200;
+    // magnitude gate + modest headroom bonus (capped so V≤99 radar doesn't run away)
+    if(vmag!==null){if(vmag>f.limit)ok=false;else sc+=Math.min(f.limit-vmag,6)*3;}else sc+=4;
+    // sky reachability
+    if(!decReach(f,dec))ok=false;
+    // radar only makes sense for a genuinely close pass
+    if(f.type==="radar"&&(ca===null||ca>15))ok=false;
+    // time-critical astrometry favours fast/robotic cadence
+    if(goal.key==="astrometry"&&(f.code==="LCO"||f.code==="ATLAS"||f.code==="CSS"))sc+=14;
+    // composition work favours the largest apertures
+    if(goal.key==="spectroscopy"&&(f.code==="VLT"||f.code==="GEMINI"))sc+=20;
+    return{f,sc,ok};}).filter(x=>x.ok).sort((a,b)=>b.sc-a.sc);
+}
+function decReach2(r){return decDeg(r.o.dec);}
+function windowFor(r){const e=num(r.o.elong);
+  if(e===null)return{label:"unknown",frac:[.3,.7],q:"—"};
+  if(e>=140)return{label:"all night",frac:[.05,.95],q:"opposition"};
+  if(e>=90)return{label:"most of night",frac:[.15,.8],q:"high"};
+  if(e>=55)return{label:"part-night, low alt.",frac:[.55,.85],q:"twilight side"};
+  return{label:"dawn/dusk only",frac:[.0,.12],q:"near Sun — hard"};
+}
+function tasking(r){const goal=goalFor(r),ranked=rankFacilities(r,goal),win=windowFor(r);
+  const primary=ranked[0]?ranked[0].f:FACILITIES[3];
+  return{r,goal,ranked,win,primary};
+}
+function whyText(t){const r=t.r,o=r.o,s=r.s,parts=[];
+  if(t.goal.key==="astrometry"&&num(o.arc)<0.7)parts.push(`Arc is only <b>${o.arc} d</b> over ${o.nObs||"few"} obs — the orbit is barely constrained, so fast astrometry now prevents it from becoming lost.`);
+  else if(t.goal.key==="radar")parts.push(`Approaching to <b>${o.caDist} LD</b> and bright enough for radar — ranging would cut positional error by orders of magnitude and reveal size & spin.`);
+  else if(t.goal.key==="spectroscopy")parts.push(`At an estimated <b>${Math.round(s.D)} m</b> this is large enough that composition matters — spectroscopy on an 8 m class telescope yields taxonomy.`);
+  else parts.push(`Routine track maintenance to keep the ephemeris fresh ahead of the next window.`);
+  parts.push(`Best window tonight: <b>${t.win.label}</b> (solar elongation ${o.elong??"—"}°, Vmag ${o.Vmag??"—"}).`);
+  return parts.join(" ");
+}
+function renderHunting(){
+  renderTrackLegend();
+  const cand=topN(40).filter(r=>{const v=num(r.o.Vmag);return r.s.observability>=30||(v!==null&&v<24);}).slice(0,16);
+  const tasks=cand.map(tasking);
+  document.getElementById("planMeta").textContent=tasks.length+" taskings";
+  document.getElementById("planList").innerHTML=tasks.map(t=>{const r=t.r,s=r.s;
+    return`<div class="task ${selected===r.id?"sel":""}" data-id="${r.id}">
+      <div class="t1"><span class="pri" style="background:${s.tier.color}">${Math.round(s.total)}</span><span class="des">${r.id}</span><span class="tier" style="color:${s.tier.color}">${s.tier.id}</span></div>
+      <div class="t2"><span class="fac">${t.primary.code}</span><span class="method">${t.goal.label}</span><span class="win">${t.win.label}</span></div>
+      <div class="why">${t.goal.key==="radar"?"Close approach — radar candidate.":t.goal.key==="spectroscopy"?"Large body — characterize composition.":num(r.o.arc)<0.7?"Short arc — secure the orbit before it's lost.":"Maintain ephemeris."}</div>
+    </div>`;}).join("");
+  if(!selected||!tasks.find(t=>t.r.id===selected))renderHuntDetail();else renderHuntDetail();
+  if(!document.getElementById("agentLog").dataset.init)initAgent();
+}
+document.getElementById("planList").addEventListener("click",e=>{const c=e.target.closest(".task");if(c)select(c.dataset.id);});
+function renderHuntDetail(){
+  const box=document.getElementById("huntDetail");const r=RAW.find(x=>x.id===selected);
+  if(!r){box.innerHTML=`<div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select a tasking to inspect</div></div>`;return;}
+  const t=tasking(r),o=r.o,s=r.s,[dc,dcDesc]=dynClass(r.el);
+  const reco=(x,i)=>{const f=x.f;const primary=i===0;
+    return`<div class="reco ${primary?"primary":""}"><div class="rtop"><span class="badge" style="color:${primary?'var(--accent)':'var(--txt-3)'};border-color:${primary?'var(--accent)':'var(--border-2)'}">${primary?"PRIMARY":"BACKUP"}</span><span class="fname">${f.name}</span><span class="ap">${f.aperture}</span></div>
+      <div class="meta"><div>type <b>${f.type}</b></div><div>limit <b>V≤${f.limit>90?"—":f.limit}</b></div><div>site <b>${f.site}</b></div></div>
+      <div class="rwhy">${f.note}.</div></div>`;};
+  const win=t.win,segL=win.frac[0]*100,segW=(win.frac[1]-win.frac[0])*100;
+  const recoHTML=t.ranked.length?t.ranked.slice(0,3).map(reco).join("")
+    :`<div class="reco"><div class="rtop"><span class="badge" style="color:var(--elev);border-color:var(--elev)">NO MATCH</span><span class="fname">Beyond tonight's reach</span></div><div class="rwhy">At Vmag ${o.Vmag??"—"} and Dec ${o.dec??"—"}° no listed facility can usefully observe it now. Wait for brightening near approach, or queue an 8 m-class deep recovery.</div></div>`;
+  box.innerHTML=`<div class="fade">
+    <div class="hd-head"><div class="des">${r.id}</div><div class="sub">${dc} · ${dcDesc} · triage ${Math.round(s.total)} (${s.tier.id})</div></div>
+    <div class="hd-sec"><h4>Recommended Tasking · ${t.goal.label}</h4><div class="recos">${recoHTML}</div></div>
+    <div class="hd-sec"><h4>Tonight · indicative visibility</h4>
+      <div class="timeline">${[...Array(7)].map((_,i)=>`<span class="tk" style="left:${(i+1)*12.5}%"></span>`).join("")}
+        <span class="seg" style="left:${segL}%;width:${segW}%"></span><span class="now" style="left:50%"></span>
+        <span class="lab" style="left:2%">dusk</span><span class="lab" style="left:47%">midnight</span><span class="lab" style="right:2%">dawn</span></div>
+      <div class="rwhy" style="margin-top:9px;color:var(--txt-3);font-size:11px">Window from solar elongation ${o.elong??"—"}° (${win.q}). Compute a true ephemeris from RA/Dec + your site for scheduling.</div></div>
+    <div class="hd-sec"><h4>Why this plan</h4><div class="rwhy">${whyText(t)}</div></div>
+    <div class="hd-sec" style="border-bottom:0"><h4>Hand-off to agent</h4>
+      <div class="rwhy" style="color:var(--txt-3);font-size:11.5px">Ask the Classification Agent →  for a deeper read, alternate facilities, or a what-if (e.g. “what if the arc doubles?”).</div></div>
+  </div>`;
+}
+/* ---- classification agent (local, deterministic; wire to real agent layer) ---- */
+let agentMsgs=[];
+function agentPush(who,html){agentMsgs.push({who,html});const log=document.getElementById("agentLog");
+  log.innerHTML=agentMsgs.map(m=>`<div class="msg ${m.who}"><div class="who">${m.who==="user"?"You":"Agent"}</div><div class="bub">${m.html}</div></div>`).join("");
+  log.scrollTop=log.scrollHeight;}
+function initAgent(){const log=document.getElementById("agentLog");log.dataset.init="1";
+  document.getElementById("agentChips").innerHTML=["Classify selected","Why this telescope?","What if the arc doubles?","Is radar feasible?"].map(q=>`<span class="qc">${q}</span>`).join("");
+  agentPush("agent",`<h5>Classification Agent</h5>Select an object and ask me to classify it, justify a telescope choice, or run a what-if. I reason over the same triage terms you see in the table. <span style="color:var(--txt-3)">Local rule-based stub — wire to your agent layer / Anthropic API for free-form reasoning.</span>`);}
+function buildClassification(r){const o=r.o,s=r.s,[dc,dcDesc]=dynClass(r.el);
+  const D=s.D!==null?Math.round(s.D):null;
+  const sizeClass=D===null?"unknown size":D<25?"small (airburst-class)":D<140?"sub-PHA (regional airburst)":D<1000?"hazardous (PHA-scale)":"large (global-scale)";
+  const top=Object.entries({impact:s.impact,urgency:s.urgency,observability:s.observability}).sort((a,b)=>b[1]-a[1]);
+  const t=tasking(r);
+  return`<h5>${r.id} — classification</h5>
+    <b>Dynamical class:</b> ${dc} <span class="k">(${dcDesc})</span><br/>
+    <b>Size class:</b> ${sizeClass}${D?` <span class="k">~${D} m from H=${o.H}</span>`:""}<br/>
+    <b>Triage:</b> ${Math.round(s.total)} → <b style="color:${s.tier.color}">${s.tier.id}</b>, led by <b>${top[0][0]}</b> (${Math.round(top[0][1])}).
+    <ul>
+      <li>Drivers: ${s.terms.impact.concat(s.terms.urgency).filter(x=>x[1]>=60).slice(0,3).map(x=>`${x[0]} ${Math.round(x[1])}`).join(", ")||"none dominant"}.</li>
+      <li>Recommended: <b>${t.goal.label}</b> on <b>${t.primary.name}</b> — ${windowFor(r).label}.</li>
+      <li>Watch-for: ${num(o.arc)<1?"orbit may degrade — re-observe within 24–48 h":"stable arc — routine cadence"}.</li>
+    </ul>`;
+}
+function agentRespond(qRaw){const q=qRaw.toLowerCase();const r=RAW.find(x=>x.id===selected);
+  if(!r&&!/[a-z0-9]{5,}/i.test(qRaw)){agentPush("agent","Select an object in the plan first, then ask — e.g. “classify selected”.");return;}
+  if(/what if.*(arc|double)/.test(q)){if(!r)return agentPush("agent","Select an object first.");
+    const o=r.o,arc=num(o.arc)||1;agentPush("agent",`<h5>What-if · arc ×2</h5>Doubling the arc to ~<b>${(arc*2).toFixed(2)} d</b> would shrink the short-arc urgency term and tighten the positional uncertainty (currently <span class="k">${o.unc??"—"}</span>). Triage urgency would fall, likely dropping it toward a lower tier — which is exactly why securing astrometry tonight is worthwhile.`);return;}
+  if(/radar|goldstone|feasible/.test(q)){if(!r)return agentPush("agent","Select an object first.");
+    const ca=num(r.o.caDist),v=num(r.o.Vmag);const ok=ca!==null&&ca<10;
+    agentPush("agent",`<h5>Radar feasibility · ${r.id}</h5>${ok?`Approach of <b>${ca} LD</b> is within Goldstone's practical reach for a body this size — radar would deliver ranging, size and spin. Schedule around closest approach.`:`Closest approach is <b>${ca??"—"} LD</b> — likely too distant for a useful radar return. Prioritize optical astrometry instead.`} ${v!==null&&v>24?"Note it is faint (Vmag "+v+"), so optical pre-recovery on an 8 m may be needed first.":""}`);return;}
+  if(/why.*(telescope|facility|instrument)/.test(q)){if(!r)return agentPush("agent","Select an object first.");
+    const t=tasking(r);agentPush("agent",`<h5>Facility rationale · ${r.id}</h5>Goal is <b>${t.goal.label}</b>. <b>${t.primary.name}</b> wins because it matches that goal type, its limiting magnitude (V≤${t.primary.limit>90?"—":t.primary.limit}) covers Vmag ${r.o.Vmag??"—"}, and the target's Dec ${r.o.dec??"—"}° is reachable from ${t.primary.site}. Backups: ${t.ranked.slice(1,3).map(x=>x.f.code).join(", ")||"—"}.`);return;}
+  // default: classify
+  if(r)agentPush("agent",buildClassification(r));
+  else agentPush("agent","Tell me a designation to classify, or select one in the plan.");
+}
+document.getElementById("agentSend").addEventListener("click",sendAgent);
+document.getElementById("agentInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendAgent();});
+document.getElementById("agentChips").addEventListener("click",e=>{const c=e.target.closest(".qc");if(!c)return;agentPush("user",c.textContent);agentRespond(c.textContent);});
+function sendAgent(){const i=document.getElementById("agentInput");const v=i.value.trim();if(!v)return;i.value="";agentPush("user",v);agentRespond(v);}
+
+/* ===========================================================================
+   10 · INSIGHT — physics & astrophysics, dual-level (plain ↔ deep)
+   =========================================================================== */
+function renderInsight(){
+  const r=RAW.find(x=>x.id===selected)||topN(1)[0];const o=r?r.o:{},s=r?r.s:{};
+  const Dsel=s.D!==null&&s.D!==undefined?Math.round(s.D):140;
+  const col=document.getElementById("insightCol");
+  col.innerHTML=`
+  <div class="ins-hero">
+    <h1>How asteroid triage actually works</h1>
+    <p>Every number in the Triage tab comes from physics. This is the why behind the score — read it plainly, or flip to the equations. ${r?`Examples use your selected object <b style="color:var(--accent)">${r.id}</b>.`:""}</p>
+    <div class="ins-toggle"><button data-mode="plain" class="on">Plain language</button><button data-mode="deep">The physics</button></div>
+  </div>
+
+  <div class="ins-mod"><div class="mhd"><span class="mnum">01</span><span class="mttl">From a dot of light to a diameter</span><span class="mtag">brightness → size</span></div>
+    <div class="ins-body">
+      <div class="plain"><div class="lead">We never measure an asteroid's size directly — we infer it from how bright it is.</div>
+        A faint, far object and a small, nearby object can look identical. Astronomers use <b>absolute magnitude H</b> — how bright it would look at a standard distance — and an assumption about how reflective the surface is (<b>albedo</b>) to estimate diameter. Dark rock reflects little, so for the same brightness a dark asteroid must be <b>bigger</b>. That assumption is the single largest source of size uncertainty.</div>
+      <div class="deep"><div class="lead">Diameter from absolute magnitude and geometric albedo p<sub>v</sub>.</div>
+        <div class="formula">D <span class="c">[km]</span> = 1329 / √p<sub>v</sub> · 10<sup>−H/5</sup></div>
+        We assume p<sub>v</sub> = 0.14 (typical S/C-type blend). Because D ∝ p<sub>v</sub><sup>−1/2</sup>, halving the albedo raises the inferred diameter by ~41%. H itself follows from apparent magnitude reduced to unit heliocentric and geocentric distance at zero phase angle.</div>
+      <div class="widget"><div class="whd"><span>H → diameter</span><span id="hdOut" class="mono" style="color:var(--accent)"></span></div><div class="wbd">
+        <div class="slider"><div class="sl-top"><span class="nm">Absolute magnitude H</span><span class="vl" id="hVal"></span></div><input type="range" id="hSlide" min="15" max="30" step="0.1" value="${num(o.H)??24}"></div>
+        <div class="slider"><div class="sl-top"><span class="nm">Albedo p<sub>v</sub></span><span class="vl" id="aVal"></span></div><input type="range" id="aSlide" min="0.03" max="0.5" step="0.01" value="0.14"></div>
+        <div class="readout"><div class="ro"><div class="v big" id="hdD">—</div><div class="l">Diameter</div></div><div class="ro"><div class="v" id="hdRef">—</div><div class="l">Compare</div></div><div class="ro"><div class="v" id="hdPha">—</div><div class="l">PHA size?</div></div></div>
+      </div></div>
+    </div></div>
+
+  <div class="ins-mod"><div class="mhd"><span class="mnum">02</span><span class="mttl">How hard would it hit?</span><span class="mtag">kinetic energy</span></div>
+    <div class="ins-body">
+      <div class="plain"><div class="lead">Impact severity is about energy, and energy scales brutally with size and speed.</div>
+        Double the diameter and the mass goes up <b>eight-fold</b>; the energy scales with the square of the speed. That's why a ~20 m object (Chelyabinsk) broke windows across a city, while a ~50 m one (Tunguska) flattened a forest. Most small rocky bodies burst in the air rather than cratering the ground.</div>
+      <div class="deep"><div class="lead">Kinetic energy of a sphere at impact velocity.</div>
+        <div class="formula">m = ρ · (π/6) D³  <span class="c">·  v<sub>imp</sub> = √(v∞² + v<sub>esc</sub>²),  v<sub>esc</sub>=11.2 km/s</span><br/>E = ½ m v<sub>imp</sub>²   <span class="c">→  E[Mt] = E[J] / 4.184×10¹⁵</span></div>
+        Earth's gravity adds an escape-velocity floor of 11.2 km/s in quadrature, so nothing hits slower than that. Density ρ encodes type: ~1000 (cometary), ~3000 (stony), ~7800 kg/m³ (iron).</div>
+      <div class="widget"><div class="whd"><span>Impact energy estimator</span><span class="mono" style="color:var(--txt-3)">${r?r.id:""}</span></div><div class="wbd">
+        <div class="slider"><div class="sl-top"><span class="nm">Diameter</span><span class="vl" id="ieDVal"></span></div><input type="range" id="ieD" min="5" max="2000" step="5" value="${Dsel}"></div>
+        <div class="slider"><div class="sl-top"><span class="nm">Impact speed v∞</span><span class="vl" id="ieVVal"></span></div><input type="range" id="ieV" min="5" max="40" step="0.5" value="${num(o.vInf)??17}"></div>
+        <div class="slider"><div class="sl-top"><span class="nm">Composition (density)</span><span class="vl" id="ieRVal"></span></div>
+          <div class="seg-toggle" id="ieRho"><button data-r="1000">comet</button><button data-r="3000" class="on">rock</button><button data-r="7800">iron</button></div></div>
+        <div class="readout"><div class="ro"><div class="v big" id="ieMt">—</div><div class="l">Megatons TNT</div></div><div class="ro"><div class="v" id="ieReg">—</div><div class="l">Regime</div></div><div class="ro"><div class="v" id="ieVimp">—</div><div class="l">v at impact</div></div></div>
+        <div class="cmp" id="ieCmp"></div>
+      </div></div>
+    </div></div>
+
+  <div class="ins-mod"><div class="mhd"><span class="mnum">03</span><span class="mttl">Why a short arc makes us nervous</span><span class="mtag">orbit determination</span></div>
+    <div class="ins-body">
+      <div class="plain"><div class="lead">A handful of observations over a few hours barely pins down an orbit.</div>
+        With a short <b>observation arc</b>, many different orbits fit the same few dots — so the predicted future position spreads into a wide cloud. The object can literally be <b>lost</b> before anyone confirms whether it matters. That's why "short arc" pushes urgency up: the value of observing now is highest exactly when we know least. ${r?`<b>${r.id}</b> has an arc of <b>${o.arc??"—"} d</b> over ${o.nObs??"—"} observations.`:""}</div>
+      <div class="deep"><div class="lead">Why uncertainty explodes with short arcs.</div>
+        An orbit has six elements; a short arc constrains the plane-of-sky angles well but leaves the <b>range and range-rate</b> nearly degenerate. The covariance along the line of sight is large, and it propagates — downstream positional uncertainty grows roughly with the square of time elapsed for poorly-constrained semi-major axes. Scout runs Monte-Carlo orbit samples; the spread of those virtual asteroids is what the uncertainty fields summarize.</div>
+      <div class="callout">Rule of thumb: re-observing within 24–48 h of discovery typically collapses a "could be anywhere" cloud into a trackable arc.</div>
+    </div></div>
+
+  <div class="ins-mod"><div class="mhd"><span class="mnum">04</span><span class="mttl">Can we even see it tonight?</span><span class="mtag">observability</span></div>
+    <div class="ins-body">
+      <div class="plain"><div class="lead">A dangerous object you can't point a telescope at is, tonight, just a number.</div>
+        Three things decide observability: how <b>bright</b> it is (Vmag — bigger number = fainter), how far it sits from the <b>Sun</b> in our sky (solar elongation — too close and it's lost in twilight), and how <b>fast</b> it moves across the sky (fast movers trail and need short exposures). Observability is its own score because the best target to watch is the one you actually can.</div>
+      <div class="deep"><div class="lead">The three observability terms.</div>
+        <div class="formula">elongation ε = angle(Sun, object) as seen from Earth<br/>trailing loss ∝ (sky rate × exposure) / seeing disk</div>
+        Apparent magnitude combines size, albedo, phase angle and the inverse-square fall-off in both heliocentric and geocentric distance. Low elongation (&lt;~45°) means the object only clears the horizon in bright twilight; high sky rate forces short exposures, which raises the limiting magnitude you can reach.</div>
+    </div></div>
+
+  <div class="ins-mod"><div class="mhd"><span class="mnum">05</span><span class="mttl">Our triage score vs the official scales</span><span class="mtag">context</span></div>
+    <div class="ins-body">
+      <div class="plain"><div class="lead">This tool answers a different question than the famous hazard scales.</div>
+        The <b>Torino</b> and <b>Palermo</b> scales rate the <b>impact risk</b> of objects with known orbits. Our triage score instead ranks <b>what to do next</b> about fresh, poorly-known candidates — folding in urgency and whether they're observable at all. A faint new object can be triage-high (act now) yet Torino-0 (no known impact threat) at the same time. They're complementary, not competing.</div>
+      <div class="deep"><div class="lead">Scope and definitions.</div>
+        <div class="scale-grid">
+          <div class="scale-card"><h5>Torino (0–10)</h5><p>Integer public-communication scale combining impact probability and kinetic energy for a specific close approach. Needs a determined orbit; most objects are 0.</p></div>
+          <div class="scale-card"><h5>Palermo</h5><p>Logarithmic technical scale comparing an event's risk to the background rate. Negative = below background. Used by specialists.</p></div>
+        </div>
+        <div class="callout" style="margin-top:14px">Triage score = 0.45·impact + 0.35·urgency + 0.20·observability — a <b>decision</b> aid for follow-up scheduling, not an impact-probability estimate. Once an orbit firms up, hand off to Sentry/Torino/Palermo.</div>
+      </div>
+    </div></div>
+  `;
+  wireInsight(o,s);
+}
+function wireInsight(o,s){
+  const wrap=document.querySelector(".insight-wrap");
+  document.querySelectorAll(".ins-toggle button").forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll(".ins-toggle button").forEach(x=>x.classList.toggle("on",x===b));
+    wrap.classList.toggle("show-deep",b.dataset.mode==="deep");}));
+  // widget 1: H→diameter
+  const hS=document.getElementById("hSlide"),aS=document.getElementById("aSlide");
+  function hd(){const H=+hS.value,p=+aS.value;const D=1329/Math.sqrt(p)*Math.pow(10,-H/5)*1000;
+    document.getElementById("hVal").textContent=H.toFixed(1);
+    document.getElementById("aVal").textContent=p.toFixed(2);
+    document.getElementById("hdD").textContent=D<1000?Math.round(D)+" m":(D/1000).toFixed(2)+" km";
+    document.getElementById("hdOut").textContent=Math.round(D)+" m";
+    const ref=D<8?"a car":D<25?"a house":D<70?"a tower block":D<170?"a city block":D<500?"a stadium":D<1500?"a small mountain":"a mountain";
+    document.getElementById("hdRef").textContent=ref;
+    document.getElementById("hdPha").textContent=D>=140?"yes ≥140 m":"below 140 m";
+    document.getElementById("hdPha").style.color=D>=140?"var(--crit)":"var(--txt)";}
+  hS.oninput=hd;aS.oninput=hd;hd();
+  // widget 2: impact energy
+  const dS=document.getElementById("ieD"),vS=document.getElementById("ieV");let rho=3000;
+  const refs=[["Hiroshima",0.015],["Chelyabinsk",0.5],["Tunguska",12],["Chicxulub",1e8]];
+  function ie(){const D=+dS.value,v=+vS.value;const vimp=Math.sqrt(v*v+11.2*11.2);
+    const m=rho*Math.PI/6*Math.pow(D,3);const E=0.5*m*Math.pow(vimp*1000,2);const Mt=E/4.184e15;
+    document.getElementById("ieDVal").textContent=D<1000?D+" m":(D/1000).toFixed(2)+" km";
+    document.getElementById("ieVVal").textContent=v.toFixed(1)+" km/s";
+    document.getElementById("ieRVal")&&(document.getElementById("ieRVal").textContent=rho+" kg/m³");
+    document.getElementById("ieMt").textContent=Mt<0.001?Mt.toExponential(1):Mt<1?Mt.toFixed(3):Mt<1000?Mt.toFixed(0):Mt.toExponential(1);
+    document.getElementById("ieVimp").textContent=vimp.toFixed(1)+" km/s";
+    const reg=D<25?"airburst":D<140?"local/regional":D<1000?"continental":"global";
+    document.getElementById("ieReg").textContent=reg;
+    document.getElementById("ieReg").style.color=D<25?"var(--rout)":D<140?"var(--elev)":"var(--crit)";
+    const all=refs.concat([["this object",Mt]]);const logmax=Math.log10(1e8);
+    document.getElementById("ieCmp").innerHTML=all.map(([n,val])=>{
+      const w=clamp(Math.log10(Math.max(val,1e-4)+1e-4)/logmax*100,1,100);const me=n==="this object";
+      const lab=val<0.001?val.toExponential(1):val<1?val.toFixed(3):val<1e4?val.toFixed(0):val.toExponential(1);
+      return`<div class="bar"><span class="nm">${n}</span><span class="track"><i style="width:${w}%;background:${me?'var(--accent)':'var(--txt-3)'}"></i></span><span class="vl">${lab} Mt</span></div>`;}).join("");}
+  dS.oninput=ie;vS.oninput=ie;
+  document.getElementById("ieRho").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    rho=+b.dataset.r;document.querySelectorAll("#ieRho button").forEach(x=>x.classList.toggle("on",x===b));ie();});
+  ie();
+}
+
 load();
 </script>
 </body>
