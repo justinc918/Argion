@@ -1887,7 +1887,7 @@ function renderStreamedSummary(id){
   const ss = summaryStreamCache[id];
   if(!ss && !analysisCache[id]?.data?.analysis?.assessmentSummary){
     return `<div class="insp-sec">
-      <h4>AI Assessment <span class="ai-badge">Sonnet</span></h4>
+      <h4>AI Assessment</h4>
       <div class="analysis-loading"><div class="spinner"></div>Generating assessment…</div>
     </div>`;
   }
@@ -1895,7 +1895,7 @@ function renderStreamedSummary(id){
   const streaming = ss?.streaming;
   const err = ss?.error;
   return `<div class="insp-sec">
-    <h4>AI Assessment <span class="ai-badge">Sonnet</span></h4>
+    <h4>AI Assessment</h4>
     <div class="ai-summary" id="ai-summary-stream">${text}${streaming?'<span class="stream-cursor">▍</span>':''}</div>
     ${err?`<div class="ai-uncertainty" style="color:var(--crit)">Stream error: ${err}</div>`:''}
   </div>`;
