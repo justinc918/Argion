@@ -155,6 +155,50 @@ tbody td.des{color:var(--txt);font-weight:500;letter-spacing:.02em}
 .tip{position:fixed;z-index:50;pointer-events:none;background:#0c1119;border:1px solid var(--border-2);padding:7px 9px;font-family:var(--mono);font-size:10.5px;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .1s;max-width:220px}
 .tip .t1{color:var(--accent);font-weight:600;margin-bottom:3px}.tip .t2{color:var(--txt-3);line-height:1.5}
 
+/* ---------- AI analysis sections ---------- */
+.ai-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);
+  font-size:9px;letter-spacing:.06em;color:var(--accent);opacity:.7;text-transform:uppercase}
+.ai-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 6px var(--accent)}
+
+.analysis-loading{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  color:var(--txt-3);font-family:var(--mono);font-size:11px}
+.analysis-loading .spinner{width:14px;height:14px;border:2px solid var(--border-2);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.analysis-error{padding:10px 16px;font-family:var(--mono);font-size:10.5px;
+  color:var(--crit);opacity:.8}
+
+.risk-scales{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.risk-scale{background:var(--panel);padding:10px 11px}
+.risk-scale .scale-name{font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;
+  font-size:9px;color:var(--txt-3);margin-bottom:4px}
+.risk-scale .scale-val{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--txt);
+  margin-bottom:3px}
+.risk-scale .scale-desc{font-size:11px;line-height:1.45;color:var(--txt-2)}
+
+.ai-summary{font-size:12.5px;line-height:1.6;color:var(--txt-2);margin-bottom:10px}
+.ai-summary b{color:var(--txt);font-weight:600}
+.ai-detail{font-size:11.5px;line-height:1.5;color:var(--txt-3);margin-top:8px;
+  padding-top:8px;border-top:1px solid var(--line)}
+.ai-uncertainty{font-size:11px;line-height:1.45;color:var(--txt-3);font-style:italic;
+  margin-top:6px}
+.risk-class-tag{display:inline-block;font-family:var(--cond);text-transform:uppercase;
+  letter-spacing:.06em;font-size:10px;padding:3px 8px;border:1px solid var(--border-2);
+  color:var(--txt-2);margin-top:8px}
+
+.comp-ai-note{font-size:11px;line-height:1.4;color:var(--txt-3);margin-top:6px;
+  padding:6px 8px;border-left:2px solid var(--border-2)}
+
+.key-stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.key-stat{font-family:var(--mono);font-size:10px;padding:4px 8px;
+  border:1px solid var(--line);color:var(--txt-2)}
+.key-stat b{color:var(--txt);font-weight:500}
+
+.stream-cursor{color:var(--accent);animation:blink .6s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .fade{animation:fade .3s ease}@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 /* ---------- TRACKING ---------- */
@@ -1890,6 +1934,10 @@ function dynClass(el){const q=el.a*(1-el.e),Q=el.a*(1+el.e);
    =========================================================================== */
 let RAW=[],selected=null,sortKey="total",sortDir=-1,activeTier=null,query="";
 let EARTH_ANGLE=(Date.now()/86400000*360/365.25)%360;
+let analysisCache={};
+let analysisPending=null;
+let summaryStreamCache={};
+let summaryStreamAbort=null;
 
 /* ===========================================================================
    4 · DATA
@@ -1956,14 +2004,93 @@ function renderSky(){const W=360,H=240,svg=document.getElementById("sky");let g=
     if(sel)g+=`<circle cx="${x}" cy="${y}" r="${rad+5}" fill="none" stroke="var(--accent)" stroke-width="1"/>`;});
   svg.innerHTML=g;}
 
+/* ---- inspector ---- */
+function renderStreamedSummary(id){
+  const ss = summaryStreamCache[id];
+  if(!ss && !analysisCache[id]?.data?.analysis?.assessmentSummary){
+    return `<div class="insp-sec">
+      <h4>AI Assessment</h4>
+      <div class="analysis-loading"><div class="spinner"></div>Generating assessment…</div>
+    </div>`;
+  }
+  const text = ss?.text || analysisCache[id]?.data?.analysis?.assessmentSummary || "";
+  const streaming = ss?.streaming;
+  const err = ss?.error;
+  return `<div class="insp-sec">
+    <h4>AI Assessment</h4>
+    <div class="ai-summary" id="ai-summary-stream">${text}${streaming?'<span class="stream-cursor">▍</span>':''}</div>
+    ${err?`<div class="ai-uncertainty" style="color:var(--crit)">Stream error: ${err}</div>`:''}
+  </div>`;
+}
+
+function renderAnalysisSection(id){
+  const entry = analysisCache[id];
+  let structuredHtml = "";
+
+  if(entry?.loading){
+    structuredHtml = `<div class="insp-sec"><div class="analysis-loading"><div class="spinner"></div>Loading risk standards…</div></div>`;
+  } else if(entry?.error){
+    structuredHtml = `<div class="insp-sec"><div class="analysis-error">Analysis unavailable: ${entry.error}</div></div>`;
+  } else if(entry?.data?.analysis){
+    const a = entry.data.analysis;
+    const torino = a.torinoScale||{};
+    const palermo = a.palermoScale||{};
+    const keyStats = (a.keyStats||[]).map(s=>`<span class="key-stat"><b>${s.label}:</b> ${s.value}</span>`).join("");
+    structuredHtml = `
+      <div class="insp-sec">
+        <h4>Risk Standards <span class="ai-badge">AI Analysis</span></h4>
+        <div class="risk-scales">
+          <div class="risk-scale">
+            <div class="scale-name">Torino Scale</div>
+            <div class="scale-val">${torino.value??'—'}</div>
+            <div class="scale-desc">${torino.rationale||''}</div>
+          </div>
+          <div class="risk-scale">
+            <div class="scale-name">Palermo Scale</div>
+            <div class="scale-val">${palermo.value??'—'}</div>
+            <div class="scale-desc">${palermo.rationale||''}</div>
+          </div>
+        </div>
+        ${a.riskClass?`<div class="risk-class-tag">${a.riskClass}</div>`:''}
+      </div>`;
+    if(keyStats || a.technicalRationale || a.uncertaintyNotes){
+      structuredHtml += `<div class="insp-sec">
+        <h4>Technical Detail</h4>
+        ${keyStats?`<div class="key-stats">${keyStats}</div>`:''}
+        ${a.technicalRationale?`<div class="ai-detail">${a.technicalRationale}</div>`:''}
+        ${a.uncertaintyNotes?`<div class="ai-uncertainty">${a.uncertaintyNotes}</div>`:''}
+      </div>`;
+    }
+  } else if(entry?.data?.analysisError){
+    structuredHtml = `<div class="insp-sec"><div class="analysis-error">AI analysis unavailable: ${entry.data.analysisError}</div></div>`;
+  }
+
+  return renderStreamedSummary(id) + structuredHtml;
+}
+
+function renderCompAiNote(key, analysisEntry){
+  if(!analysisEntry?.data?.analysis) return "";
+  const a = analysisEntry.data.analysis;
+  const section = a[key];
+  if(!section?.summary) return "";
+  return `<div class="comp-ai-note">${section.summary}</div>`;
+}
+
 function renderInspector(){
-  const el=document.getElementById("inspector");const r=RAW.find(x=>x.id===selected);
-  if(!r){el.innerHTML=`<div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>`;return;}
-  const o=r.o,s=r.s;
+  const el=document.getElementById("inspector");
+  const r=RAW.find(x=>x.id===selected);
+  if(!r){ el.innerHTML=`<div class="insp-empty"><div class="ring"></div><div class="eyebrow">Select an object to inspect</div></div>`; return; }
+  const o=r.o, s=r.s;
+  const aEntry = analysisCache[r.id];
   const ticks=TIERS.filter(t=>t.min>0).map(t=>`<span class="tick" style="left:${t.min}%"></span>`).join("");
+  const sc=(l,v)=>`<div class="s ${!num(v)?'zero':''}"><div class="v">${v??0}</div><div class="l">${l}</div></div>`;
   const comp=(key,label,weight)=>{const val=s[key],c=s.tier.color;
     const terms=s.terms[key].map(([n,v])=>`<span class="term">${n} <b>${Math.round(v)}</b></span>`).join("");
-    return`<div class="comp"><div class="top"><span class="lbl">${label}</span><span class="val">${Math.round(val)}<small> · w ${weight}</small></span></div><div class="compbar"><i style="width:${val}%;background:${c}"></i></div><div class="terms">${terms}</div></div>`;};
+    return `<div class="comp"><div class="top"><span class="lbl">${label}</span>
+      <span class="val">${Math.round(val)}<small> · w ${weight}</small></span></div>
+      <div class="compbar"><i style="width:${val}%;background:${c}"></i></div>
+      <div class="terms">${terms}</div>${renderCompAiNote(key,aEntry)}</div>`;
+  };
   const kv=(l,v,u="")=>`<div class="cell"><div class="l">${l}</div><div class="v">${(v===null||v===undefined||v==="")?'<span class=dim>—</span>':v}${u?`<span class="u">${u}</span>`:""}</div></div>`;
   el.innerHTML=`<div class="fade">
     <div class="insp-head"><div class="des">${o.objectName}</div>
@@ -1976,14 +2103,49 @@ function renderInspector(){
     <div class="insp-sec"><h4>Priority Score <span class="w">Σ weighted</span></h4>
       <div class="total"><span class="n" style="color:${s.tier.color}">${Math.round(s.total)}</span><span class="of">/ 100</span></div>
       <div class="meter"><i style="width:${s.total}%;background:${s.tier.color}"></i>${ticks}</div>
-      <div class="weights">impact ${WEIGHTS.impact} · urgency ${WEIGHTS.urgency} · observability ${WEIGHTS.observability}</div></div>
-    <div class="insp-sec"><h4>Decomposition</h4>${comp("impact","Impact Relevance",WEIGHTS.impact)}${comp("urgency","Urgency",WEIGHTS.urgency)}${comp("observability","Observability",WEIGHTS.observability)}</div>
-    <div class="insp-sec"><h4>Assessment</h4><div class="rationale">${rationale(o,s)}</div></div>
-    <div class="insp-sec"><h4>Physical & Approach</h4><div class="kv">
-      ${kv("Est. Diameter",s.D!==null?Math.round(s.D):null,"m")}${kv("Abs. Mag H",o.H)}${kv("MOID",o.moid,"au")}
-      ${kv("Close Approach",o.caDist,"LD")}${kv("V∞",o.vInf,"km/s")}${kv("Arc",o.arc,"d")}</div></div>
-    <div class="insp-sec" style="border-bottom:0"><h4>Observability Window</h4><div class="kv">
-      ${kv("Vmag",o.Vmag)}${kv("Solar Elong.",o.elong,"°")}${kv("RA",o.ra)}${kv("Dec",o.dec,"°")}${kv("Sky Rate",o.rate)}${kv("Pos. Unc.",o.unc)}</div></div>
+      <div class="weights">impact ${WEIGHTS.impact} · urgency ${WEIGHTS.urgency} · observability ${WEIGHTS.observability}</div>
+    </div>
+
+    <div class="insp-sec">
+      <h4>Decomposition</h4>
+      ${comp("impact","Impact Relevance",WEIGHTS.impact)}
+      ${comp("urgency","Urgency",WEIGHTS.urgency)}
+      ${comp("observability","Observability",WEIGHTS.observability)}
+    </div>
+
+    ${renderAnalysisSection(r.id)}
+
+    <div class="insp-sec">
+      <h4>Physical & Approach</h4>
+      <div class="kv">
+        ${kv("Est. Diameter", s.D!==null?Math.round(s.D):null,"m")}
+        ${kv("Abs. Mag H", o.H)}
+        ${kv("MOID", o.moid,"au")}
+        ${kv("Close Approach", o.caDist,"LD")}
+        ${kv("V∞", o.vInf,"km/s")}
+        ${kv("Arc", o.arc,"d")}
+      </div>
+    </div>
+
+    <div class="insp-sec">
+      <h4>Observability Window</h4>
+      <div class="kv">
+        ${kv("Vmag", o.Vmag)}
+        ${kv("Solar Elong.", o.elong,"°")}
+        ${kv("RA", o.ra)}
+        ${kv("Dec", o.dec,"°")}
+        ${kv("Sky Rate", o.rate)}
+        ${kv("Pos. Unc.", o.unc)}
+      </div>
+    </div>
+
+    <div class="insp-sec" style="border-bottom:0">
+      <h4>Raw Scout Scores</h4>
+      <div class="scoregrid">
+        ${sc("NEO",o.neoScore)} ${sc("PHA",o.phaScore)} ${sc("NEO≥1km",o.neo1kmScore)}
+        ${sc("Tisserand",o.tisserandScore)} ${sc("Geocentric",o.geocentricScore)} ${sc("IEO",o.ieoScore)}
+      </div>
+    </div>
   </div>`;
 }
 function miniOrbitSVG(r){
@@ -2011,9 +2173,92 @@ function miniOrbitSVG(r){
 /* ===========================================================================
    6 · TRIAGE INTERACTIONS
    =========================================================================== */
-function select(id){selected=(selected===id?null:id);renderTriage();
+async function fetchAnalysis(id){
+  if(!id || analysisCache[id]?.data || analysisCache[id]?.loading) return;
+  if(analysisPending) analysisPending.abort();
+  const ac = new AbortController();
+  analysisPending = ac;
+  analysisCache[id] = {loading:true, data:null, error:null};
+  renderInspector();
+  try{
+    const r = await fetch(`${API_BASE}/api/scout/object/${encodeURIComponent(id)}/analysis`,
+      {signal:ac.signal, headers:{"Accept":"application/json"}});
+    if(!r.ok){ const e = await r.json().catch(()=>({})); throw new Error(e.detail||`HTTP ${r.status}`); }
+    const data = await r.json();
+    analysisCache[id] = {loading:false, data, error:null};
+  }catch(e){
+    if(e.name==="AbortError") return;
+    analysisCache[id] = {loading:false, data:null, error:e.message};
+  }
+  if(selected===id) renderInspector();
+}
+
+async function fetchSummaryStream(id){
+  if(!id) return;
+  if(summaryStreamCache[id]?.done || summaryStreamCache[id]?.streaming) return;
+  if(summaryStreamAbort) summaryStreamAbort.abort();
+  const ac = new AbortController();
+  summaryStreamAbort = ac;
+  summaryStreamCache[id] = {text:"", streaming:true, done:false, error:null};
+
+  try{
+    const r = await fetch(
+      `${API_BASE}/api/scout/object/${encodeURIComponent(id)}/analysis/summary/stream`,
+      {signal:ac.signal}
+    );
+    if(!r.ok){ const e = await r.json().catch(()=>({})); throw new Error(e.detail||`HTTP ${r.status}`); }
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buf += decoder.decode(value, {stream:true});
+      const lines = buf.split("\n");
+      buf = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith("data: ")) continue;
+        try{
+          const evt = JSON.parse(line.slice(6));
+          if(evt.error){
+            summaryStreamCache[id].error = evt.error;
+            summaryStreamCache[id].streaming = false;
+            summaryStreamCache[id].done = true;
+            break;
+          }
+          if(evt.text) summaryStreamCache[id].text += evt.text;
+          if(evt.done){
+            summaryStreamCache[id].streaming = false;
+            summaryStreamCache[id].done = true;
+          }
+        }catch{}
+      }
+      if(selected===id){
+        const el = document.getElementById("ai-summary-stream");
+        if(el) el.textContent = summaryStreamCache[id].text;
+      }
+    }
+  }catch(e){
+    if(e.name==="AbortError") return;
+    summaryStreamCache[id] = {text: summaryStreamCache[id]?.text||"", streaming:false, done:true, error:e.message};
+  }
+  if(selected===id){
+    const el = document.getElementById("ai-summary-stream");
+    if(el) el.textContent = summaryStreamCache[id].text;
+  }
+}
+
+function select(id){
+  selected=(selected===id?null:id);
+  renderTriage();
   if(VIEW==="tracking"&&track.ready)track.highlight();
-  if(VIEW==="hunting")renderHuntDetail();}
+  if(VIEW==="hunting")renderHuntDetail();
+  if(selected){
+    fetchAnalysis(selected);
+    fetchSummaryStream(selected);
+  }
+}
 window.select=select;
 document.getElementById("tbody").addEventListener("click",e=>{const tr=e.target.closest("tr");if(tr)select(tr.dataset.id);});
 document.getElementById("thead").addEventListener("click",e=>{const th=e.target.closest("th");if(!th)return;const k=th.dataset.k;
