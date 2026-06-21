@@ -103,9 +103,10 @@ You MUST follow these rules:
 2. Use the frontend triage context when explaining telescope choice, observability, and follow-up strategy.
 3. Never invent measurements, facilities, orbital parameters, impact claims, or observing constraints.
 4. If the answer is not supported by the provided context, say so plainly and explain what is missing.
-5. Be concise but useful. Short paragraphs or bullets are fine.
+5. Be concise but useful. Respond with exactly one brief paragraph.
 6. When relevant, call out uncertainty from short arcs, sparse observations, faint magnitudes, or preliminary solutions.
-7. Output plain text only. No JSON, no markdown tables, and no code fences.`;
+7. Output plain text only. Do not use markdown, bullets, headings, JSON, tables, or code fences.
+8. Keep the reply short: at most 4 sentences.`;
 
 function buildSummaryUserMessage(asteroid, scoreResult) {
   return `Write a plain-language assessment summary for this asteroid:
@@ -147,7 +148,8 @@ ${JSON.stringify(frontendContext || {}, null, 2)}
 Important:
 - If the operator asks "why this telescope" or similar, use the provided tasking and facility ranking context.
 - If the operator asks for classification, explain the current triage state using the supplied scores and descriptors.
-- If the operator asks a hypothetical, ground the answer in the supplied data and be explicit about uncertainty.`;
+- If the operator asks a hypothetical, ground the answer in the supplied data and be explicit about uncertainty.
+- Respond in plain text as a single brief paragraph only. No markdown or bullets.`;
 }
 
 export async function streamAssessmentSummary(rawData, onChunk) {
